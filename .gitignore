@@ -63,3 +63,4 @@ playwright-*.log
 playwright-last.json
 r2-stream-checkpoint.json
 /backups/
+.vercel
