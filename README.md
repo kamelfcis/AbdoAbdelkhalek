@@ -1,70 +1,115 @@
-# Getting Started with Create React App
+# Abdelrahman Abdelkhalek — Performance Coach Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React landing site and coach dashboard for a fitness coaching business. The frontend talks to a custom **Express API** (JWT auth, Prisma/Postgres, Cloudflare R2 uploads). Public content is cached with **TanStack Query**.
 
-## Available Scripts
+## Stack
 
-In the project directory, you can run:
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 19, React Router, TanStack Query, Tailwind CSS |
+| Backend | Express, Prisma, Zod, JWT (access + httpOnly refresh cookie) |
+| Database | Supabase Postgres (interim) with PostgREST fallback — see [docs/DATA_LAYER.md](./docs/DATA_LAYER.md) |
+| Media | Cloudflare R2 + CDN — see [docs/cloudflare-cdn.md](./docs/cloudflare-cdn.md) |
+| Auth | `AuthContext`, `ProtectedRoute`, `CoachRoute` — coach dashboard at `/dashboard` |
 
-### `npm start`
+## Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Multi-language (English / Arabic) with RTL
+- Coach dashboard: categories, videos, packages, reviews, FAQs, trainees, subscriptions
+- Role-based access (coach vs trainee vs public)
+- REST API fallback when Supabase pooler is unreachable in dev
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Local development
 
-### `npm test`
+### 1. Environment
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+cp .env.example .env
+cp backend/.env.example backend/.env
+```
 
-### `npm run build`
+Fill in real values in both files. The backend loads **root `.env` first**, then `backend/.env` (overrides).
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+| File | Purpose |
+|------|---------|
+| [`.env.example`](./.env.example) | Frontend (`REACT_APP_*`), shared DB/R2/JWT vars, migration toolkit |
+| [`backend/.env.example`](./backend/.env.example) | API-focused subset; same JWT/DB/R2 keys |
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Required for API: `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`. See [docs/SECURITY.md](./docs/SECURITY.md) for production requirements.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 2. Install
 
-### `npm run eject`
+```bash
+npm install
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Monorepo workspaces: `backend`, `migration-toolkit`.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 3. Run
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Terminal 1 — API (default port 4000):
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+npm run backend:dev
+```
 
-## Learn More
+Terminal 2 — frontend (port 3000):
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+npm start
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Set `REACT_APP_API_URL=http://localhost:4000/api` in `.env`.
 
-### Code Splitting
+### 4. Build
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+npm run build          # frontend → build/
+npm run backend:build  # backend tsc → backend/dist/
+```
 
-### Analyzing the Bundle Size
+## Project structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```
+src/
+├── components/       # Landing + shared UI
+├── contexts/         # AuthContext, LanguageContext
+├── features/auth/    # Auth helpers (if split from contexts)
+├── hooks/            # TanStack Query hooks
+├── lib/queryKeys.js  # Canonical query keys + invalidation
+├── pages/            # Login, Dashboard, dashboard modals
+├── services/         # apiClient, auth API
+└── config/           # queryClient.js
 
-### Making a Progressive Web App
+backend/
+├── src/
+│   ├── modules/auth/     # Login, signup, refresh
+│   ├── modules/content/  # Public + coach CRUD
+│   ├── lib/              # Prisma + REST fallback
+│   └── config/env.ts
+└── prisma/schema.prisma
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+docs/
+├── DATA_LAYER.md
+├── SECURITY.md
+└── progress/PHASE1_PROGRESS.md
+```
 
-### Advanced Configuration
+Data fetching on the landing page and dashboard goes through `src/services/apiClient.js` → Express API (not a browser Supabase client).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Documentation
 
-### Deployment
+- [ROADMAP.md](./ROADMAP.md) — multi-phase platform plan
+- [PROJECT_CHECKLIST.md](./PROJECT_CHECKLIST.md) — task tracker
+- [docs/DATA_LAYER.md](./docs/DATA_LAYER.md) — Prisma + REST fallback, pooler troubleshooting
+- [docs/SECURITY.md](./docs/SECURITY.md) — JWT, password migration, env audit
+- [migration-toolkit/README.md](./migration-toolkit/README.md) — Supabase → Postgres/R2 migration
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Production build
 
-### `npm run build` fails to minify
+```bash
+npm run build
+npm run backend:build
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Serve `build/` with any static host; run the API with `NODE_ENV=production` and strong `JWT_*` secrets. Set `CORS_ORIGIN` to your frontend origin.

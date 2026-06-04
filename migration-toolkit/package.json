@@ -1,0 +1,35 @@
+{
+  "name": "migration-toolkit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "backup-all": "tsx src/cli/backup-all.ts",
+    "export-db": "tsx src/cli/export-db.ts",
+    "export-auth": "tsx src/cli/export-auth.ts",
+    "export-storage": "tsx src/cli/export-storage.ts",
+    "upload-r2": "tsx src/cli/upload-r2.ts",
+    "upload-r2-stream": "tsx src/cli/upload-r2-stream.ts",
+    "replace-urls": "tsx src/cli/replace-urls.ts",
+    "generate-prisma": "tsx src/cli/generate-prisma.ts",
+    "restore-postgres": "tsx src/cli/restore-postgres.ts",
+    "verify-migration": "tsx src/cli/verify-migration.ts",
+    "discover-r2-public": "tsx src/cli/discover-r2-public.ts",
+    "set-r2-public": "tsx src/cli/set-r2-public.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.750.0",
+    "@aws-sdk/lib-storage": "^3.750.0",
+    "dotenv": "^16.4.7",
+    "pg": "^8.13.3",
+    "pg-copy-streams": "^6.0.6",
+    "p-queue": "^8.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "@types/pg": "^8.11.11",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}

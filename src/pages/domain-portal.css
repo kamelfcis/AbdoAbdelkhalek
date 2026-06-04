@@ -1,0 +1,272 @@
+.domain-portal {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: radial-gradient(ellipse 120% 80% at 50% 0%, #1a1f2e 0%, #07080c 55%, #030304 100%);
+  color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.25rem 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.domain-portal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 20% 30%, rgba(0, 116, 183, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 80% 70%, rgba(107, 184, 0, 0.14) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.domain-portal__inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1100px;
+}
+
+.domain-portal__header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.domain-portal__title {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.5rem;
+  background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.domain-portal__subtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: #94a3b8;
+  max-width: 32rem;
+  margin-inline: auto;
+}
+
+.domain-portal__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.domain-portal__grid > * {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .domain-portal__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+}
+
+.domain-portal-card {
+  position: relative;
+  display: block;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  min-height: 320px;
+  text-decoration: none;
+  color: inherit;
+  isolation: isolate;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+}
+
+.domain-portal-card:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+
+.domain-portal-card:hover {
+  transform: translateY(-6px) scale(1.01);
+}
+
+.domain-portal-card__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.05);
+  transition: transform 0.6s ease;
+}
+
+.domain-portal-card:hover .domain-portal-card__bg {
+  transform: scale(1.1);
+}
+
+.domain-portal-card__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.domain-portal-card__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 320px;
+  padding: 1.75rem;
+}
+
+.domain-portal-card__badge {
+  display: inline-flex;
+  align-self: flex-start;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  margin-bottom: 0.75rem;
+}
+
+.domain-portal-card__name {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  margin: 0 0 0.35rem;
+  line-height: 1.15;
+}
+
+.domain-portal-card__desc {
+  margin: 0 0 1.25rem;
+  font-size: 0.95rem;
+  color: #ffffff;
+  line-height: 1.5;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  max-width: 18rem;
+}
+
+.domain-portal-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.domain-portal-card__cta svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  transition: transform 0.25s ease;
+}
+
+.domain-portal-card:hover .domain-portal-card__cta svg {
+  transform: translateX(4px);
+}
+
+/* Squash — premium dark + lime glow */
+.domain-portal-card--squash {
+  box-shadow: 0 0 0 1px rgba(215, 255, 63, 0.15), 0 24px 48px rgba(0, 0, 0, 0.55),
+    0 0 60px rgba(107, 184, 0, 0.12);
+}
+
+.domain-portal-card--squash:hover {
+  box-shadow: 0 0 0 1px rgba(215, 255, 63, 0.35), 0 32px 64px rgba(0, 0, 0, 0.6),
+    0 0 80px rgba(155, 234, 0, 0.25);
+}
+
+.domain-portal-card--squash .domain-portal-card__overlay {
+  background: linear-gradient(
+    165deg,
+    rgba(5, 10, 5, 0.35) 0%,
+    rgba(0, 0, 0, 0.55) 40%,
+    rgba(15, 23, 42, 0.85) 100%
+  );
+}
+
+.domain-portal-card--squash .domain-portal-card__badge {
+  background: linear-gradient(135deg, rgba(215, 255, 63, 0.25), rgba(107, 184, 0, 0.35));
+  border: 1px solid rgba(215, 255, 63, 0.4);
+  color: #d7ff3f;
+}
+
+.domain-portal-card--squash .domain-portal-card__name {
+  background: linear-gradient(135deg, #f0fdf4, #d7ff3f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.domain-portal-card--squash .domain-portal-card__cta {
+  color: #d7ff3f;
+}
+
+/* Fitness — energetic blue */
+.domain-portal-card--fitness {
+  box-shadow: 0 0 0 1px rgba(0, 116, 183, 0.2), 0 24px 48px rgba(0, 0, 0, 0.5);
+}
+
+.domain-portal-card--fitness:hover {
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4), 0 32px 64px rgba(0, 116, 183, 0.25);
+}
+
+.domain-portal-card--fitness .domain-portal-card__overlay {
+  background: linear-gradient(
+    165deg,
+    rgba(0, 40, 80, 0.25) 0%,
+    rgba(0, 0, 0, 0.5) 45%,
+    rgba(0, 50, 100, 0.88) 100%
+  );
+}
+
+.domain-portal-card--fitness .domain-portal-card__badge {
+  background: rgba(0, 116, 183, 0.35);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  color: #7dd3fc;
+}
+
+.domain-portal-card--fitness .domain-portal-card__name {
+  color: #fff;
+}
+
+.domain-portal-card--fitness .domain-portal-card__cta {
+  color: #7dd3fc;
+}
+
+.domain-portal__footer {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+@media (max-width: 767px) {
+  .domain-portal {
+    padding: 2rem 1rem 2.5rem;
+  }
+
+  .domain-portal__header {
+    margin-bottom: 1.75rem;
+  }
+
+  .domain-portal__grid {
+    gap: 1.25rem;
+  }
+
+  .domain-portal-card,
+  .domain-portal-card__content {
+    min-height: 260px;
+  }
+
+  .domain-portal-card__content {
+    padding: 1.25rem;
+  }
+
+  .domain-portal-card__desc {
+    max-width: none;
+    font-size: 0.9rem;
+  }
+}

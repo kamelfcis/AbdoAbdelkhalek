@@ -1,0 +1,51 @@
+/* Squash light-green — landing + dashboard overrides */
+
+[data-squash-dashboard='true'] {
+  --color-primary: #6bb800;
+  --color-primary-light: #d7ff3f;
+  --color-primary-dark: #4d8a00;
+  --color-bg: #f9fafb;
+  --color-bg-elevated: #ffffff;
+  --color-bg-muted: #f3f4f6;
+  --color-surface: #ffffff;
+  --color-text: #1f2937;
+  --color-text-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --gradient-brand: linear-gradient(to right, #d7ff3f, #9bea00);
+}
+
+[data-squash-dashboard='true'] .dashboard-shell-main {
+  background: linear-gradient(180deg, #f9fafb 0%, #ecfccb 100%);
+}
+
+/* Squash landing — hero slider (lime green, no fitness blue) */
+[data-theme='squash'] .hero-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(15, 23, 42, 0.45) 45%,
+    rgba(107, 184, 0, 0.2) 100%
+  );
+}
+
+[data-theme='squash'] .splide__arrow {
+  background: var(--gradient-brand);
+  opacity: 1;
+}
+
+[data-theme='squash'] .splide__arrow:hover {
+  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+}
+
+[data-theme='squash'] .splide__pagination__page {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+[data-theme='squash'] .splide__pagination__page.is-active {
+  background: var(--color-primary);
+  transform: scale(1.2);
+}
+
+[data-theme='squash'] .splide__progress__bar {
+  background: var(--color-primary);
+}

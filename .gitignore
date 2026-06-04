@@ -7,17 +7,59 @@
 
 # testing
 /coverage
+/coverage-frontend
+/backend/coverage
+/playwright-report
+/test-results
+/e2e/.auth
+/blob-report
 
 # production
 /build
 
 # misc
 .DS_Store
+.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
+# migration backups (offline copies — never commit)
+/backup/
+**/backup/database/data/
+migration_report.json
+url_mapping.json
+cloudflare_r2_manifest.json
+storage_manifest.json
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# backend / toolkit build
+backend/dist/
+migration-toolkit/dist/
+
+# archives / large binaries
+*.rar
+*.zip
+
+# env (all locations)
+backend/.env
+**/.env
+!**/.env.example
+!**/.env.production.example
+!**/.env.production.squash.example
+
+# node_modules (workspaces)
+**/node_modules
+
+# backend artifacts
+backend/coverage/
+
+# local logs / checkpoints
+playwright-*.log
+playwright-last.json
+r2-stream-checkpoint.json
+/backups/

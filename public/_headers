@@ -1,0 +1,53 @@
+# Netlify/Vercel Headers Configuration
+# Optimize caching and compression for better performance
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+# Cache static assets aggressively
+/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache images for 30 days
+/*.jpg
+  Cache-Control: public, max-age=2592000
+/*.jpeg
+  Cache-Control: public, max-age=2592000
+/*.png
+  Cache-Control: public, max-age=2592000
+/*.webp
+  Cache-Control: public, max-age=2592000
+/*.svg
+  Cache-Control: public, max-age=2592000
+/*.gif
+  Cache-Control: public, max-age=2592000
+/*.ico
+  Cache-Control: public, max-age=2592000
+
+# Cache fonts for 1 year
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+/*.ttf
+  Cache-Control: public, max-age=31536000, immutable
+/*.eot
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache CSS and JS for 1 week
+/*.css
+  Cache-Control: public, max-age=604800
+/*.js
+  Cache-Control: public, max-age=604800
+
+# HTML - no cache (always fresh)
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Service Worker - no cache
+/service-worker.js
+  Cache-Control: public, max-age=0, must-revalidate
+

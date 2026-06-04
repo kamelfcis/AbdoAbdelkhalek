@@ -1,38 +1,572 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
-.App-header {
-  background-color: #282c34;
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-in-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* RTL styles */
+.rtl {
+  direction: rtl;
+  font-family: "Tajawal", sans-serif;
+}
+
+.rtl .container {
+  direction: rtl;
+}
+
+.rtl .flex {
+  direction: rtl;
+}
+
+.rtl .space-x-3 > * + * {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+
+.rtl .space-x-4 > * + * {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+
+.rtl .space-x-8 > * + * {
+  margin-left: 0;
+  margin-right: 2rem;
+}
+
+/* Navbar responsive styles */
+nav {
+  min-height: 100px;
+}
+
+@media (min-width: 768px) {
+  nav {
+    min-height: 110px;
+  }
+}
+
+/* Navbar sticky at top - works on all devices including mobile */
+.dashboard-container nav,
+nav {
+  position: sticky !important;
+  top: 0 !important;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+  z-index: 40 !important;
+  /* Disable all animations and transitions during load for better performance */
+  animation: none !important;
+  transition: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Ensure sticky works on mobile - more specific rules */
+@media (max-width: 768px) {
+  /* Ensure parent containers don't prevent sticky */
+  .App {
+    overflow-x: hidden;
+    overflow-y: auto;
+    min-height: 100vh;
+  }
+  
+  nav {
+    position: -webkit-sticky !important; /* Safari support */
+    position: sticky !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 40 !important;
+    width: 100% !important;
+  }
+  
+  /* Ensure body allows scrolling */
+  body {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
+/* No padding needed since navbar is sticky */
+main {
+  padding-top: 0;
+}
+
+/* Prevent layout shifts - reserve space for images */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Prevent CLS - ensure hero section has fixed dimensions */
+#home {
   min-height: 100vh;
+  width: 100%;
+}
+
+/* Sidebar styles - matching original index.html */
+.sidebar {
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  visibility: hidden;
+  opacity: 0;
+  display: none; /* Start hidden to prevent flash on mobile */
+}
+
+.sidebar.open {
+  transform: translateX(0) !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: flex !important; /* Show when open */
+}
+
+/* Ensure sidebar header content is centered on mobile */
+.sidebar > div:first-child {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .sidebar > div:first-child > div {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .sidebar > div:first-child > div > div {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Ensure sidebar respects inline styles */
+.sidebar[style*="translateX(0)"] {
+  transform: translateX(0) !important;
+}
+
+/* RTL Sidebar fixes */
+.rtl .sidebar {
+  right: auto !important;
+  left: 0 !important;
+  direction: rtl;
+  transform: translateX(-100%) !important;
+  visibility: hidden;
+  opacity: 0;
+  display: none; /* Start hidden to prevent flash on mobile */
+}
+
+.rtl .sidebar.open {
+  transform: translateX(0) !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: flex !important; /* Show when open */
+}
+
+.rtl .sidebar.open,
+.rtl .sidebar[style*="translateX(0)"] {
+  transform: translateX(0) !important;
+}
+
+/* Sidebar RTL text alignment */
+.rtl .sidebar nav a {
+  text-align: right !important;
+  direction: rtl;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+.rtl .sidebar nav ul {
+  direction: rtl;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+/* Sidebar button RTL */
+.rtl .sidebar button,
+.rtl .sidebar a {
+  direction: rtl;
+}
+
+/* Sidebar header RTL */
+.rtl .sidebar > div:first-child {
+  flex-direction: row-reverse;
+}
+
+/* Sidebar social icons RTL */
+.rtl .sidebar .flex.space-x-4 {
+  direction: ltr;
+}
+
+/* Sidebar language button RTL */
+.rtl .sidebar button[aria-label="Toggle language"] {
+  flex-direction: row-reverse;
+}
+
+/* Simple Currency Display Styles */
+.simple-currency-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.currency-item-simple {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+.currency-item-simple:hover {
+  transform: translateY(-2px);
+  color: #0074b7;
+}
+
+.currency-flag-simple {
+  width: 24px;
+  height: 18px;
+  border-radius: 3px;
+  object-fit: cover;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.currency-item-simple:hover .currency-flag-simple {
+  transform: scale(1.1);
+}
+
+.currency-amount-simple {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: inherit;
+}
+
+.currency-code-simple {
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.currency-separator-simple {
+  color: #666;
+  font-weight: 900;
+  font-size: 1.4rem;
+  margin: 0 8px;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.simple-currency-display:hover .currency-separator-simple {
+  opacity: 1;
+  color: #0074b7;
+  transform: scale(1.1);
+}
+
+/* Hero slider overlay */
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(191, 215, 237, 0.7) 0%,
+    rgba(0, 116, 183, 0.7) 100%
+  );
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #bfd7ed 0%, #0074b7 100%);
+  border-radius: 10px;
+}
+
+/* Sidebar animation */
+.sidebar {
+  transform: translateX(100%);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* Splide slider customizations */
+.splide__pagination__page.is-active {
+  background: linear-gradient(135deg, #bfd7ed 0%, #0074b7 100%);
+}
+
+.splide__arrow {
+  background: linear-gradient(135deg, #bfd7ed 0%, #0074b7 100%);
+}
+
+.splide__track {
+  direction: ltr !important;
+}
+
+.splide {
+  direction: ltr;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #bfd7ed 0%, #0074b7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+[data-theme='squash'] .gradient-text {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Glow effect */
+.glow {
+  box-shadow: 0 0 15px rgba(0, 116, 183, 0.5);
+}
+
+[data-theme='squash'] .glow {
+  box-shadow: 0 0 15px rgba(155, 234, 0, 0.45);
+}
+
+/* Floating elements */
+.floating {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Video card - Styles are now handled by Tailwind classes */
+.video-card {
+  /* Transition and hover effects are handled by Tailwind utility classes */
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .simple-currency-display {
+    gap: 12px;
+  }
+  
+  .currency-item-simple {
+    font-size: 1rem;
+    gap: 6px;
+  }
+  
+  .currency-amount-simple {
+    font-size: 1.1rem;
+  }
+  
+  .currency-flag-simple {
+    width: 20px;
+    height: 15px;
+  }
+  
+  .currency-separator-simple {
+    font-size: 1.2rem;
+    margin: 0 6px;
+  }
+}
+
+/* Login Page Styles */
+.fitness-bg {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #1e40af 75%, #3b82f6 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.fitness-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+  opacity: 0.3;
+}
+
+.fitness-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 40% 40%, rgba(245, 158, 11, 0.2) 0%, transparent 50%);
+}
+
+.glass-container {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+}
+
+.form-input:focus {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3) !important;
+  transform: translateY(-2px);
+}
+
+.gradient-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.gradient-btn:hover::before {
+  left: 100%;
+}
+
+.floating-element {
+  position: absolute;
+  opacity: 0.1;
   color: white;
+  font-size: 2rem;
+  animation: float 8s ease-in-out infinite;
 }
 
-.App-link {
-  color: #61dafb;
+/* Dashboard Styles */
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #0074b7;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.sidebar-transition {
+  transition: transform 0.3s ease-in-out;
+}
+
+.content-transition {
+  transition: margin-right 0.3s ease-in-out;
+}
+
+/* Sidebar on the right - always toggleable */
+#sidebar {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  height: 100vh !important;
+  width: 16rem !important;
+  background-color: white !important;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1) !important;
+  z-index: 50 !important;
+  transition: transform 0.3s ease-in-out !important;
+  will-change: transform;
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: hidden !important;
+}
+
+#sidebar.sidebar-closed {
+  transform: translateX(100%) !important;
+  visibility: hidden !important;
+}
+
+#sidebar.sidebar-open {
+  transform: translateX(0) !important;
+  visibility: visible !important;
 }

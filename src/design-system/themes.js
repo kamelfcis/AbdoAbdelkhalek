@@ -1,0 +1,176 @@
+/**
+ * Theme definitions — fitness (current brand) + squash (placeholder).
+ * Maps to CSS custom properties via applyThemeVariables().
+ */
+
+import { colors, radius, shadows } from './tokens';
+
+export const themeIds = {
+  FITNESS: 'fitness',
+  SQUASH: 'squash',
+};
+
+const sharedTokens = {
+  '--radius-sm': radius.sm,
+  '--radius-md': radius.md,
+  '--radius-lg': radius.lg,
+  '--radius-xl': radius.xl,
+  '--radius-2xl': radius['2xl'],
+  '--radius-full': radius.full,
+  '--shadow-sm': shadows.sm,
+  '--shadow-md': shadows.md,
+  '--shadow-lg': shadows.lg,
+  '--shadow-xl': shadows.xl,
+  '--shadow-glass': shadows.glass,
+};
+
+/** Fitness — matches current site branding (#0074b7, #bfd7ed) */
+export const fitnessTheme = {
+  light: {
+    ...sharedTokens,
+    '--color-primary': '#0074b7',
+    '--color-primary-light': '#bfd7ed',
+    '--color-primary-dark': '#005a8a',
+    '--color-secondary': '#10b981',
+    '--color-accent': '#3b82f6',
+    '--color-bg': colors.gray[100],
+    '--color-bg-elevated': colors.white,
+    '--color-bg-muted': colors.gray[50],
+    '--color-surface': colors.white,
+    '--color-surface-glass': 'rgba(255, 255, 255, 0.1)',
+    '--color-text': colors.gray[800],
+    '--color-text-muted': colors.gray[600],
+    '--color-text-inverse': colors.white,
+    '--color-border': colors.gray[200],
+    '--color-border-focus': '#0074b7',
+    '--color-success': colors.green[500],
+    '--color-warning': colors.amber[500],
+    '--color-danger': colors.red[500],
+    '--color-info': colors.blue[500],
+    '--gradient-primary': 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #10b981 100%)',
+    '--gradient-hero': 'linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #1e40af 75%, #3b82f6 100%)',
+    '--gradient-brand': 'linear-gradient(to right, #bfd7ed, #0074b7)',
+    '--font-display': "'Orbitron', sans-serif",
+    '--sidebar-width': '16rem',
+  },
+  dark: {
+    ...sharedTokens,
+    '--color-primary': '#60a5fa',
+    '--color-primary-light': '#93c5fd',
+    '--color-primary-dark': '#3b82f6',
+    '--color-secondary': '#34d399',
+    '--color-accent': '#818cf8',
+    '--color-bg': colors.gray[950],
+    '--color-bg-elevated': colors.gray[900],
+    '--color-bg-muted': colors.gray[800],
+    '--color-surface': colors.gray[900],
+    '--color-surface-glass': 'rgba(15, 23, 42, 0.6)',
+    '--color-text': colors.gray[100],
+    '--color-text-muted': colors.gray[400],
+    '--color-text-inverse': colors.white,
+    '--color-border': colors.gray[700],
+    '--color-border-focus': '#60a5fa',
+    '--color-success': colors.green[500],
+    '--color-warning': colors.amber[500],
+    '--color-danger': colors.red[500],
+    '--color-info': colors.blue[400],
+    '--gradient-primary': 'linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #10b981 100%)',
+    '--gradient-hero': 'linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e3a8a 100%)',
+    '--gradient-brand': 'linear-gradient(to right, #1e40af, #3b82f6)',
+    '--font-display': "'Orbitron', sans-serif",
+    '--sidebar-width': '16rem',
+  },
+};
+
+/** Squash — light green public + dashboard (mirrors fitness structure, green brand) */
+const squashBrandBase = {
+  ...sharedTokens,
+  '--squash-primary': '#9BEA00',
+  '--squash-primary-light': '#D7FF3F',
+  '--squash-primary-dark': '#6BB800',
+  '--font-display': "'Orbitron', sans-serif",
+  '--font-body': "'Open Sans', sans-serif",
+  '--sidebar-width': '16rem',
+};
+
+export const squashTheme = {
+  light: {
+    ...squashBrandBase,
+    '--color-primary': '#6BB800',
+    '--color-primary-light': '#D7FF3F',
+    '--color-primary-dark': '#4D8A00',
+    '--color-secondary': '#9BEA00',
+    '--color-accent': '#D7FF3F',
+    '--color-bg': colors.gray[100],
+    '--color-bg-elevated': colors.white,
+    '--color-bg-muted': colors.gray[50],
+    '--color-surface': colors.white,
+    '--color-surface-glass': 'rgba(255, 255, 255, 0.85)',
+    '--color-text': colors.gray[800],
+    '--color-text-muted': colors.gray[600],
+    '--color-text-inverse': colors.gray[900],
+    '--color-border': colors.gray[200],
+    '--color-border-focus': '#9BEA00',
+    '--color-success': '#9BEA00',
+    '--color-warning': colors.amber[500],
+    '--color-danger': colors.red[500],
+    '--color-info': colors.blue[500],
+    '--gradient-primary': 'linear-gradient(135deg, #D7FF3F 0%, #9BEA00 50%, #6BB800 100%)',
+    '--gradient-hero': 'linear-gradient(135deg, #f0fdf4 0%, #ecfccb 35%, #d9f99d 70%, #9BEA00 100%)',
+    '--gradient-brand': 'linear-gradient(to right, #D7FF3F, #9BEA00)',
+  },
+  dark: {
+    ...squashBrandBase,
+    '--color-primary': '#D7FF3F',
+    '--color-primary-light': '#DFFF4A',
+    '--color-primary-dark': '#9BEA00',
+    '--color-secondary': '#9BEA00',
+    '--color-accent': '#D7FF3F',
+    '--color-bg': '#0B1220',
+    '--color-bg-elevated': '#111827',
+    '--color-bg-muted': '#050816',
+    '--color-surface': '#0B1220',
+    '--color-surface-glass': 'rgba(11, 18, 32, 0.65)',
+    '--color-text': '#F4FCE8',
+    '--color-text-muted': '#9CA89A',
+    '--color-text-inverse': '#050816',
+    '--color-border': 'rgba(155, 234, 0, 0.2)',
+    '--color-border-focus': '#D7FF3F',
+    '--color-success': '#9BEA00',
+    '--color-warning': colors.amber[500],
+    '--color-danger': colors.red[400],
+    '--color-info': colors.blue[400],
+    '--gradient-primary': 'linear-gradient(135deg, #D7FF3F 0%, #9BEA00 50%, #0B1220 100%)',
+    '--gradient-hero': 'linear-gradient(180deg, #ecfccb 0%, #0B1220 85%)',
+    '--gradient-brand': 'linear-gradient(to right, #DFFF4A, #9BEA00)',
+  },
+};
+
+export const themes = {
+  [themeIds.FITNESS]: fitnessTheme,
+  [themeIds.SQUASH]: squashTheme,
+};
+
+/**
+ * Apply theme CSS variables to document root.
+ * @param {'fitness'|'squash'} themeId
+ * @param {'light'|'dark'} mode
+ * @param {HTMLElement} [el=document.documentElement]
+ */
+export function applyThemeVariables(themeId = themeIds.FITNESS, mode = 'light', el = typeof document !== 'undefined' ? document.documentElement : null) {
+  if (!el) return;
+
+  const theme = themes[themeId]?.[mode] || themes[themeIds.FITNESS].light;
+  el.setAttribute('data-theme', themeId);
+  el.setAttribute('data-mode', mode);
+
+  Object.entries(theme).forEach(([key, value]) => {
+    el.style.setProperty(key, value);
+  });
+}
+
+export function getThemeVariables(themeId = themeIds.FITNESS, mode = 'light') {
+  return themes[themeId]?.[mode] || themes[themeIds.FITNESS].light;
+}
+
+export default themes;
