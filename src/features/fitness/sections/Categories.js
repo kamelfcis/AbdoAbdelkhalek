@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { cdnUrl, toCdnUrl } from '../../../shared/lib/cdn';
+import React, { useEffect, useRef } from 'react';
+import { mediaThumbUrl, deriveCardThumbStoragePath } from '../../../shared/lib/cdn';
+import { resolveDomainMediaUrl, getMediaBuckets } from '../../../shared/lib/mediaBuckets';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { getTranslation } from '../../../utils/translations';
 import { useCategories } from '../../../shared/hooks/useCategories';
@@ -7,10 +8,31 @@ import { CategorySkeletonGrid } from '../components/Skeletons';
 import { loadThreeJSOnIntersect, loadThreeJSOnInteraction } from '../../../shared/lib/threeLoader';
 import OptimizedImage from './OptimizedImage';
 
+const FITNESS_CATEGORY_BUCKET = getMediaBuckets('fitness').categories;
+const CARD_THUMB_WIDTH = 480;
+
+function getCategoryImageUrl(category) {
+  const url = category.image_url;
+  const path = category.image_path;
+  const full = resolveDomainMediaUrl(url, path, 'fitness', 'categories');
+  if (!full && !path && !url) return null;
+
+  const storagePath = path || url || '';
+  const relativePath = /^https?:\/\//.test(storagePath) ? '' : storagePath;
+  const derivedThumb = relativePath ? deriveCardThumbStoragePath(relativePath) : null;
+
+  return (
+    mediaThumbUrl(url, path, FITNESS_CATEGORY_BUCKET, {
+      width: CARD_THUMB_WIDTH,
+      quality: 75,
+      thumbPath: derivedThumb,
+    }) || full
+  );
+}
+
 const Categories = ({ onAlert, userSession }) => {
   const { currentLanguage } = useLanguage();
   const { data: categories = [], isLoading: loading, error } = useCategories(userSession);
-  const [imageUrls, setImageUrls] = useState({});
   const canvasRef = useRef(null);
 
   // Handle errors from the query
@@ -159,78 +181,6 @@ const Categories = ({ onAlert, userSession }) => {
     };
   };
 
-  // Build image URLs map when categories change
-  useEffect(() => {
-    if (!categories.length) return;
-    
-    // Build image URLs map with correct priority:
-    // 1) image_url if it's a FULL URL
-    // 2) image_path if it's a FULL URL
-    // 3) Otherwise, construct from image_path filename -> categories/categories/<filename>
-    const urlMap = {};
-    for (const category of categories) {
-      const imageUrlField = category.image_url;
-      const imagePathField = category.image_path;
-
-      let resolvedUrl = null;
-
-      // 1) Prefer image_url only if it's already a full URL
-      if (imageUrlField && (imageUrlField.startsWith('http://') || imageUrlField.startsWith('https://'))) {
-        resolvedUrl = toCdnUrl(imageUrlField);
-      }
-
-      // 2) Otherwise, use image_path if it's a full URL
-      if (!resolvedUrl && imagePathField && (imagePathField.startsWith('http://') || imagePathField.startsWith('https://'))) {
-        resolvedUrl = toCdnUrl(imagePathField);
-      }
-
-      // 3) If still not resolved, build from filename (image_path or image_url)
-      if (!resolvedUrl) {
-        // Choose the best available filename source
-        const candidate = imagePathField || imageUrlField || '';
-        if (candidate) {
-          let pathForBucket = candidate.trim().replace(/^\/+/, '');
-          if (!pathForBucket.startsWith('categories/')) {
-            pathForBucket = `categories/${pathForBucket}`;
-          }
-          resolvedUrl = cdnUrl('categories', pathForBucket);
-        }
-      }
-
-      if (resolvedUrl) {
-        urlMap[category.id] = resolvedUrl;
-      }
-    }
-    setImageUrls(urlMap);
-  }, [categories]);
-
-  const getImageUrl = async (category) => {
-    if (category.image_url) {
-      if (category.image_url.startsWith('http://') || category.image_url.startsWith('https://')) {
-        return toCdnUrl(category.image_url);
-      }
-      return cdnUrl('categories', category.image_url);
-    }
-    
-    if (category.image_path) {
-      if (category.image_path.startsWith('http://') || category.image_path.startsWith('https://')) {
-        return toCdnUrl(category.image_path);
-      }
-      
-      // Otherwise, try to construct URL from path
-      // If path starts with "categories/", remove it since we're specifying bucket "categories"
-      let pathForBucket = category.image_path;
-      if (pathForBucket.startsWith('categories/')) {
-        pathForBucket = pathForBucket.replace(/^categories\//, '');
-      }
-      pathForBucket = pathForBucket.replace(/^\/+/, '');
-      
-      return cdnUrl('categories', pathForBucket);
-    }
-    
-    return null;
-  };
-
   const handleCategoryClick = (categoryId, categoryNameEn, categoryNameAr) => {
     const element = document.getElementById('videos');
     if (element) {
@@ -268,50 +218,7 @@ const Categories = ({ onAlert, userSession }) => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {categories.map((category) => {
-              // Build image URL - prioritize mapped URL, then build from category data
-              let imageUrl = null;
-              
-              // First, try to use the mapped URL (from imageUrls state)
-              if (imageUrls[category.id]) {
-                imageUrl = imageUrls[category.id];
-              }
-              // If no mapped URL, try image_url
-              else if (category.image_url) {
-                imageUrl =
-                  category.image_url.startsWith('http://') || category.image_url.startsWith('https://')
-                    ? toCdnUrl(category.image_url)
-                    : cdnUrl('categories', category.image_url);
-              }
-              else if (category.image_path) {
-                if (category.image_path.startsWith('http://') || category.image_path.startsWith('https://')) {
-                  imageUrl = toCdnUrl(category.image_path);
-                } else {
-                  // image_path is a relative path like "core.jpg" or "strength.jpg"
-                  // Build full Supabase URL: categories/categories/filename.jpg
-                  let pathForBucket = category.image_path.trim().replace(/^\/+/, '');
-                  
-                  // Add "categories/" prefix if not present (matches structure: categories/categories/filename.jpg)
-                  if (!pathForBucket.startsWith('categories/')) {
-                    pathForBucket = `categories/${pathForBucket}`;
-                  }
-                  
-                  // Construct the full Supabase storage URL
-                  imageUrl = cdnUrl('categories', pathForBucket);
-                }
-              }
-              
-              // Final check - ensure we have a valid full URL
-              if (imageUrl && !imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
-                console.error(`ERROR: imageUrl for ${category.name_en || category.name_ar} is not a full URL:`, imageUrl, 'category:', category);
-                // Try to build URL as fallback
-                const fallbackPath = `categories/${category.image_path || category.id}`;
-                imageUrl = cdnUrl('categories', fallbackPath);
-              }
-              
-              // Debug log for Core and Strength
-              if ((category.name_en === 'Core' || category.name_en === 'Strength') && imageUrl) {
-                console.log(`[DEBUG] ${category.name_en}: image_path="${category.image_path}", image_url="${category.image_url}", final URL="${imageUrl}"`);
-              }
+              const imageUrl = getCategoryImageUrl(category);
               
               return (
                 <div
@@ -384,4 +291,3 @@ const Categories = ({ onAlert, userSession }) => {
 };
 
 export default Categories;
-

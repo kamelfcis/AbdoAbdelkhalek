@@ -56,8 +56,8 @@ export function resolveDomainMediaUrl(url, path, domain, kind) {
   const candidate = (path || url || '').trim().replace(/^\/+/, '');
   if (!candidate && !url) return '';
 
-  if (url && /^https?:\/\//.test(url)) return resolveMediaUrl(url, null, primary);
   if (path && /^https?:\/\//.test(path)) return resolveMediaUrl(path, null, primary);
+  if (url && /^https?:\/\//.test(url)) return resolveMediaUrl(url, null, primary);
 
   if (candidate.startsWith(primary)) {
     return resolveMediaUrl(null, candidate, primary);

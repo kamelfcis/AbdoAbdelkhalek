@@ -97,13 +97,11 @@ export const cdnUrl = mediaUrl;
 
 /** Resolve image_url and/or image_path to a full https URL. */
 export function resolveMediaUrl(url, path, bucket) {
-  if (url) {
-    if (/^https?:\/\//.test(url)) return toMediaUrl(url);
-    return mediaUrl(bucket, url);
-  }
-  if (!path) return '';
-  if (/^https?:\/\//.test(path)) return toMediaUrl(path);
-  return mediaUrl(bucket, path) || '';
+  if (path && /^https?:\/\//.test(path)) return toMediaUrl(path);
+  if (url && /^https?:\/\//.test(url)) return toMediaUrl(url);
+  if (path) return mediaUrl(bucket, path) || '';
+  if (url) return mediaUrl(bucket, url);
+  return '';
 }
 
 /** Deep-rewrite Supabase storage URLs in API payloads (snake_case or camelCase). */

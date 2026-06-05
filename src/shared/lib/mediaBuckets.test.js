@@ -23,4 +23,14 @@ describe('resolveDomainMediaUrl', () => {
     const url = resolveDomainMediaUrl(null, 'before/story-id.jpg', 'squash', 'successStories');
     expect(url).toContain('success-stories/before/story-id.jpg');
   });
+
+  it('prefers full image_path URL over legacy image_url filename', () => {
+    const url = resolveDomainMediaUrl(
+      'strength.jpg',
+      'https://cdn.example.com/categories/categories/uuid.jpg',
+      'fitness',
+      'categories'
+    );
+    expect(url).toBe('https://cdn.example.com/categories/categories/uuid.jpg');
+  });
 });

@@ -1,4 +1,4 @@
-import { deriveThumbStoragePath, mediaThumbUrl } from './cdn';
+import { deriveThumbStoragePath, mediaThumbUrl, resolveMediaUrl } from './cdn';
 
 describe('deriveThumbStoragePath', () => {
   it('derives thumb path from storage path', () => {
@@ -42,5 +42,33 @@ describe('mediaThumbUrl', () => {
   it('returns absolute URL unchanged when no thumb path applies', () => {
     const url = mediaThumbUrl('http://example.com/foo.jpg', null, 'categories', { width: 80 });
     expect(url).toBe('http://example.com/foo.jpg');
+  });
+});
+
+describe('resolveMediaUrl', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    process.env = { ...originalEnv };
+    process.env.REACT_APP_R2_PUBLIC_URL = 'https://pub.example.r2.dev';
+    process.env.REACT_APP_USE_CDN = 'false';
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
+  it('prefers absolute image_path over legacy filename in image_url', () => {
+    const url = resolveMediaUrl(
+      'strength.jpg',
+      'https://cdn.example.com/categories/categories/uuid.jpg',
+      'categories'
+    );
+    expect(url).toBe('https://cdn.example.com/categories/categories/uuid.jpg');
+  });
+
+  it('prefers relative image_path over legacy filename in image_url', () => {
+    const url = resolveMediaUrl('strength.jpg', 'categories/categories/uuid.jpg', 'categories');
+    expect(url).toBe('https://pub.example.r2.dev/categories/categories/uuid.jpg');
   });
 });
