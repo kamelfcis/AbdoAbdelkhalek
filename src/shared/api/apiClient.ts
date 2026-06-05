@@ -1,4 +1,28 @@
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
+/** Same-origin /api on Vercel; localhost in dev. Ignores dead external API host. */
+function resolveApiBase(): string {
+  const configured = process.env.REACT_APP_API_URL?.replace(/\/$/, '');
+  const deadExternalApi = 'api.abdelrhmanabdelkhalek.com';
+
+  if (typeof window !== 'undefined') {
+    if (!configured || configured.includes(deadExternalApi)) {
+      return '/api';
+    }
+    try {
+      const url = new URL(configured, window.location.origin);
+      if (url.origin === window.location.origin) {
+        return url.pathname.replace(/\/$/, '') || '/api';
+      }
+    } catch {
+      /* use configured value below */
+    }
+    return configured;
+  }
+
+  if (configured) return configured;
+  return process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:4000/api';
+}
+
+const API_BASE = resolveApiBase();
 const TOKEN_KEY = 'abk_access_token';
 
 let refreshPromise: Promise<string> | null = null;

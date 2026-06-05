@@ -1,6 +1,7 @@
 // Generated from Supabase migration — run `npx prisma db pull` after restore for full accuracy
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {

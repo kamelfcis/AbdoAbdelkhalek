@@ -30,6 +30,8 @@
     "start:squash": "node scripts/start-with-domain.js squash",
     "start:fitness": "node scripts/start-with-domain.js fitness",
     "build": "react-scripts build",
+    "vercel-build": "npm run prisma:generate --workspace=backend && npm run build --workspace=backend && npm run build",
+    "postinstall": "npm run prisma:generate --workspace=backend",
     "clean": "rimraf build",
     "clean-build": "npm run clean && npm run build",
     "test": "vitest run",
