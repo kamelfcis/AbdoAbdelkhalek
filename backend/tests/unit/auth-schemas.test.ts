@@ -7,13 +7,21 @@ import {
 } from '../../src/common/validation/auth-schemas.js';
 
 describe('signupSchema registeredFrom', () => {
-  it('accepts fitness and squash', () => {
+  it('accepts fitness, online_football, and squash', () => {
     expect(
       signupSchema.parse({
         email: 'a@b.com',
         password: 'secret1',
         fullName: 'Test',
         registeredFrom: 'fitness',
+      }).registeredFrom
+    ).toBe('online_football');
+    expect(
+      signupSchema.parse({
+        email: 'a@b.com',
+        password: 'secret1',
+        fullName: 'Test',
+        registeredFrom: 'online_football',
       }).registeredFrom
     ).toBe('online_football');
     expect(

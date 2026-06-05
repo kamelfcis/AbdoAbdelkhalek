@@ -82,6 +82,8 @@ export const loginEn = {
 
   // —— Signup ——
   'signup-title': 'Create Account',
+  'signup-subtitle': 'Sign up to start your training journey',
+  'have-account-text': 'Already have an account?',
   'fullname-label': 'Full Name',
   'fullname-placeholder': 'Enter your full name',
   'signup-email-label': 'Email Address',

@@ -367,6 +367,20 @@
   padding: 1.5rem;
 }
 
+.login-register-form {
+  width: 100%;
+}
+
+.login-register-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.login-register-form__back {
+  color: var(--login-text-muted);
+}
+
 .login-signup-panel__title {
   font-family: var(--font-display, 'Rajdhani', sans-serif);
   font-size: 1.35rem;

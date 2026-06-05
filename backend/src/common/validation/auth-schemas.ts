@@ -15,9 +15,9 @@ export const resetPasswordSchema = z.object({
   password: z.string().min(6),
 });
 
-/** Accept legacy `fitness` signup domain; persist as `online_football`. */
+/** Accept signup domain aliases; persist fitness as `online_football`. */
 export const signupDomainSchema = z
-  .enum(['fitness', 'squash'])
+  .enum(['fitness', 'online_football', 'squash'])
   .transform((v) => (v === 'fitness' ? ('online_football' as const) : v));
 
 export const signupSchema = z.object({

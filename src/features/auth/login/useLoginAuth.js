@@ -128,8 +128,7 @@ export function useLoginAuth() {
             full_name: fullName,
             phone: phone,
             is_coach: false,
-            registered_from:
-              signupDomain === 'fitness' ? 'online_football' : signupDomain || undefined,
+            registered_from: signupDomain || undefined,
           },
         },
       });
@@ -198,6 +197,12 @@ export function useLoginAuth() {
     setShowSignup(true);
   }, [clearMessages]);
 
+  const openLogin = useCallback(() => {
+    clearMessages();
+    setShowSignup(false);
+    setShowForgot(false);
+  }, [clearMessages]);
+
   const openForgot = useCallback(() => {
     clearMessages();
     setShowSignup(false);
@@ -229,6 +234,7 @@ export function useLoginAuth() {
     handleSignup,
     handleForgotPassword,
     openSignup,
+    openLogin,
     openForgot,
     closePanels,
     navigate,

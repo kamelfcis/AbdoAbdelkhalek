@@ -5,11 +5,13 @@ import { Button, Input, Alert } from '../../../shared/ui';
 import { useThemeOptional } from '../../../contexts/ThemeContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import ForgotPasswordPanel from './ForgotPasswordPanel';
+import LoginRegisterForm from './LoginRegisterForm';
 import { slideFromEndVariants, useLoginMotion } from './login.motion';
 
 export default function LoginAuthPanel({
   t,
   isRTL,
+  showSignup,
   showForgot,
   showPassword,
   setShowPassword,
@@ -20,8 +22,10 @@ export default function LoginAuthPanel({
   error,
   success,
   onLogin,
+  onSignup,
   onOpenSignup,
   onOpenForgot,
+  onBackToLogin,
   onForgotBack,
 }) {
   const navigate = useNavigate();
@@ -41,6 +45,16 @@ export default function LoginAuthPanel({
 
         {showForgot ? (
           <ForgotPasswordPanel t={t} isRTL={isRTL} onBack={onForgotBack} savedEmail={savedEmail} />
+        ) : showSignup ? (
+          <LoginRegisterForm
+            t={t}
+            isRTL={isRTL}
+            loading={loading}
+            error={error}
+            success={success}
+            onSubmit={onSignup}
+            onBackToLogin={onBackToLogin}
+          />
         ) : (
           <>
             <h1 id="login-heading" className="login-auth-panel__title">

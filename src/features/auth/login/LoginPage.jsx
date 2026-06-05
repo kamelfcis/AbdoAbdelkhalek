@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Spinner } from '../../../shared/ui';
 import LoginShowcase from './LoginShowcase';
 import LoginAuthPanel from './LoginAuthPanel';
-import LoginSignupPanel from './LoginSignupPanel';
 import { useLoginAuth } from './useLoginAuth';
 import { pageVariants, useLoginMotion } from './login.motion';
 import './login-page.css';
@@ -28,6 +27,7 @@ export default function LoginPage() {
     handleLogin,
     handleSignup,
     openSignup,
+    openLogin,
     openForgot,
     closePanels,
     t,
@@ -60,6 +60,7 @@ export default function LoginPage() {
         <LoginAuthPanel
           t={t}
           isRTL={isRTL}
+          showSignup={showSignup}
           showForgot={showForgot}
           showPassword={showPassword}
           setShowPassword={setShowPassword}
@@ -70,22 +71,13 @@ export default function LoginPage() {
           error={error}
           success={success}
           onLogin={handleLogin}
+          onSignup={handleSignup}
           onOpenSignup={openSignup}
           onOpenForgot={openForgot}
+          onBackToLogin={openLogin}
           onForgotBack={closePanels}
         />
       </motion.div>
-
-      <LoginSignupPanel
-        isOpen={showSignup}
-        onClose={closePanels}
-        t={t}
-        isRTL={isRTL}
-        loading={loading}
-        error={error}
-        success={success}
-        onSubmit={handleSignup}
-      />
     </main>
   );
 }

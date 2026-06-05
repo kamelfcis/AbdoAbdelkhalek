@@ -82,6 +82,8 @@ export const loginAr = {
 
   // —— Signup ——
   'signup-title': 'إنشاء حساب جديد',
+  'signup-subtitle': 'سجّل للبدء في رحلة التدريب',
+  'have-account-text': 'لديك حساب بالفعل؟',
   'fullname-label': 'الاسم الكامل',
   'fullname-placeholder': 'أدخل اسمك الكامل',
   'signup-email-label': 'البريد الإلكتروني',
