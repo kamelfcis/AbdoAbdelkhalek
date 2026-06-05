@@ -43,8 +43,8 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = useCallback(async ({ email, password }) => {
-    const { data, error } = await authService.signInWithPassword({ email, password });
+  const login = useCallback(async ({ email, password, rememberMe }) => {
+    const { data, error } = await authService.signInWithPassword({ email, password, rememberMe });
     if (error) throw error;
     const profile = await refreshUser();
     return { ...data, profile };

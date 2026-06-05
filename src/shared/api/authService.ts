@@ -65,10 +65,18 @@ export const authService = {
     };
   },
 
-  async signInWithPassword({ email, password }: { email: string; password: string }) {
+  async signInWithPassword({
+    email,
+    password,
+    rememberMe,
+  }: {
+    email: string;
+    password: string;
+    rememberMe?: boolean;
+  }) {
     const result = await apiFetch<{ accessToken: string; user: ApiUser }>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, rememberMe: rememberMe || undefined }),
     });
     setAccessToken(result.accessToken);
     const session = buildSession(result.user, result.accessToken);
@@ -83,7 +91,13 @@ export const authService = {
   }: {
     email: string;
     password: string;
-    options?: { data?: { full_name?: string; phone?: string; registered_from?: 'fitness' | 'squash' } };
+    options?: {
+      data?: {
+        full_name?: string;
+        phone?: string;
+        registered_from?: 'fitness' | 'online_football' | 'squash';
+      };
+    };
   }) {
     const meta = options?.data || {};
     const result = await apiFetch<{ user: User }>('/auth/signup', {
@@ -108,6 +122,20 @@ export const authService = {
     setAccessToken(null);
     emitAuthChange(null);
     return { error: null };
+  },
+
+  async requestPasswordReset(email: string) {
+    return apiFetch<{ message: string }>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  },
+
+  async resetPassword(token: string, password: string) {
+    return apiFetch<{ message: string }>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, password }),
+    });
   },
 
   async refreshSession() {

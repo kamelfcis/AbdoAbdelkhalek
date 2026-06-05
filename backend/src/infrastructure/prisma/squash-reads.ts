@@ -9,7 +9,14 @@ import {
   restPaginationSuffix,
   toListResponse,
 } from '../../common/utils/pagination.js';
-import { applyListFilters, applySubscriptionListFilters, restFilterSuffix, restSubscriptionFilterSuffix } from '../../common/utils/list-filters.js';
+import {
+  applyListFilters,
+  applySubscriptionListFilters,
+  applyTraineeListFilters,
+  restFilterSuffix,
+  restSubscriptionFilterSuffix,
+  restTraineeFilterSuffix,
+} from '../../common/utils/list-filters.js';
 
 const T = {
   categories: 'squash_categories',
@@ -658,56 +665,159 @@ export async function listSquashSubscriptions(
   }
 }
 
+type SquashTraineeRow = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  phone: string | null;
+  created_at: Date;
+  registered_from: string | null;
+  subscription_status: string | null;
+};
+
+function mapSquashTraineeRow(
+  user: {
+    id: string;
+    email: string;
+    fullName: string | null;
+    phone: string | null;
+    createdAt: Date;
+    registeredFrom: string | null;
+  },
+  subscriptionStatus?: string | null
+): SquashTraineeRow {
+  return {
+    id: user.id,
+    email: user.email,
+    full_name: user.fullName,
+    phone: user.phone,
+    created_at: user.createdAt,
+    registered_from: user.registeredFrom,
+    subscription_status: subscriptionStatus ?? null,
+  };
+}
+
+async function attachSquashTraineeSubscriptionStatus(
+  users: { id: string }[]
+): Promise<Map<string, string | null>> {
+  if (!users.length) return new Map();
+  const squashScope = await squashSubscriptionScope();
+  const subs = await prisma.subscription.findMany({
+    where: {
+      userId: { in: users.map((u) => u.id) },
+      ...squashScope,
+    },
+    orderBy: { createdAt: 'desc' },
+    select: { userId: true, status: true },
+  });
+  const byUser = new Map<string, string | null>();
+  for (const user of users) byUser.set(user.id, null);
+  for (const sub of subs) {
+    if (!byUser.has(sub.userId) || byUser.get(sub.userId) == null) {
+      byUser.set(sub.userId, sub.status);
+    }
+  }
+  return byUser;
+}
+
+async function filterSquashTraineeIdsBySubscription(
+  userIds: string[],
+  filters?: ListQueryFilters
+): Promise<string[]> {
+  if (!filters?.subscriptionStatus && !filters?.packageId) return userIds;
+  const squashScope = await squashSubscriptionScope();
+  const where = applyTraineeListFilters(
+    { id: { in: userIds }, isCoach: false },
+    filters,
+    squashScope
+  ) as Prisma.UserWhereInput;
+  const rows = await prisma.user.findMany({ where, select: { id: true } });
+  return rows.map((r) => r.id);
+}
+
 export async function listSquashTrainees(
   pagination?: PaginationParams,
   filters?: ListQueryFilters
 ) {
-  const userIds = await squashTraineeUserIds();
+  let userIds = await squashTraineeUserIds();
   if (!userIds.length) {
     return pagination?.limit != null ? toListResponse([], 0, pagination) : [];
   }
 
-  const baseWhere: Prisma.UserWhereInput = {
-    id: { in: userIds },
-    isCoach: false,
-  };
-  if (filters?.search) {
-    baseWhere.OR = [
-      { fullName: { contains: filters.search, mode: 'insensitive' } },
-      { email: { contains: filters.search, mode: 'insensitive' } },
-    ];
-  }
   const page = prismaPage(pagination);
   const paginated = pagination?.limit != null;
   try {
+    const squashScope = await squashSubscriptionScope();
+    const baseWhere = applyTraineeListFilters(
+      { id: { in: userIds }, isCoach: false },
+      filters,
+      squashScope
+    ) as Prisma.UserWhereInput;
+
     if (paginated) {
       const [items, total] = await Promise.all([
         prisma.user.findMany({ where: baseWhere, orderBy: { createdAt: 'desc' }, ...page }),
         prisma.user.count({ where: baseWhere }),
       ]);
-      return toListResponse(items, total, pagination);
+      const statusMap = await attachSquashTraineeSubscriptionStatus(items);
+      const mapped = items.map((user) =>
+        mapSquashTraineeRow(user, statusMap.get(user.id) ?? null)
+      );
+      return toListResponse(mapped, total, pagination);
     }
-    return await prisma.user.findMany({ where: baseWhere, orderBy: { createdAt: 'desc' } });
+    const items = await prisma.user.findMany({ where: baseWhere, orderBy: { createdAt: 'desc' } });
+    const statusMap = await attachSquashTraineeSubscriptionStatus(items);
+    return items.map((user) => mapSquashTraineeRow(user, statusMap.get(user.id) ?? null));
   } catch (e) {
     if (!isPoolerError(e)) throw e;
-    const idFilter = `&id=in.(${userIds.join(',')})`;
-    const base = `?is_coach=eq.false&select=id,email,full_name,phone,created_at&order=created_at.desc${idFilter}${restFilterSuffix(filters, ['full_name', 'email'])}`;
-    if (paginated) {
-      const items = await rest.restList('users', `${base}${restPaginationSuffix(pagination, base)}`);
-      const total = await restCount(
-        'users',
-        `?is_coach=eq.false${idFilter}${restFilterSuffix(filters, ['full_name', 'email'])}`
-      );
-      return toListResponse(items, total, pagination);
+    userIds = await filterSquashTraineeIdsBySubscription(userIds, filters);
+    if (!userIds.length) {
+      return pagination?.limit != null ? toListResponse([], 0, pagination) : [];
     }
-    return rest.restList('users', base);
+    const idFilter = `&id=in.(${userIds.join(',')})`;
+    const base = `?is_coach=eq.false&select=id,email,full_name,phone,created_at,registered_from&order=created_at.desc${idFilter}${restTraineeFilterSuffix(filters)}`;
+    if (paginated) {
+      const items = await rest.restList<Record<string, unknown>>(
+        'users',
+        `${base}${restPaginationSuffix(pagination, base)}`
+      );
+      const total = await restCount('users', `?is_coach=eq.false${idFilter}${restTraineeFilterSuffix(filters)}`);
+      const mapped = items.map((row) => ({
+        id: row.id as string,
+        email: row.email as string,
+        full_name: (row.full_name as string | null) ?? null,
+        phone: (row.phone as string | null) ?? null,
+        created_at: row.created_at as Date,
+        registered_from: (row.registered_from as string | null) ?? null,
+        subscription_status: null,
+      }));
+      return toListResponse(mapped, total, pagination);
+    }
+    const items = await rest.restList<Record<string, unknown>>('users', base);
+    return items.map((row) => ({
+      id: row.id as string,
+      email: row.email as string,
+      full_name: (row.full_name as string | null) ?? null,
+      phone: (row.phone as string | null) ?? null,
+      created_at: row.created_at as Date,
+      registered_from: (row.registered_from as string | null) ?? null,
+      subscription_status: null,
+    }));
   }
+}
+
+function squashStartOfCurrentMonth(): Date {
+  const d = new Date();
+  d.setDate(1);
+  d.setHours(0, 0, 0, 0);
+  return d;
 }
 
 export async function getSquashDashboardStats() {
   try {
     const squashScope = await squashSubscriptionScope();
     const traineeIds = await squashTraineeUserIds();
+    const monthStart = squashStartOfCurrentMonth();
     const [
       categories,
       videos,
@@ -717,6 +827,8 @@ export async function getSquashDashboardStats() {
       faqs,
       subscriptions,
       activeSubscriptions,
+      traineesNewThisMonth,
+      activeSubUserRows,
     ] = await Promise.all([
       prisma.squashCategory.count(),
       prisma.squashVideo.count(),
@@ -726,8 +838,18 @@ export async function getSquashDashboardStats() {
       prisma.squashFaq.count(),
       prisma.subscription.count({ where: squashScope }),
       prisma.subscription.count({ where: { AND: [squashScope, { status: 'active' }] } }),
+      prisma.user.count({
+        where: { id: { in: traineeIds }, createdAt: { gte: monthStart } },
+      }),
+      prisma.subscription.findMany({
+        where: { AND: [squashScope, { status: 'active' }] },
+        select: { userId: true },
+        distinct: ['userId'],
+      }),
     ]);
     const publicVideos = await prisma.squashVideo.count({ where: { isPublic: true } });
+    const activeSubUserIds = new Set(activeSubUserRows.map((row) => row.userId));
+    const traineesWithoutActiveSubscription = traineeIds.filter((id) => !activeSubUserIds.has(id)).length;
     return {
       categories,
       videos,
@@ -738,6 +860,8 @@ export async function getSquashDashboardStats() {
       trainees: traineeIds.length,
       subscriptions,
       activeSubscriptions,
+      traineesNewThisMonth,
+      traineesWithoutActiveSubscription,
       totalSubscriptions: subscriptions,
       publicVideos,
       privateVideos: videos - publicVideos,
@@ -759,6 +883,8 @@ export async function getSquashDashboardStats() {
       trainees: 0,
       subscriptions: 0,
       activeSubscriptions: 0,
+      traineesNewThisMonth: 0,
+      traineesWithoutActiveSubscription: 0,
       totalSubscriptions: 0,
       publicVideos: 0,
       privateVideos: 0,

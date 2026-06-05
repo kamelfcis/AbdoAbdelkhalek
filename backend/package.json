@@ -17,7 +17,10 @@
     "smoke:squash-access": "node scripts/smoke-squash-access.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "migrate:password-reset:api": "node scripts/apply-password-reset-migration.mjs",
+    "migrate:online-football:api": "node scripts/migrate-fitness-to-online-football.mjs",
+    "backfill:fitness-trainee-source:api": "node scripts/backfill-fitness-trainee-source.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",
@@ -33,6 +36,8 @@
     "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.1.1",
+    "nodemailer": "^8.0.10",
+    "resend": "^6.12.4",
     "sharp": "^0.34.5",
     "zod": "^3.24.2"
   },
@@ -45,6 +50,7 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/multer": "^2.1.0",
     "@types/node": "^22.13.5",
+    "@types/nodemailer": "^8.0.0",
     "@types/supertest": "^7.2.0",
     "@vitest/coverage-v8": "^4.1.8",
     "prisma": "^6.4.1",

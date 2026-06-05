@@ -42,9 +42,9 @@ export const entityRegistry = {
 
     hasTrainees: true,
 
-    titleEn: 'Fitness Dashboard',
+    titleEn: 'Online Football Dashboard',
 
-    titleAr: 'لوحة اللياقة',
+    titleAr: 'لوحة Online Football',
 
   },
 

@@ -27,6 +27,10 @@ export function buildListApiParams(page, limit, filters = {}) {
   if (filters.start_date_to) params.start_date_to = filters.start_date_to;
   if (filters.end_date_from) params.end_date_from = filters.end_date_from;
   if (filters.end_date_to) params.end_date_to = filters.end_date_to;
+  if (filters.registered_from) params.registered_from = filters.registered_from;
+  if (filters.subscription_status) params.subscription_status = filters.subscription_status;
+  if (filters.created_from) params.created_from = filters.created_from;
+  if (filters.created_to) params.created_to = filters.created_to;
   return params;
 }
 
@@ -61,6 +65,28 @@ export function filtersFromSubscriptionState({
   return filters;
 }
 
+export function filtersFromTraineeState({
+  search,
+  subscriptionStatusFilter,
+  packageId,
+  registeredFromFilter,
+  createdDateFrom,
+  createdDateTo,
+} = {}) {
+  const filters = {};
+  if (search?.trim()) filters.search = search.trim();
+  if (subscriptionStatusFilter && subscriptionStatusFilter !== 'all') {
+    filters.subscription_status = subscriptionStatusFilter;
+  }
+  if (packageId && packageId !== 'all') filters.package_id = String(packageId);
+  if (registeredFromFilter && registeredFromFilter !== 'all') {
+    filters.registered_from = registeredFromFilter;
+  }
+  if (createdDateFrom) filters.created_from = createdDateFrom;
+  if (createdDateTo) filters.created_to = createdDateTo;
+  return filters;
+}
+
 function buildQueryString(params) {
   if (!params) return '';
   const parts = [];
@@ -78,6 +104,12 @@ function buildQueryString(params) {
   if (params.start_date_to) parts.push(`start_date_to=${encodeURIComponent(params.start_date_to)}`);
   if (params.end_date_from) parts.push(`end_date_from=${encodeURIComponent(params.end_date_from)}`);
   if (params.end_date_to) parts.push(`end_date_to=${encodeURIComponent(params.end_date_to)}`);
+  if (params.registered_from) parts.push(`registered_from=${encodeURIComponent(params.registered_from)}`);
+  if (params.subscription_status) {
+    parts.push(`subscription_status=${encodeURIComponent(params.subscription_status)}`);
+  }
+  if (params.created_from) parts.push(`created_from=${encodeURIComponent(params.created_from)}`);
+  if (params.created_to) parts.push(`created_to=${encodeURIComponent(params.created_to)}`);
   return parts.length ? `?${parts.join('&')}` : '';
 }
 

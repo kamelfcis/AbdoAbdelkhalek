@@ -143,7 +143,7 @@ function SuccessStoryCard({
 }
 
 export function SuccessStoriesCardGrid({
-  stories,
+  data = [],
   isAr,
   t,
   domain = 'fitness',
@@ -153,14 +153,14 @@ export function SuccessStoriesCardGrid({
   onEdit,
   onDelete,
 }) {
-  const showSkeleton = isLoading && stories.length === 0;
-  const showFetchingOverlay = (isFetching || isMutating) && stories.length > 0;
+  const showSkeleton = isLoading && data.length === 0;
+  const showFetchingOverlay = (isFetching || isMutating) && data.length > 0;
 
   if (showSkeleton) {
     return <CardGridSkeleton count={6} />;
   }
 
-  if (!stories.length) {
+  if (!data.length) {
     return <EmptyState title={t('no-data')} description={t('entity-no-results')} />;
   }
 
@@ -170,7 +170,7 @@ export function SuccessStoriesCardGrid({
       aria-busy={showFetchingOverlay}
     >
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {stories.map((story, index) => (
+        {data.map((story, index) => (
           <SuccessStoryCard
             key={story.id}
             story={story}

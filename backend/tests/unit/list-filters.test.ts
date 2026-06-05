@@ -2,9 +2,12 @@ import { describe, it, expect } from 'vitest';
 import {
   applyListFilters,
   applySubscriptionListFilters,
+  applyTraineeListFilters,
   prismaSearchOr,
   restFilterSuffix,
   restSubscriptionFilterSuffix,
+  restTraineeFilterSuffix,
+  traineeSearchClause,
 } from '../../src/common/utils/list-filters.js';
 
 describe('prismaSearchOr', () => {
@@ -140,6 +143,96 @@ describe('applySubscriptionListFilters', () => {
         },
       ],
     });
+  });
+});
+
+describe('traineeSearchClause', () => {
+  it('searches name, email, and phone', () => {
+    expect(traineeSearchClause('ali')).toEqual({
+      OR: [
+        { fullName: { contains: 'ali', mode: 'insensitive' } },
+        { email: { contains: 'ali', mode: 'insensitive' } },
+        { phone: { contains: 'ali', mode: 'insensitive' } },
+      ],
+    });
+  });
+});
+
+describe('applyTraineeListFilters', () => {
+  it('combines registration source, created date, and subscription status', () => {
+    expect(
+      applyTraineeListFilters(
+        { id: { in: ['u1'] }, isCoach: false },
+        {
+          search: 'sara',
+          registeredFrom: 'online_football',
+          createdDateFrom: '2025-01-01',
+          createdDateTo: '2025-06-30',
+          subscriptionStatus: 'active',
+        },
+        { packageId: { in: ['pkg-1'] } }
+      )
+    ).toEqual({
+      AND: [
+        {
+          AND: [
+            { id: { in: ['u1'] }, isCoach: false },
+            { registeredFrom: { in: ['online_football', 'fitness'] } },
+            {
+              createdAt: {
+                gte: new Date('2025-01-01'),
+                lte: new Date('2025-06-30T23:59:59.999Z'),
+              },
+            },
+            {
+              subscriptions: {
+                some: {
+                  packageId: { in: ['pkg-1'] },
+                  status: 'active',
+                },
+              },
+            },
+          ],
+        },
+        {
+          OR: [
+            { fullName: { contains: 'sara', mode: 'insensitive' } },
+            { email: { contains: 'sara', mode: 'insensitive' } },
+            { phone: { contains: 'sara', mode: 'insensitive' } },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('filters trainees without subscriptions', () => {
+    expect(
+      applyTraineeListFilters(
+        { isCoach: false },
+        { subscriptionStatus: 'none' },
+        { packageId: { in: ['pkg-1'] } }
+      )
+    ).toEqual({
+      AND: [
+        { isCoach: false },
+        { subscriptions: { none: { packageId: { in: ['pkg-1'] } } } },
+      ],
+    });
+  });
+});
+
+describe('restTraineeFilterSuffix', () => {
+  it('includes registration source, created date, and phone search', () => {
+    expect(
+      restTraineeFilterSuffix({
+        search: 'john',
+        registeredFrom: 'legacy',
+        createdDateFrom: '2025-01-01',
+        createdDateTo: '2025-06-30',
+      })
+    ).toBe(
+      '&registered_from=is.null&created_at=gte.2025-01-01&created_at=lte.2025-06-30T23%3A59%3A59.999Z&or=(full_name.ilike.*john*,email.ilike.*john*,phone.ilike.*john*)'
+    );
   });
 });
 

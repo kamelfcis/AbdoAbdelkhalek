@@ -9,7 +9,14 @@ import {
   restPaginationSuffix,
   toListResponse,
 } from '../../common/utils/pagination.js';
-import { applyListFilters, applySubscriptionListFilters, restFilterSuffix, restSubscriptionFilterSuffix } from '../../common/utils/list-filters.js';
+import {
+  applyListFilters,
+  applySubscriptionListFilters,
+  applyTraineeListFilters,
+  restFilterSuffix,
+  restSubscriptionFilterSuffix,
+  restTraineeFilterSuffix,
+} from '../../common/utils/list-filters.js';
 import {
   filterLegacyFitnessUserIds,
   mergeFitnessTraineeUserIds,
@@ -107,7 +114,10 @@ async function fitnessTraineeUserIdsPrisma(): Promise<string[]> {
         distinct: ['userId'],
       }),
       prisma.user.findMany({
-        where: { isCoach: false, registeredFrom: 'fitness' },
+        where: {
+          isCoach: false,
+          registeredFrom: { in: ['online_football', 'fitness'] },
+        },
         select: { id: true },
       }),
       prisma.user.findMany({
@@ -138,7 +148,7 @@ async function fitnessTraineeUserIdsRest(): Promise<string[]> {
       rest.restList<{ user_id: string }>(`subscriptions?select=user_id${pkgFilter}`),
       rest.restList<{ id: string }>(
         'users',
-        '?is_coach=eq.false&registered_from=eq.fitness&select=id'
+        '?is_coach=eq.false&registered_from=in.(online_football,fitness)&select=id'
       ),
       rest.restList<{ id: string }>(
         'users',
@@ -487,6 +497,76 @@ export async function listFaqsPublic(
   }
 }
 
+type TraineeRow = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  phone: string | null;
+  created_at: Date;
+  registered_from: string | null;
+  subscription_status: string | null;
+};
+
+function mapTraineeRow(
+  user: {
+    id: string;
+    email: string;
+    fullName: string | null;
+    phone: string | null;
+    createdAt: Date;
+    registeredFrom: string | null;
+  },
+  subscriptionStatus?: string | null
+): TraineeRow {
+  return {
+    id: user.id,
+    email: user.email,
+    full_name: user.fullName,
+    phone: user.phone,
+    created_at: user.createdAt,
+    registered_from: user.registeredFrom,
+    subscription_status: subscriptionStatus ?? null,
+  };
+}
+
+async function attachFitnessTraineeSubscriptionStatus(
+  users: { id: string }[]
+): Promise<Map<string, string | null>> {
+  if (!users.length) return new Map();
+  const fitnessScope = await fitnessSubscriptionScope();
+  const subs = await prisma.subscription.findMany({
+    where: {
+      userId: { in: users.map((u) => u.id) },
+      ...fitnessScope,
+    },
+    orderBy: { createdAt: 'desc' },
+    select: { userId: true, status: true },
+  });
+  const byUser = new Map<string, string | null>();
+  for (const user of users) byUser.set(user.id, null);
+  for (const sub of subs) {
+    if (!byUser.has(sub.userId) || byUser.get(sub.userId) == null) {
+      byUser.set(sub.userId, sub.status);
+    }
+  }
+  return byUser;
+}
+
+async function filterFitnessTraineeIdsBySubscription(
+  userIds: string[],
+  filters?: ListQueryFilters
+): Promise<string[]> {
+  if (!filters?.subscriptionStatus && !filters?.packageId) return userIds;
+  const fitnessScope = await fitnessSubscriptionScope();
+  const where = applyTraineeListFilters(
+    { id: { in: userIds }, isCoach: false },
+    filters,
+    fitnessScope
+  ) as Prisma.UserWhereInput;
+  const rows = await prisma.user.findMany({ where, select: { id: true } });
+  return rows.map((r) => r.id);
+}
+
 export async function listTrainees(
   pagination?: PaginationParams,
   filters?: ListQueryFilters
@@ -499,41 +579,63 @@ export async function listTrainees(
       return paginated ? toListResponse([], 0, pagination) : [];
     }
 
-    const baseWhere: Prisma.UserWhereInput = {
-      id: { in: userIds },
-      isCoach: false,
-    };
-    if (filters?.search) {
-      baseWhere.OR = [
-        { fullName: { contains: filters.search, mode: 'insensitive' } },
-        { email: { contains: filters.search, mode: 'insensitive' } },
-      ];
-    }
+    const fitnessScope = await fitnessSubscriptionScope();
+    const baseWhere = applyTraineeListFilters(
+      { id: { in: userIds }, isCoach: false },
+      filters,
+      fitnessScope
+    ) as Prisma.UserWhereInput;
+
     if (paginated) {
       const [items, total] = await Promise.all([
         prisma.user.findMany({ where: baseWhere, orderBy: { createdAt: 'desc' }, ...page }),
         prisma.user.count({ where: baseWhere }),
       ]);
-      return toListResponse(items, total, pagination);
+      const statusMap = await attachFitnessTraineeSubscriptionStatus(items);
+      const mapped = items.map((user) =>
+        mapTraineeRow(user, statusMap.get(user.id) ?? null)
+      );
+      return toListResponse(mapped, total, pagination);
     }
-    return await prisma.user.findMany({ where: baseWhere, orderBy: { createdAt: 'desc' } });
+    const items = await prisma.user.findMany({ where: baseWhere, orderBy: { createdAt: 'desc' } });
+    const statusMap = await attachFitnessTraineeSubscriptionStatus(items);
+    return items.map((user) => mapTraineeRow(user, statusMap.get(user.id) ?? null));
   } catch (e) {
     if (!isPoolerError(e)) throw e;
-    const userIds = await fitnessTraineeUserIdsRest();
+    let userIds = await fitnessTraineeUserIdsRest();
+    userIds = await filterFitnessTraineeIdsBySubscription(userIds, filters);
     if (!userIds.length) {
       return paginated ? toListResponse([], 0, pagination) : [];
     }
     const idFilter = `&id=in.(${userIds.join(',')})`;
-    const base = `?is_coach=eq.false&select=id,email,full_name,phone,created_at,registered_from&order=created_at.desc${idFilter}${restFilterSuffix(filters, ['full_name', 'email'])}`;
+    const base = `?is_coach=eq.false&select=id,email,full_name,phone,created_at,registered_from&order=created_at.desc${idFilter}${restTraineeFilterSuffix(filters)}`;
     if (paginated) {
-      const items = await rest.restList('users', `${base}${restPaginationSuffix(pagination, base)}`);
-      const total = await restCount(
+      const items = await rest.restList<Record<string, unknown>>(
         'users',
-        `?is_coach=eq.false${idFilter}${restFilterSuffix(filters, ['full_name', 'email'])}`
+        `${base}${restPaginationSuffix(pagination, base)}`
       );
-      return toListResponse(items, total, pagination);
+      const total = await restCount('users', `?is_coach=eq.false${idFilter}${restTraineeFilterSuffix(filters)}`);
+      const mapped = items.map((row) => ({
+        id: row.id as string,
+        email: row.email as string,
+        full_name: (row.full_name as string | null) ?? null,
+        phone: (row.phone as string | null) ?? null,
+        created_at: row.created_at as Date,
+        registered_from: (row.registered_from as string | null) ?? null,
+        subscription_status: null,
+      }));
+      return toListResponse(mapped, total, pagination);
     }
-    return rest.restList('users', base);
+    const items = await rest.restList<Record<string, unknown>>('users', base);
+    return items.map((row) => ({
+      id: row.id as string,
+      email: row.email as string,
+      full_name: (row.full_name as string | null) ?? null,
+      phone: (row.phone as string | null) ?? null,
+      created_at: row.created_at as Date,
+      registered_from: (row.registered_from as string | null) ?? null,
+      subscription_status: null,
+    }));
   }
 }
 
@@ -622,10 +724,18 @@ export async function listSubscriptions(
   }
 }
 
+function startOfCurrentMonth(): Date {
+  const d = new Date();
+  d.setDate(1);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 export async function getDashboardStats() {
   try {
     const traineeIds = await fitnessTraineeUserIds();
     const fitnessScope = await fitnessSubscriptionScope();
+    const monthStart = startOfCurrentMonth();
     const [
       categories,
       videos,
@@ -637,6 +747,8 @@ export async function getDashboardStats() {
       faqs,
       publicVideos,
       privateVideos,
+      traineesNewThisMonth,
+      activeSubUserRows,
     ] = await Promise.all([
       prisma.category.count(),
       prisma.video.count(),
@@ -648,7 +760,17 @@ export async function getDashboardStats() {
       prisma.faq.count(),
       prisma.video.count({ where: { isPublic: true } }),
       prisma.video.count({ where: { isPublic: false } }),
+      prisma.user.count({
+        where: { id: { in: traineeIds }, createdAt: { gte: monthStart } },
+      }),
+      prisma.subscription.findMany({
+        where: { AND: [fitnessScope, { status: 'active' }] },
+        select: { userId: true },
+        distinct: ['userId'],
+      }),
     ]);
+    const activeSubUserIds = new Set(activeSubUserRows.map((row) => row.userId));
+    const traineesWithoutActiveSubscription = traineeIds.filter((id) => !activeSubUserIds.has(id)).length;
     return {
       categories,
       videos,
@@ -656,6 +778,8 @@ export async function getDashboardStats() {
       trainees: traineeIds.length,
       subscriptions,
       activeSubscriptions,
+      traineesNewThisMonth,
+      traineesWithoutActiveSubscription,
       successStories,
       reviews,
       faqs,
@@ -683,6 +807,8 @@ export async function getDashboardStats() {
       trainees,
       subscriptions: subscriptions.length,
       activeSubscriptions: subscriptions.filter((s) => s.status === 'active').length,
+      traineesNewThisMonth: 0,
+      traineesWithoutActiveSubscription: 0,
       successStories,
       reviews,
       faqs,

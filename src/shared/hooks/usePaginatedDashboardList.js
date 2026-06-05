@@ -5,7 +5,12 @@ import { queryKeys } from '../lib/queryKeys';
 import { normalizeListResponse, buildListApiParams } from '../api/listUtils';
 import { useAuthQueryOptions } from './useAuthQuery';
 
-export { buildListApiParams, filtersFromCrudState, filtersFromSubscriptionState } from '../api/listUtils';
+export {
+  buildListApiParams,
+  filtersFromCrudState,
+  filtersFromSubscriptionState,
+  filtersFromTraineeState,
+} from '../api/listUtils';
 
 const LIST_METHODS = {
   categories: 'getCategories',

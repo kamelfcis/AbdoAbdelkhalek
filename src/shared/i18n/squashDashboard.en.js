@@ -49,7 +49,7 @@ export const squashDashboardEn = {
   'th-duration-days': 'Days',
   'th-video-title': 'Title',
   'th-category': 'Category',
-  'domain.fitness': 'Fitness',
+  'domain.fitness': 'Online Football',
   'domain.squash': 'Squash',
   'page-overview': 'Squash Overview',
   'page-categories': 'Categories Management',

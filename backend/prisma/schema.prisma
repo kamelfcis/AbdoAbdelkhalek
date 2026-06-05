@@ -19,9 +19,10 @@ model User {
   registeredFrom String?  @map("registered_from")
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  videoAccess    UserVideoAccess[]
-  categoryAccess UserCategoryAccess[]
-  subscriptions  Subscription[]
+  videoAccess         UserVideoAccess[]
+  categoryAccess      UserCategoryAccess[]
+  subscriptions       Subscription[]
+  passwordResetTokens PasswordResetToken[]
 
   @@map("users")
 }
@@ -165,6 +166,20 @@ model RefreshToken {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  tokenHash String   @map("token_hash")
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@map("password_reset_tokens")
 }
 
 // --- Squash domain (Phase 5) ---

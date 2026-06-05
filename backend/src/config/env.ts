@@ -28,6 +28,16 @@ export const env = {
   jwtRefreshSecret: resolveJwtSecret('JWT_REFRESH_SECRET', 'dev-refresh-secret'),
   jwtExpiresIn: '15m',
   refreshExpiresDays: 7,
+  rememberMeExpiresDays: 30,
+  resendApiKey: process.env.RESEND_API_KEY || '',
+  emailFrom: process.env.EMAIL_FROM || 'noreply@abdelrhmanabdelkhalek.com',
+  appPublicUrl: (process.env.APP_PUBLIC_URL || 'http://localhost:3000').replace(/\/$/, ''),
+  smtp: {
+    host: process.env.SMTP_HOST || '',
+    port: parseInt(process.env.SMTP_PORT || '587', 10),
+    user: process.env.SMTP_USER || '',
+    pass: process.env.SMTP_PASS || '',
+  },
   cdnBaseUrl: (process.env.CDN_BASE_URL || 'https://cdn.abdelrhmanabdelkhalek.com').replace(/\/$/, ''),
   /** Serve media from Cloudflare R2/CDN (not Supabase storage). */
   useCdn: process.env.USE_CDN === 'true',

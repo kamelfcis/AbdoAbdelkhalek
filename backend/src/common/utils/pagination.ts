@@ -21,6 +21,10 @@ export interface ListQueryFilters {
   startDateTo?: string;
   endDateFrom?: string;
   endDateTo?: string;
+  registeredFrom?: string;
+  subscriptionStatus?: string;
+  createdDateFrom?: string;
+  createdDateTo?: string;
 }
 
 /** Optional `limit` / `offset` query params — omit both for full list (backward compatible). */
@@ -73,6 +77,23 @@ export function parseListFilters(query: Record<string, unknown>): ListQueryFilte
 
   const endDateTo = readQueryString(query.end_date_to ?? query.endDateTo);
   if (endDateTo) filters.endDateTo = endDateTo;
+
+  const registeredFrom = readQueryString(query.registered_from ?? query.registeredFrom);
+  if (registeredFrom && registeredFrom !== 'all') {
+    filters.registeredFrom =
+      registeredFrom === 'fitness' ? 'online_football' : registeredFrom;
+  }
+
+  const subscriptionStatus = readQueryString(query.subscription_status ?? query.subscriptionStatus);
+  if (subscriptionStatus && subscriptionStatus !== 'all') {
+    filters.subscriptionStatus = subscriptionStatus;
+  }
+
+  const createdDateFrom = readQueryString(query.created_from ?? query.createdDateFrom);
+  if (createdDateFrom) filters.createdDateFrom = createdDateFrom;
+
+  const createdDateTo = readQueryString(query.created_to ?? query.createdDateTo);
+  if (createdDateTo) filters.createdDateTo = createdDateTo;
 
   return filters;
 }

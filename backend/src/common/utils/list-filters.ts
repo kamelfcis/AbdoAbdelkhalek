@@ -1,5 +1,12 @@
 import type { ListQueryFilters } from './pagination.js';
 
+/** Map legacy `fitness` filter to stored `online_football` value. */
+export function normalizeRegisteredFromFilter(value: string): string {
+  return value === 'fitness' ? 'online_football' : value;
+}
+
+const ONLINE_FOOTBALL_SOURCES = ['online_football', 'fitness'] as const;
+
 /** PostgREST filter fragments (leading `&` when non-empty). */
 export function restFilterSuffix(
   filters?: ListQueryFilters,
@@ -121,6 +128,96 @@ export function applySubscriptionListFilters<T extends Record<string, unknown>>(
   }
 
   return combineWhereClauses(where, searchClause) as T;
+}
+
+export function traineeSearchClause(term: string): {
+  OR: Record<string, { contains: string; mode: 'insensitive' }>[];
+} {
+  return {
+    OR: [
+      { fullName: { contains: term, mode: 'insensitive' } },
+      { email: { contains: term, mode: 'insensitive' } },
+      { phone: { contains: term, mode: 'insensitive' } },
+    ],
+  };
+}
+
+/** Trainee list filters: search, registration source, created date, subscription. */
+export function applyTraineeListFilters<T extends Record<string, unknown>>(
+  base: T,
+  filters?: ListQueryFilters,
+  subscriptionScope?: Record<string, unknown>
+): T {
+  const clauses: Record<string, unknown>[] = [{ ...base }];
+
+  if (filters?.registeredFrom && filters.registeredFrom !== 'all') {
+    if (filters.registeredFrom === 'legacy') {
+      clauses.push({ registeredFrom: null });
+    } else {
+      const source = normalizeRegisteredFromFilter(filters.registeredFrom);
+      if (source === 'online_football') {
+        clauses.push({ registeredFrom: { in: [...ONLINE_FOOTBALL_SOURCES] } });
+      } else {
+        clauses.push({ registeredFrom: source });
+      }
+    }
+  }
+
+  const createdRange = dateRangeClause(filters?.createdDateFrom, filters?.createdDateTo);
+  if (createdRange) {
+    clauses.push({ createdAt: createdRange });
+  }
+
+  if (subscriptionScope && (filters?.subscriptionStatus || filters?.packageId)) {
+    if (filters.subscriptionStatus === 'none') {
+      clauses.push({ subscriptions: { none: subscriptionScope } });
+    } else {
+      const subWhere: Record<string, unknown> = { ...subscriptionScope };
+      if (filters.packageId) subWhere.packageId = filters.packageId;
+      if (filters.subscriptionStatus) subWhere.status = filters.subscriptionStatus;
+      clauses.push({ subscriptions: { some: subWhere } });
+    }
+  }
+
+  let searchClause: Record<string, unknown> | undefined;
+  if (filters?.search) {
+    searchClause = traineeSearchClause(filters.search);
+  }
+
+  const scalar =
+    clauses.length === 1 ? clauses[0] : { AND: clauses };
+  return combineWhereClauses(scalar, searchClause) as T;
+}
+
+/** PostgREST filters for trainee user lists. */
+export function restTraineeFilterSuffix(
+  filters?: ListQueryFilters,
+  searchFields: string[] = ['full_name', 'email', 'phone']
+): string {
+  const parts: string[] = [];
+  if (filters?.registeredFrom && filters.registeredFrom !== 'all') {
+    if (filters.registeredFrom === 'legacy') {
+      parts.push('registered_from=is.null');
+    } else {
+      const source = normalizeRegisteredFromFilter(filters.registeredFrom);
+      if (source === 'online_football') {
+        parts.push(`registered_from=in.(${ONLINE_FOOTBALL_SOURCES.join(',')})`);
+      } else {
+        parts.push(`registered_from=eq.${encodeURIComponent(source)}`);
+      }
+    }
+  }
+  if (filters?.createdDateFrom) {
+    parts.push(`created_at=gte.${encodeURIComponent(filters.createdDateFrom)}`);
+  }
+  if (filters?.createdDateTo) {
+    parts.push(`created_at=lte.${encodeURIComponent(endOfDayIso(filters.createdDateTo))}`);
+  }
+  if (filters?.search && searchFields.length) {
+    const term = encodeURIComponent(`*${filters.search}*`);
+    parts.push(`or=(${searchFields.map((f) => `${f}.ilike.${term}`).join(',')})`);
+  }
+  return parts.length ? `&${parts.join('&')}` : '';
 }
 
 /** PostgREST filters for subscription lists (trainee search via users FK). */

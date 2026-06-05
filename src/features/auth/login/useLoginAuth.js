@@ -1,0 +1,237 @@
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
+import { authService } from '../../../services/authService';
+import { prefetchDashboardData } from '../../../shared/lib/prefetchDashboard';
+import { getDefaultDashboardPath } from '../../../features/dashboard/config/dashboardRoutes';
+import { parseSignupDomain, traineeHomePath } from '../../../shared/lib/authRoutes';
+import { getLoginTranslation } from '../../../shared/i18n';
+
+const REMEMBER_EMAIL_KEY = 'loginRememberEmail';
+
+export function useLoginAuth() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const signupDomain = parseSignupDomain(searchParams.get('domain'));
+  const { currentLanguage } = useLanguage();
+  const { login, isCoach, isAuthenticated, isLoading } = useAuth();
+
+  const t = useCallback((key) => getLoginTranslation(currentLanguage, key), [currentLanguage]);
+  const isRTL = currentLanguage === 'ar';
+
+  const [showSignup, setShowSignup] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [savedEmail, setSavedEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    const stored = localStorage.getItem(REMEMBER_EMAIL_KEY);
+    if (stored) {
+      setSavedEmail(stored);
+      setRememberMe(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isLoading || !isAuthenticated) return;
+
+    if (isCoach) {
+      navigate(getDefaultDashboardPath(), { replace: true });
+    } else {
+      navigate(traineeHomePath(signupDomain), {
+        replace: true,
+        state: {
+          authMessage: t('trainee-welcome'),
+          authMessageAr: getLoginTranslation('ar', 'trainee-welcome'),
+        },
+      });
+    }
+  }, [isLoading, isAuthenticated, isCoach, navigate, signupDomain, t]);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    const formData = new FormData(e.target);
+    const email = formData.get('email');
+    const password = formData.get('password');
+
+    try {
+      if (rememberMe) {
+        localStorage.setItem(REMEMBER_EMAIL_KEY, email.trim().toLowerCase());
+      } else {
+        localStorage.removeItem(REMEMBER_EMAIL_KEY);
+      }
+
+      const { profile } = await login({
+        email: email.trim().toLowerCase(),
+        password,
+        rememberMe,
+      });
+
+      setSuccess(t('success-text'));
+      setLoading(false);
+
+      if (profile?.is_coach) {
+        prefetchDashboardData('fitness');
+      }
+
+      setTimeout(() => {
+        if (profile?.is_coach) {
+          navigate(getDefaultDashboardPath());
+        } else {
+          navigate(traineeHomePath(signupDomain), {
+            state: {
+              authMessage: t('trainee-welcome'),
+              authMessageAr: getLoginTranslation('ar', 'trainee-welcome'),
+            },
+          });
+        }
+      }, 1500);
+    } catch (authError) {
+      const msg = authError.message || '';
+      if (msg.includes('Invalid') || msg.includes('credentials')) {
+        setError(t('error-text'));
+      } else {
+        setError(t('error-text') + (msg ? ': ' + msg : ''));
+      }
+      setLoading(false);
+    }
+  };
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    const formData = new FormData(e.target);
+    const fullName = formData.get('fullname');
+    const email = formData.get('email');
+    const password = formData.get('password');
+    const phone = formData.get('phone');
+    const normalizedEmail = email.trim().toLowerCase();
+
+    try {
+      await authService.signUp({
+        email: normalizedEmail,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            phone: phone,
+            is_coach: false,
+            registered_from:
+              signupDomain === 'fitness' ? 'online_football' : signupDomain || undefined,
+          },
+        },
+      });
+
+      setShowSignup(false);
+      e.target.reset();
+
+      try {
+        await login({
+          email: normalizedEmail,
+          password,
+          rememberMe: false,
+        });
+
+        setSuccess(t('account-created'));
+        setLoading(false);
+
+        setTimeout(() => {
+          navigate(traineeHomePath(signupDomain), {
+            state: {
+              authMessage: t('trainee-welcome'),
+              authMessageAr: getLoginTranslation('ar', 'trainee-welcome'),
+            },
+          });
+        }, 1500);
+      } catch (loginError) {
+        console.error('Auto-login after signup failed:', loginError);
+        setError(t('signup-created-login-failed'));
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError(t('signup.error') + (err.message ? ': ' + err.message : ''));
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    const formData = new FormData(e.target);
+    const email = formData.get('email');
+
+    try {
+      await authService.requestPasswordReset(email.trim().toLowerCase());
+      setSuccess(t('forgot.success'));
+    } catch (err) {
+      setError(t('forgot.error'));
+      console.error('Forgot password error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearMessages = useCallback(() => {
+    setError('');
+    setSuccess('');
+  }, []);
+
+  const openSignup = useCallback(() => {
+    clearMessages();
+    setShowForgot(false);
+    setShowSignup(true);
+  }, [clearMessages]);
+
+  const openForgot = useCallback(() => {
+    clearMessages();
+    setShowSignup(false);
+    setShowForgot(true);
+  }, [clearMessages]);
+
+  const closePanels = useCallback(() => {
+    setShowSignup(false);
+    setShowForgot(false);
+    clearMessages();
+  }, [clearMessages]);
+
+  return {
+    signupDomain,
+    isLoading,
+    isRTL,
+    showSignup,
+    showForgot,
+    showPassword,
+    setShowPassword,
+    rememberMe,
+    setRememberMe,
+    savedEmail,
+    loading,
+    error,
+    success,
+    clearMessages,
+    handleLogin,
+    handleSignup,
+    handleForgotPassword,
+    openSignup,
+    openForgot,
+    closePanels,
+    navigate,
+    t,
+  };
+}

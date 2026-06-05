@@ -3,6 +3,7 @@ import { useDashboardCore } from './useDashboardCore';
 import { useDashboardCoachQueries } from './useDashboardCoachQueries';
 import { useDashboardVideoTools } from './useDashboardVideoTools';
 import { useDashboardSubscriptionTools } from './useDashboardSubscriptionTools';
+import { useDashboardTraineeTools } from './useDashboardTraineeTools';
 import { useDashboardTraineeExperience } from './useDashboardTraineeExperience';
 import { useDashboardAccessModals } from './useDashboardAccessModals';
 
@@ -27,6 +28,11 @@ export function useDashboardPage() {
     packages: queries.packages,
     enabled: Boolean(core.userData?.is_coach) && core.currentSection === 'subscriptions',
   });
+  const traineeTools = useDashboardTraineeTools({
+    adminDomain: core.adminDomain,
+    packages: queries.packages,
+    enabled: Boolean(core.userData?.is_coach) && core.currentSection === 'trainees',
+  });
   const trainee = useDashboardTraineeExperience(core.userData, core.currentLanguage);
   const access = useDashboardAccessModals({
     adminDomain: core.adminDomain,
@@ -41,6 +47,7 @@ export function useDashboardPage() {
     ...queries,
     ...video,
     ...subscriptions,
+    ...traineeTools,
     ...trainee,
     ...access,
     loading: core.isTrainee ? trainee.traineeVideosLoading : queries.loading,

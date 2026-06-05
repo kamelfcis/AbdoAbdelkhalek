@@ -46,6 +46,10 @@ const Login = lazy(() =>
 
 );
 
+const ResetPasswordPage = lazy(() =>
+  import(/* webpackChunkName: "reset-password" */ '../features/auth/login/ResetPasswordPage')
+);
+
 
 
 const ComponentLoader = ({ message }) => (
@@ -83,7 +87,7 @@ function LandingPage({ variant }) {
   return (
     <Suspense
       fallback={
-        <ComponentLoader message={isSquash ? 'Loading squash site...' : 'Loading fitness site...'} />
+        <ComponentLoader message={isSquash ? 'Loading squash site...' : 'Loading Online Football site...'} />
       }
     >
       {isSquash ? <SquashHomePage /> : <FitnessHomePage />}
@@ -126,6 +130,15 @@ export function AppRouter() {
 
           }
 
+        />
+
+        <Route
+          path="/reset-password"
+          element={
+            <Suspense fallback={<ComponentLoader message="Loading..." />}>
+              <ResetPasswordPage />
+            </Suspense>
+          }
         />
 
         <Route path="/dashboard" element={<DashboardEntryRedirect />} />

@@ -22,9 +22,9 @@ const cards = [
     variant: 'fitness',
     badge: 'Coaching',
     title: 'Online Football',
-    description: 'Personal training, nutrition, and transformation programs.',
+    description: 'Football performance coaching, nutrition, and structured training programs.',
     image: fitnessPortalImage,
-    cta: 'Enter Fitness',
+    cta: 'Enter Online Football',
   },
 ];
 
@@ -74,7 +74,7 @@ export default function DomainPortalPage() {
           transition={{ duration: 0.5 }}
         >
           <h1 className="domain-portal__title">Abdelrahman Abdelkhalek</h1>
-          <p className="domain-portal__subtitle">Choose your experience — squash excellence or fitness transformation.</p>
+          <p className="domain-portal__subtitle">Choose your experience — squash excellence or Online Football performance coaching.</p>
         </motion.header>
 
         <div className="domain-portal__grid">
