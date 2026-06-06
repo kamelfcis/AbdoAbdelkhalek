@@ -15,6 +15,7 @@ const Modal = ({
   closeOnOverlay = true,
   className,
   contentClassName,
+  headerClassName,
 }) => {
   const dialogRef = useRef(null);
   const previousFocusRef = useRef(null);
@@ -92,12 +93,22 @@ const Modal = ({
         onClick={(e) => e.stopPropagation()}
       >
         {(title || onClose) && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-border)] shrink-0">
-            {title && (
-              <h2 id="modal-title" className="text-xl font-bold text-[var(--color-text)]">
-                {title}
-              </h2>
+          <div
+            className={cn(
+              'flex items-center justify-between px-6 py-4 border-b border-[var(--color-border)] shrink-0',
+              headerClassName
             )}
+          >
+            {title &&
+              (typeof title === 'string' ? (
+                <h2 id="modal-title" className="text-xl font-bold text-[var(--color-text)]">
+                  {title}
+                </h2>
+              ) : (
+                <div id="modal-title" className="text-[var(--color-text)] min-w-0 flex-1">
+                  {title}
+                </div>
+              ))}
             {onClose && (
               <button
                 type="button"
@@ -131,6 +142,7 @@ Modal.propTypes = {
   closeOnOverlay: PropTypes.bool,
   className: PropTypes.string,
   contentClassName: PropTypes.string,
+  headerClassName: PropTypes.string,
 };
 
 export default Modal;

@@ -74,10 +74,6 @@ export function CoachDashboardModals() {
 
         trainee={c.activeTrainee}
 
-        categories={c.categories}
-
-        videos={c.videos}
-
         domain={c.adminDomain}
 
         onSaved={() => invalidateAccessCrud(queryClient, c.adminDomain)}
