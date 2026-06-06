@@ -15,9 +15,12 @@ import { ValidationError } from '../../../common/errors/AppError.js';
 
 const router = Router();
 
+/** Vercel serverless body limit is ~4.5 MB; large files must use /presign + browser PUT. */
+const PROXY_MAX_BYTES = 4 * 1024 * 1024;
+
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 100 * 1024 * 1024 },
+  limits: { fileSize: PROXY_MAX_BYTES },
 });
 
 const presignSchema = z.object({

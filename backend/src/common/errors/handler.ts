@@ -28,7 +28,11 @@ export function errorHandler(err: unknown, req: Request, res: Response, _next: N
 
   if (err instanceof multer.MulterError) {
     const status = err.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
-    res.status(status).json({ error: err.message, requestId });
+    const error =
+      err.code === 'LIMIT_FILE_SIZE'
+        ? 'File too large for server upload (max 4 MB). Use direct upload for videos and large files.'
+        : err.message;
+    res.status(status).json({ error, requestId });
     return;
   }
 

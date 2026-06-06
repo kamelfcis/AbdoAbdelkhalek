@@ -134,6 +134,8 @@ For **production presigned uploads** (browser PUT directly to R2), add this CORS
     "AllowedOrigins": [
       "https://abdelrhmanabdelkhalek.com",
       "https://www.abdelrhmanabdelkhalek.com",
+      "https://squash.abdelrhmanabdelkhalek.com",
+      "https://abdelrhmanabdelkhalek-react.vercel.app",
       "http://localhost:3000",
       "http://localhost:4000"
     ],
@@ -145,14 +147,14 @@ For **production presigned uploads** (browser PUT directly to R2), add this CORS
 ]
 ```
 
-Set `REACT_APP_UPLOAD_VIA_API=false` in production only after CORS is applied (or keep proxy enabled with `REACT_APP_UPLOAD_VIA_API=true`).
+Apply the CORS policy above before video uploads work on Vercel (files **> 4 MB** always use presigned PUT).
 
 ### Upload flow (dashboard)
 
 | Mode | When | Browser request | Stored URL |
 |------|------|-----------------|------------|
-| **API proxy** (default on localhost) | `localhost` or `REACT_APP_UPLOAD_VIA_API=true` | `POST /api/uploads/proxy` (multipart) → backend uploads via AWS SDK | `R2_PUBLIC_URL/...` or CDN when configured |
-| **Presigned PUT** | production with `REACT_APP_UPLOAD_VIA_API=false` | `POST /api/uploads/presign` → browser `PUT` to R2 | same public URL rules; requires R2 CORS above |
+| **API proxy** | `localhost` or `REACT_APP_UPLOAD_VIA_API=true`, file **≤ 4 MB** | `POST /api/uploads/proxy` (multipart) → backend uploads via AWS SDK | `R2_PUBLIC_URL/...` or CDN when configured |
+| **Presigned PUT** | file **> 4 MB** (always), or `REACT_APP_UPLOAD_VIA_API=false` | `POST /api/uploads/presign` → browser `PUT` to R2 | same public URL rules; requires R2 CORS above |
 
 Set `R2_PUBLIC_URL` and `REACT_APP_R2_PUBLIC_URL` to your `pub-*.r2.dev` URL so uploads return a public URL, not `*.r2.cloudflarestorage.com`.
 
@@ -213,7 +215,7 @@ Run `npm run replace-urls` after `npm run upload-r2` **only when CDN DNS is live
 | `CDN_BASE_URL` / `REACT_APP_CDN_URL` | Custom CDN host when `USE_CDN=true` |
 
 | `R2_PUBLIC_URL` / `REACT_APP_R2_PUBLIC_URL` | Optional `pub-*.r2.dev` base when CDN DNS pending |
-| `REACT_APP_UPLOAD_VIA_API` | `true` = backend proxy upload; unset = auto on localhost; `false` = presigned PUT (needs R2 CORS) |
+| `REACT_APP_UPLOAD_VIA_API` | `true` = proxy for files ≤ 4 MB; files > 4 MB always presign; `false` = presign all (needs R2 CORS) |
 
 | `MEDIA_BASE_URL` / `REACT_APP_MEDIA_BASE_URL` | Same as R2 public override |
 

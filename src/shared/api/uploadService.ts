@@ -1,5 +1,13 @@
 import { apiFetch, getAccessToken, refreshAccessToken, setAccessToken, API_BASE } from './apiClient';
 import { mediaUrl } from '../lib/cdn';
+import {
+  PROXY_MAX_BYTES,
+  resolveUploadMethod,
+  proxySizeErrorMessage,
+} from './uploadStrategy';
+
+export { PROXY_MAX_BYTES, resolveUploadMethod };
+export type UploadMethod = 'proxy' | 'presign';
 
 function shouldUploadViaApi(): boolean {
   if (process.env.REACT_APP_UPLOAD_VIA_API === 'true') return true;
@@ -20,6 +28,10 @@ async function uploadViaProxy({
   path: string;
   file: File;
 }) {
+  if (file.size > PROXY_MAX_BYTES) {
+    throw new Error(proxySizeErrorMessage(file.size));
+  }
+
   const doRequest = async (retry = false) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -50,6 +62,9 @@ async function uploadViaProxy({
     }
 
     if (!res.ok) {
+      if (res.status === 413) {
+        throw new Error(proxySizeErrorMessage(file.size));
+      }
       throw new Error((data as { error?: string }).error || `Upload failed: ${res.status}`);
     }
     return data;
@@ -93,7 +108,8 @@ async function uploadViaPresign({
 
 export const uploadService = {
   async uploadFile({ bucket, path, file }: { bucket: string; path: string; file: File }) {
-    if (shouldUploadViaApi()) {
+    const method = resolveUploadMethod(file.size, shouldUploadViaApi());
+    if (method === 'proxy') {
       return uploadViaProxy({ bucket, path, file });
     }
     return uploadViaPresign({ bucket, path, file });
