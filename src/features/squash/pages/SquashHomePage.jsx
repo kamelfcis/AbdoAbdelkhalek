@@ -93,6 +93,11 @@ export default function SquashHomePage() {
   const handleSidebarClose = useCallback(() => setSidebarOpen(false), []);
   const handleSidebarToggle = useCallback(() => setSidebarOpen((open) => !open), []);
 
+  const showAlert = useCallback((message) => {
+    setPageAlert(message);
+    setTimeout(() => setPageAlert(null), 6000);
+  }, []);
+
   return (
     <div
       className="App font-['Open_Sans',_sans-serif] bg-white scroll-smooth"
@@ -158,7 +163,7 @@ export default function SquashHomePage() {
         </ErrorBoundary>
         <ErrorBoundary fallbackTitle="Packages">
           <Suspense fallback={<ComponentLoader />}>
-            <SquashPackages />
+            <SquashPackages onAlert={showAlert} userSession={userSession} userProfile={userProfile} />
           </Suspense>
         </ErrorBoundary>
         <ErrorBoundary fallbackTitle="Coaches">
