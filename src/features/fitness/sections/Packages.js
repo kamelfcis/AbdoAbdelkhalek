@@ -217,11 +217,13 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
       return;
     }
 
-    // Check if user is a trainee (not coach)
-    const isTrainee = userProfile && !userProfile.is_coach;
-    
-    // If trainee clicks subscribe, scroll to contact section instead
-    if (isTrainee) {
+    // Trainees scroll to contact; coaches may self-subscribe via API.
+    // userProfile loads deferred — fall back to session metadata from /auth/me.
+    const isCoach = Boolean(
+      userProfile?.is_coach ?? userSession?.user?.user_metadata?.is_coach
+    );
+
+    if (!isCoach) {
       const contactSection = document.getElementById('contact');
       if (contactSection) {
         contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -235,7 +237,7 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
       setSelectedPackage(pkg);
       setShowModal(true);
     } else {
-      // Handle subscription (for coaches or if profile is not loaded yet)
+      // Handle subscription (coaches only — backend enforces requireCoach)
       try {
         await contentService.createSubscription({
           userId: userSession.user.id,

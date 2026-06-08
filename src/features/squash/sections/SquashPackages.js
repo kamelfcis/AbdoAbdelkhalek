@@ -75,8 +75,10 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
         return;
       }
 
-      const isTrainee = userProfile && !userProfile.is_coach;
-      if (isTrainee) {
+      const isCoach = Boolean(
+        userProfile?.is_coach ?? userSession?.user?.user_metadata?.is_coach
+      );
+      if (!isCoach) {
         const contactSection = document.getElementById('contact');
         if (contactSection) {
           contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
