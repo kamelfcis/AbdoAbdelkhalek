@@ -8,6 +8,7 @@ import { useSquashThreeBackground } from '../hooks/useSquashThreeBackground';
 import { squashService } from '../../../shared/api/squashService';
 import { queryKeys } from '../../../shared/lib/queryKeys';
 import { getTranslation } from '../../../utils/translations';
+import { loginPath } from '../../../shared/lib/authRoutes';
 
 const SquashPackages = ({ onAlert, userSession, userProfile }) => {
   const { t, isAr, isRTL } = useSquashI18n();
@@ -70,7 +71,7 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
   const handleSubscribe = useCallback(
     async (pkg) => {
       if (!userSession) {
-        window.location.href = '/login.html';
+        window.location.href = loginPath('squash');
         return;
       }
 

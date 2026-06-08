@@ -5,6 +5,7 @@ import { getTranslation } from '../../../utils/translations';
 import { useVideos } from '../../../shared/hooks/useVideos';
 import { VideoSkeletonGrid } from '../components/Skeletons';
 import OptimizedImage from './OptimizedImage';
+import { loginPath } from '../../../shared/lib/authRoutes';
 
 const Videos = ({ onAlert, userSession }) => {
   const { currentLanguage } = useLanguage();
@@ -159,7 +160,7 @@ const Videos = ({ onAlert, userSession }) => {
     // Block private video for public users
     if (!userSession && !video.is_public) {
       onAlert?.(currentLanguage === 'ar' ? 'يرجى تسجيل الدخول للوصول لهذا الفيديو' : 'Please login to access this video');
-      setTimeout(() => { window.location.href = '/login.html'; }, 1200);
+      setTimeout(() => { window.location.href = loginPath('fitness'); }, 1200);
       return;
     }
 

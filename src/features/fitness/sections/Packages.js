@@ -8,6 +8,7 @@ import { formatPrice } from '../../../shared/lib/currency';
 import { usePackages } from '../../../shared/hooks/usePackages';
 import { PackageSkeletonGrid } from '../components/Skeletons';
 import { loadThreeJSOnIntersect, loadThreeJSOnInteraction } from '../../../shared/lib/threeLoader';
+import { loginPath } from '../../../shared/lib/authRoutes';
 
 const Packages = ({ onAlert, userSession, userProfile }) => {
   const { currentLanguage } = useLanguage();
@@ -212,7 +213,7 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
 
   const handleSubscribe = useCallback(async (pkg) => {
     if (!userSession) {
-      window.location.href = '/login.html';
+      window.location.href = loginPath('fitness');
       return;
     }
 
