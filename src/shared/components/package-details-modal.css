@@ -1,0 +1,360 @@
+.package-details-modal {
+  --pdm-bg: #050816;
+  --pdm-surface: #0b1220;
+  --pdm-surface-elevated: #111827;
+  --pdm-border: rgba(255, 255, 255, 0.08);
+  --pdm-text: #f1f5f9;
+  --pdm-text-muted: #94a3b8;
+  --pdm-text-subtle: #64748b;
+  --pdm-accent: #3b82f6;
+  --pdm-accent-strong: #0074b7;
+  --pdm-accent-glow: rgba(59, 130, 246, 0.18);
+  --pdm-overlay: rgba(5, 8, 22, 0.75);
+}
+
+.package-details-modal[data-domain='squash'] {
+  --pdm-accent: #d7ff3f;
+  --pdm-accent-strong: #6bb800;
+  --pdm-accent-glow: rgba(215, 255, 63, 0.15);
+}
+
+.package-details-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--pdm-overlay);
+  backdrop-filter: blur(8px);
+}
+
+.package-details-modal__dialog {
+  width: 100%;
+  max-width: 42rem;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--pdm-surface);
+  border: 1px solid var(--pdm-border);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  overflow: hidden;
+  color: var(--pdm-text);
+}
+
+.package-details-modal__hero {
+  position: relative;
+  padding: 1.5rem 1.5rem 1.25rem;
+  border-bottom: 1px solid var(--pdm-border);
+}
+
+.package-details-modal__hero .package-details-modal__eyebrow,
+.package-details-modal__hero .package-details-modal__title,
+.package-details-modal__hero .package-details-modal__price {
+  color: inherit;
+  text-shadow: none;
+}
+
+.package-details-modal__hero .package-details-modal__duration-badge {
+  background: rgba(0, 0, 0, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: inherit;
+}
+
+.package-details-modal__hero .package-details-modal__duration-badge i {
+  color: inherit;
+  opacity: 0.9;
+}
+
+.package-details-modal__hero .package-details-modal__close {
+  background: rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: inherit;
+}
+
+.package-details-modal__hero .package-details-modal__close:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.package-details-modal__hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.package-details-modal__eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pdm-text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.package-details-modal__title {
+  font-family: var(--font-display, 'Rajdhani', sans-serif);
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--pdm-text);
+}
+
+.package-details-modal__close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  border: 1px solid var(--pdm-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--pdm-text-muted);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.package-details-modal__close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--pdm-text);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.package-details-modal__price-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem 1rem;
+}
+
+.package-details-modal__price {
+  font-family: var(--font-display, 'Rajdhani', sans-serif);
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--pdm-accent);
+  text-shadow: 0 0 24px var(--pdm-accent-glow);
+}
+
+.package-details-modal__price .simple-currency-display,
+.package-details-modal__price .currency-item-simple,
+.package-details-modal__price .currency-amount-simple {
+  color: inherit !important;
+}
+
+.package-details-modal__duration-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--pdm-text);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--pdm-border);
+}
+
+.package-details-modal__duration-badge i {
+  color: var(--pdm-accent);
+  font-size: 0.75rem;
+}
+
+.package-details-modal__body {
+  padding: 1.25rem 1.5rem 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.package-details-modal__meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.package-details-modal__meta-card {
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.75rem;
+  background: var(--pdm-surface-elevated);
+  border: 1px solid var(--pdm-border);
+}
+
+.package-details-modal__meta-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pdm-text-subtle);
+  margin-bottom: 0.25rem;
+}
+
+.package-details-modal__meta-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--pdm-text);
+}
+
+.package-details-modal__description {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--pdm-text-muted);
+  margin-bottom: 1.25rem;
+}
+
+.package-details-modal__section-title {
+  font-family: var(--font-display, 'Rajdhani', sans-serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--pdm-text);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--pdm-border);
+}
+
+.package-details-modal__features {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.package-details-modal__feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--pdm-text-muted);
+}
+
+.package-details-modal__feature i {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: var(--pdm-accent);
+  font-size: 0.85rem;
+}
+
+.package-details-modal__perks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+
+.package-details-modal__perk {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.625rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--pdm-border);
+  font-size: 0.8rem;
+  color: var(--pdm-text-muted);
+}
+
+.package-details-modal__perk i {
+  color: var(--pdm-accent);
+  font-size: 0.85rem;
+}
+
+.package-details-modal__perk-value {
+  margin-inline-start: auto;
+  font-weight: 700;
+  color: var(--pdm-text);
+}
+
+.package-details-modal__perk-value--yes {
+  color: #34d399;
+}
+
+.package-details-modal__perk-value--no {
+  color: #f87171;
+}
+
+.package-details-modal__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem 1.25rem;
+  border-top: 1px solid var(--pdm-border);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.package-details-modal__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 7.5rem;
+  padding: 0.7rem 1.25rem;
+  border-radius: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s, background 0.2s;
+  border: none;
+}
+
+.package-details-modal__btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.package-details-modal__btn--cancel {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--pdm-text-muted);
+  border: 1px solid var(--pdm-border);
+}
+
+.package-details-modal__btn--cancel:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--pdm-text);
+}
+
+.package-details-modal__btn--confirm {
+  background: linear-gradient(135deg, var(--pdm-accent) 0%, var(--pdm-accent-strong) 100%);
+  color: #050816;
+  box-shadow: 0 4px 20px var(--pdm-accent-glow);
+}
+
+.package-details-modal__btn--confirm:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.package-details-modal__btn--close-only {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--pdm-text);
+  border: 1px solid var(--pdm-border);
+}
+
+.package-details-modal__btn--close-only:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 480px) {
+  .package-details-modal__meta-grid,
+  .package-details-modal__perks {
+    grid-template-columns: 1fr;
+  }
+
+  .package-details-modal__footer {
+    flex-direction: column-reverse;
+  }
+
+  .package-details-modal__btn {
+    width: 100%;
+  }
+}

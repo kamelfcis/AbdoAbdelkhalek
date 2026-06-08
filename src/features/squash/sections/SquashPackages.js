@@ -9,6 +9,7 @@ import { squashService } from '../../../shared/api/squashService';
 import { queryKeys } from '../../../shared/lib/queryKeys';
 import { getTranslation } from '../../../utils/translations';
 import { loginPath } from '../../../shared/lib/authRoutes';
+import PackageDetailsModal from '../../../shared/components/PackageDetailsModal';
 
 const SquashPackages = ({ onAlert, userSession, userProfile }) => {
   const { t, isAr, isRTL } = useSquashI18n();
@@ -335,117 +336,29 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
               })}
             </div>
 
-            {showModal && selectedPackage && (
-              <div
-                className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
-                onClick={closeModal}
-              >
-                <div
-                  className="bg-white rounded-lg p-6 max-w-2xl w-full m-4 max-h-[90vh] overflow-y-auto"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-2xl font-bold">
-                      {confirmingSubscription
-                        ? (isAr ? 'تأكيد الاشتراك' : 'Confirm Subscription')
-                        : getTranslation('package-details-title', lang)}
-                    </h3>
-                    <button onClick={closeModal} className="text-gray-600 hover:text-gray-800">
-                      <i className="fas fa-times text-2xl" />
-                    </button>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-gray-700">
-                          <strong>{getTranslation('price-label', lang)}:</strong>{' '}
-                          <span
-                            dangerouslySetInnerHTML={{
-                              __html: formatPrice(selectedPackage.price_egp, selectedPackage.price_usd),
-                            }}
-                          />
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-gray-700">
-                          <strong>{getTranslation('duration-label', lang)}:</strong> {selectedPackage.duration_days}{' '}
-                          {getTranslation('days-label', lang)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-gray-700">
-                          <strong>{getTranslation('level-label', lang)}:</strong> {selectedPackage.level || '-'}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-gray-700">
-                          <strong>{getTranslation('type-label', lang)}:</strong> {selectedPackage.type || '-'}
-                        </p>
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-gray-700 mb-2">
-                        {pickItemField(selectedPackage, isAr, 'description_en', 'description_ar')}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-semibold mb-2">{isAr ? 'المميزات' : 'Features'}</h4>
-                      <ul className="list-disc pl-5 space-y-1">
-                        {parseFeatures(selectedPackage).map((f, idx) => (
-                          <li key={idx} className="text-gray-700">
-                            {f}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                        <i className="fas fa-video text-[var(--color-primary)]" />
-                        <span className="text-gray-700">
-                          {getTranslation('includes-video-feedback', lang)}:{' '}
-                          {selectedPackage.includes_video_feedback ? '✔' : '✖'}
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                        <i className="fas fa-headset text-[var(--color-primary)]" />
-                        <span className="text-gray-700">
-                          {getTranslation('daily-support', lang)}: {selectedPackage.daily_support ? '✔' : '✖'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-6 flex justify-end gap-3">
-                    {confirmingSubscription ? (
-                      <>
-                        <button
-                          onClick={closeModal}
-                          disabled={subscribing}
-                          className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition disabled:opacity-50"
-                        >
-                          {isAr ? 'إلغاء' : 'Cancel'}
-                        </button>
-                        <button
-                          onClick={handleConfirmSubscription}
-                          disabled={subscribing}
-                          className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 transition disabled:opacity-50"
-                        >
-                          {subscribing
-                            ? (isAr ? 'جاري الاشتراك...' : 'Subscribing...')
-                            : (isAr ? 'تأكيد الاشتراك' : 'Confirm Subscription')}
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        onClick={closeModal}
-                        className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
-                      >
-                        {isAr ? 'إغلاق' : 'Close'}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
+            <PackageDetailsModal
+              isOpen={showModal && !!selectedPackage}
+              onClose={closeModal}
+              pkg={selectedPackage}
+              packageName={
+                selectedPackage
+                  ? pickItemField(selectedPackage, isAr, 'name_en', 'name_ar')
+                  : ''
+              }
+              description={
+                selectedPackage
+                  ? pickItemField(selectedPackage, isAr, 'description_en', 'description_ar')
+                  : ''
+              }
+              features={selectedPackage ? parseFeatures(selectedPackage) : []}
+              packageColor={selectedPackage ? getPackageColor(selectedPackage) : undefined}
+              domain="squash"
+              language={lang}
+              isRTL={isRTL}
+              confirmingSubscription={confirmingSubscription}
+              subscribing={subscribing}
+              onConfirm={handleConfirmSubscription}
+            />
           </>
         )}
       </div>
