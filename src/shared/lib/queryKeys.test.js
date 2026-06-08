@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import {
   invalidateContentCrud,
+  invalidateAccessCrud,
   getDashboardListQueryKey,
   queryKeys,
   readListFromCache,
@@ -91,6 +92,37 @@ describe('prependPaginatedListItem', () => {
     const next = queryClient.setQueryData.mock.results[0].value;
     expect(next.items[0].id).toBe(1);
     expect(next.total).toBe(2);
+  });
+});
+
+describe('invalidateAccessCrud', () => {
+  it('invalidates trainee-facing video and category caches for the domain', () => {
+    const queryClient = {
+      invalidateQueries: vi.fn(),
+    };
+    invalidateAccessCrud(queryClient, 'fitness');
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: queryKeys.trainee.videos('fitness'),
+    });
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: queryKeys.videos('fitness'),
+    });
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: queryKeys.categories('fitness'),
+    });
+  });
+
+  it('uses squash-specific trainee video key', () => {
+    const queryClient = {
+      invalidateQueries: vi.fn(),
+    };
+    invalidateAccessCrud(queryClient, 'squash');
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: queryKeys.trainee.videos('squash'),
+    });
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: queryKeys.videos('squash'),
+    });
   });
 });
 

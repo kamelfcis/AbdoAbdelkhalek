@@ -33,7 +33,11 @@ export function useDashboardPage() {
     packages: queries.packages,
     enabled: Boolean(core.userData?.is_coach) && core.currentSection === 'trainees',
   });
-  const trainee = useDashboardTraineeExperience(core.userData, core.currentLanguage);
+  const trainee = useDashboardTraineeExperience(
+    core.userData,
+    core.currentLanguage,
+    core.adminDomain
+  );
   const access = useDashboardAccessModals({
     adminDomain: core.adminDomain,
     queryClient: core.queryClient,

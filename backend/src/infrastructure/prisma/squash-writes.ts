@@ -233,7 +233,7 @@ export async function deleteSquashProgram(id: string) {
 
 type SquashAccessPrisma = {
   squashUserVideoAccess: {
-    findMany: (args: unknown) => Promise<{ userId: string }[]>;
+    findMany: (args: unknown) => Promise<{ userId: string; videoId?: string }[]>;
     deleteMany: (args: unknown) => Promise<unknown>;
     create: (args: unknown) => Promise<unknown>;
   };
@@ -338,4 +338,130 @@ export async function setSquashTraineeAccess(
       return { ok: true };
     }
   );
+}
+
+export async function getSquashAccessibleVideoIds(userId: string) {
+  return withWriteFallback(
+    async () => {
+      const [videoAccess, categoryAccess] = await Promise.all([
+        squashAccessDb.squashUserVideoAccess.findMany({
+          where: { userId },
+          select: { videoId: true },
+        }),
+        squashAccessDb.squashUserCategoryAccess.findMany({
+          where: { userId },
+          select: { categoryId: true },
+        }),
+      ]);
+      return {
+        videoIds: videoAccess.map((a) => a.videoId).filter(Boolean) as string[],
+        categoryIds: categoryAccess.map((a: { categoryId: string }) => a.categoryId),
+      };
+    },
+    async () => {
+      const [videoAccess, categoryAccess] = await Promise.all([
+        rest.restList<{ video_id: string }>(
+          'squash_user_video_access',
+          `?user_id=eq.${encodeURIComponent(userId)}&select=video_id`
+        ),
+        rest.restList<{ category_id: string }>(
+          'squash_user_category_access',
+          `?user_id=eq.${encodeURIComponent(userId)}&select=category_id`
+        ),
+      ]);
+      return {
+        videoIds: videoAccess.map((a) => a.video_id),
+        categoryIds: categoryAccess.map((a) => a.category_id),
+      };
+    }
+  );
+}
+
+async function squashDataListPublicCategories() {
+  try {
+    return await prisma.squashCategory.findMany({ where: { isPublic: true } });
+  } catch (e) {
+    if (!isPoolerError(e)) throw e;
+    return rest.restList(T.categories, '?is_public=eq.true');
+  }
+}
+
+async function squashDataListCategoriesByIds(ids: string[]) {
+  try {
+    return await prisma.squashCategory.findMany({ where: { id: { in: ids } } });
+  } catch (e) {
+    if (!isPoolerError(e)) throw e;
+    return rest.restList(T.categories, `?id=in.(${ids.join(',')})`);
+  }
+}
+
+async function squashDataListPublicVideos() {
+  try {
+    return await prisma.squashVideo.findMany({
+      where: { isPublic: true },
+      include: { category: true },
+    });
+  } catch (e) {
+    if (!isPoolerError(e)) throw e;
+    const rows = await rest.restList<Record<string, unknown>>(
+      T.videos,
+      '?select=*,squash_categories(*)&is_public=eq.true'
+    );
+    return rows.map((v) => ({ ...v, category: v.squash_categories }));
+  }
+}
+
+async function squashDataListVideosByIds(ids: string[]) {
+  try {
+    return await prisma.squashVideo.findMany({
+      where: { id: { in: ids } },
+      include: { category: true },
+    });
+  } catch (e) {
+    if (!isPoolerError(e)) throw e;
+    const rows = await rest.restList<Record<string, unknown>>(
+      T.videos,
+      `?select=*,squash_categories(*)&id=in.(${ids.join(',')})`
+    );
+    return rows.map((v) => ({ ...v, category: v.squash_categories }));
+  }
+}
+
+async function squashDataListVideosByCategoryIds(categoryIds: string[]) {
+  try {
+    return await prisma.squashVideo.findMany({
+      where: { categoryId: { in: categoryIds } },
+      include: { category: true },
+    });
+  } catch (e) {
+    if (!isPoolerError(e)) throw e;
+    const rows = await rest.restList<Record<string, unknown>>(
+      T.videos,
+      `?select=*,squash_categories(*)&category_id=in.(${categoryIds.join(',')})`
+    );
+    return rows.map((v) => ({ ...v, category: v.squash_categories }));
+  }
+}
+
+export async function listSquashAccessibleCategories(userId: string) {
+  const { categoryIds } = await getSquashAccessibleVideoIds(userId);
+  const [publicCats, granted] = await Promise.all([
+    squashDataListPublicCategories(),
+    categoryIds.length ? squashDataListCategoriesByIds(categoryIds) : [],
+  ]);
+  const rows = [...publicCats, ...granted] as Array<{ id: string }>;
+  const map = new Map(rows.map((c) => [c.id, c]));
+  return [...map.values()];
+}
+
+export async function listSquashAccessibleVideos(userId: string) {
+  const { videoIds, categoryIds } = await getSquashAccessibleVideoIds(userId);
+  const [publicVids, byVideo, byCategory] = await Promise.all([
+    squashDataListPublicVideos(),
+    videoIds.length ? squashDataListVideosByIds(videoIds) : [],
+    categoryIds.length ? squashDataListVideosByCategoryIds(categoryIds) : [],
+  ]);
+  const rows = [...publicVids, ...byVideo, ...byCategory] as unknown as Array<{ id: string }>;
+  const map = new Map(rows.map((v) => [v.id, v]));
+  return [...map.values()];
 }

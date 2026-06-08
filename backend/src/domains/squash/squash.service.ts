@@ -11,7 +11,7 @@ export async function listCategories(
   if (!user) return repo.listSquashCategoriesPublic(pagination, filters);
   const dbUser = await findUserById(user.sub);
   if (dbUser?.isCoach) return repo.listSquashCategoriesAll(pagination, filters);
-  return repo.listSquashCategoriesPublic(pagination, filters);
+  return repo.listSquashAccessibleCategories(user.sub);
 }
 
 export async function listVideos(
@@ -22,7 +22,7 @@ export async function listVideos(
   if (!user) return repo.listSquashVideosPublic(pagination, filters);
   const dbUser = await findUserById(user.sub);
   if (dbUser?.isCoach) return repo.listSquashVideosAll(pagination, filters);
-  return repo.listSquashVideosPublic(pagination, filters);
+  return repo.listSquashAccessibleVideos(user.sub);
 }
 
 export async function listPackages(pagination?: PaginationParams, filters?: ListQueryFilters) {

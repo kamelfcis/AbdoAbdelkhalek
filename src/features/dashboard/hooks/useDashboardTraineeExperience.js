@@ -2,11 +2,11 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useDebounceValue } from '../../../shared/lib/debounce';
 import { useTraineeVideos } from '../../../shared/hooks/useTraineeVideos';
 
-export function useDashboardTraineeExperience(userData, currentLanguage) {
+export function useDashboardTraineeExperience(userData, currentLanguage, adminDomain = 'fitness') {
   const isTrainee = userData && !userData.is_coach;
   const traineeUserId = isTrainee ? userData?.id : null;
   const { data: traineeVideos = [], isLoading: traineeVideosLoading, error: traineeVideosError } =
-    useTraineeVideos(traineeUserId);
+    useTraineeVideos(adminDomain, Boolean(traineeUserId));
 
   const [traineeVideoSearch, setTraineeVideoSearch] = useState('');
   const debouncedTraineeVideoSearch = useDebounceValue(traineeVideoSearch, 300);

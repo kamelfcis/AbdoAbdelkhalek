@@ -84,7 +84,8 @@ export const queryKeys = {
   },
 
   trainee: {
-    videos: () => ['trainee', 'videos'],
+    videos: (domain = 'fitness') =>
+      domain === 'squash' ? ['trainee', 'squash', 'videos'] : ['trainee', 'videos'],
   },
 };
 
@@ -219,7 +220,9 @@ export async function invalidateContentCrud(queryClient, entity, domain = 'fitne
 export function invalidateAccessCrud(queryClient, domain = 'fitness') {
   queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions(domain) });
   queryClient.invalidateQueries({ queryKey: queryKeys.trainees(domain) });
-  queryClient.invalidateQueries({ queryKey: queryKeys.trainee.videos() });
+  queryClient.invalidateQueries({ queryKey: queryKeys.trainee.videos(domain) });
+  queryClient.invalidateQueries({ queryKey: queryKeys.videos(domain) });
+  queryClient.invalidateQueries({ queryKey: queryKeys.categories(domain) });
   queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.stats(domain) });
   if (domain === 'fitness') {
     queryClient.invalidateQueries({ queryKey: queryKeys.recentActivities.all() });

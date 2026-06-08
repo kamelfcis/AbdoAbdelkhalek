@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { squashService } from '../api/squashService';
 import { queryKeys } from '../lib/queryKeys';
 import { useAuthQueryOptions } from './useAuthQuery';
+import { useAuth } from '../../contexts/AuthContext';
 
 const publicFetchers = {
   categories: () => squashService.getCategories(),
@@ -37,13 +38,16 @@ export function useSquashContent(entity, options = {}) {
   }
 
   const auth = useAuthQueryOptions(scope === 'dashboard' && enabled);
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const staleTime =
     options.staleTime ?? (scope === 'dashboard' ? 2 * 60 * 1000 : 10 * 60 * 1000);
 
+  const publicAuthKey = scope === 'public' ? { auth: isAuthenticated } : null;
+
   return useQuery({
-    queryKey: keyFn('squash'),
+    queryKey: publicAuthKey ? [...keyFn('squash'), publicAuthKey] : keyFn('squash'),
     queryFn: fetcher,
     staleTime,
-    ...(scope === 'dashboard' ? auth : { enabled }),
+    enabled: scope === 'dashboard' ? auth.enabled : enabled && !authLoading,
   });
 }
