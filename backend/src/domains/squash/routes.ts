@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import type { AuthRequest } from '../../common/middleware/auth.js';
-import { optionalAuth, requireAuth, requireCoach } from '../../common/middleware/auth.js';
+import {
+  optionalAuth,
+  requireAuth,
+  requireCoach,
+  allowSelfOrCoachSubscription,
+} from '../../common/middleware/auth.js';
 import { cdnUrlResponseMiddleware } from '../../common/middleware/cdn-urls.js';
 import { validateBody } from '../../common/middleware/validate.js';
 import {
@@ -132,8 +137,8 @@ router.get('/subscriptions', requireAuth, async (req: AuthRequest, res, next) =>
 router.post(
   '/subscriptions',
   requireAuth,
-  requireCoach,
   validateBody(subscriptionCreateSchema),
+  allowSelfOrCoachSubscription,
   async (req, res, next) => {
     try {
       res.status(201).json(await fitness.createSubscription(req.body));

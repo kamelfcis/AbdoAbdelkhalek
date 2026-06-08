@@ -40,3 +40,29 @@ export function requireCoach(req: AuthRequest, res: Response, next: NextFunction
   }
   next();
 }
+
+/** Coaches may subscribe any user; trainees may only subscribe themselves. */
+export function allowSelfOrCoachSubscription(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): void {
+  const user = req.user;
+  if (!user) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+  if (user.isCoach) {
+    next();
+    return;
+  }
+  const body = req.body as Record<string, unknown>;
+  const targetId = (body.userId ?? body.user_id) as string | undefined;
+  if (targetId && targetId !== user.sub) {
+    res.status(403).json({ error: 'You can only subscribe your own account' });
+    return;
+  }
+  body.userId = user.sub;
+  body.user_id = user.sub;
+  next();
+}

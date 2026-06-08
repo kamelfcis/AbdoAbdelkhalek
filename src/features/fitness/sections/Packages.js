@@ -17,6 +17,8 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
   const { data: packagesData = [], isLoading: loading, error } = usePackages();
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [confirmingSubscription, setConfirmingSubscription] = useState(false);
+  const [subscribing, setSubscribing] = useState(false);
   const [subscriptionStates, setSubscriptionStates] = useState({});
   const [expandedFeatures, setExpandedFeatures] = useState({});
   const canvasRef = useRef(null);
@@ -211,54 +213,59 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
     };
   };
 
-  const handleSubscribe = useCallback(async (pkg) => {
+  const closeModal = useCallback(() => {
+    setShowModal(false);
+    setConfirmingSubscription(false);
+  }, []);
+
+  const handleConfirmSubscription = useCallback(async () => {
+    if (!selectedPackage || !userSession) return;
+
+    setSubscribing(true);
+    try {
+      await contentService.createSubscription({
+        userId: userSession.user.id,
+        packageId: selectedPackage.id,
+        status: 'active',
+        startDate: new Date().toISOString(),
+        endDate: new Date(
+          Date.now() + (selectedPackage.duration_days || selectedPackage.durationDays) * 24 * 60 * 60 * 1000
+        ).toISOString(),
+      });
+      onAlert?.(currentLanguage === 'ar' ? 'تم الاشتراك بنجاح!' : 'Subscription successful!');
+      closeModal();
+      await updateSubscriptionButtonStates();
+      queryClient.invalidateQueries({ queryKey: queryKeys.packages() });
+    } catch (error) {
+      console.error('Error subscribing:', error);
+      onAlert?.(currentLanguage === 'ar' ? 'حدث خطأ أثناء الاشتراك' : 'Error subscribing to package');
+    } finally {
+      setSubscribing(false);
+    }
+  }, [
+    selectedPackage,
+    userSession,
+    currentLanguage,
+    onAlert,
+    closeModal,
+    updateSubscriptionButtonStates,
+    queryClient,
+  ]);
+
+  const handleSubscribe = useCallback((pkg) => {
     if (!userSession) {
       window.location.href = loginPath('fitness');
       return;
     }
 
-    // Trainees scroll to contact; coaches may self-subscribe via API.
-    // userProfile loads deferred — fall back to session metadata from /auth/me.
-    const isCoach = Boolean(
-      userProfile?.is_coach ?? userSession?.user?.user_metadata?.is_coach
-    );
-
-    if (!isCoach) {
-      const contactSection = document.getElementById('contact');
-      if (contactSection) {
-        contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-      return;
-    }
-
-    const subscriptionState = subscriptionStates[pkg.id];
-    if (subscriptionState === 'subscribed') {
-      // Show details modal
-      setSelectedPackage(pkg);
-      setShowModal(true);
-    } else {
-      // Handle subscription (coaches only — backend enforces requireCoach)
-      try {
-        await contentService.createSubscription({
-          userId: userSession.user.id,
-          packageId: pkg.id,
-          status: 'active',
-          startDate: new Date().toISOString(),
-          endDate: new Date(Date.now() + (pkg.duration_days || pkg.durationDays) * 24 * 60 * 60 * 1000).toISOString(),
-        });
-        onAlert?.(currentLanguage === 'ar' ? 'تم الاشتراك بنجاح!' : 'Subscription successful!');
-        await updateSubscriptionButtonStates();
-        // Invalidate packages query to refetch
-        queryClient.invalidateQueries({ queryKey: queryKeys.packages() });
-      } catch (error) {
-        console.error('Error subscribing:', error);
-        onAlert?.('Error subscribing to package');
-      }
-    }
-  }, [userSession, userProfile, currentLanguage, onAlert, queryClient, subscriptionStates, updateSubscriptionButtonStates]);
+    setSelectedPackage(pkg);
+    setConfirmingSubscription(true);
+    setShowModal(true);
+  }, [userSession]);
 
   const handleViewDetails = useCallback((pkg) => {
     setSelectedPackage(pkg);
+    setConfirmingSubscription(false);
     setShowModal(true);
   }, []);
 
@@ -464,11 +471,15 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
             </div>
 
             {showModal && selectedPackage && (
-              <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={() => setShowModal(false)}>
+              <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={closeModal}>
                 <div className="bg-white rounded-lg p-6 max-w-2xl w-full m-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-2xl font-bold">{getTranslation('package-details-title', currentLanguage)}</h3>
-                    <button onClick={() => setShowModal(false)} className="text-gray-600 hover:text-gray-800">
+                    <h3 className="text-2xl font-bold">
+                      {confirmingSubscription
+                        ? (currentLanguage === 'ar' ? 'تأكيد الاشتراك' : 'Confirm Subscription')
+                        : getTranslation('package-details-title', currentLanguage)}
+                    </h3>
+                    <button onClick={closeModal} className="text-gray-600 hover:text-gray-800">
                       <i className="fas fa-times text-2xl"></i>
                     </button>
                   </div>
@@ -531,13 +542,34 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                       </div>
                     </div>
                   </div>
-                  <div className="mt-6 flex justify-end">
-                    <button
-                      onClick={() => setShowModal(false)}
-                      className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
-                    >
-                      {currentLanguage === 'ar' ? 'إغلاق' : 'Close'}
-                    </button>
+                  <div className="mt-6 flex justify-end gap-3">
+                    {confirmingSubscription ? (
+                      <>
+                        <button
+                          onClick={closeModal}
+                          disabled={subscribing}
+                          className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition disabled:opacity-50"
+                        >
+                          {currentLanguage === 'ar' ? 'إلغاء' : 'Cancel'}
+                        </button>
+                        <button
+                          onClick={handleConfirmSubscription}
+                          disabled={subscribing}
+                          className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 transition disabled:opacity-50"
+                        >
+                          {subscribing
+                            ? (currentLanguage === 'ar' ? 'جاري الاشتراك...' : 'Subscribing...')
+                            : (currentLanguage === 'ar' ? 'تأكيد الاشتراك' : 'Confirm Subscription')}
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        onClick={closeModal}
+                        className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+                      >
+                        {currentLanguage === 'ar' ? 'إغلاق' : 'Close'}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
