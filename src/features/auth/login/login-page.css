@@ -240,10 +240,30 @@
 .login-auth-panel input[type='email'],
 .login-auth-panel input[type='password'],
 .login-auth-panel input[type='text'],
-.login-auth-panel input[type='tel'] {
+.login-auth-panel input[type='tel'],
+.login-reset-page__card input[type='email'],
+.login-reset-page__card input[type='password'],
+.login-reset-page__card input[type='text'] {
   background: rgba(255, 255, 255, 0.06) !important;
   border: 1px solid var(--login-glass-border) !important;
   color: var(--login-text) !important;
+}
+
+/* Reinforce comfortable padding on login forms (LTR + RTL via logical props) */
+[data-login-page] input[type='email'],
+[data-login-page] input[type='password'],
+[data-login-page] input[type='text'],
+[data-login-page] input[type='tel'] {
+  padding-inline-end: 1rem;
+  padding-inline-start: 1rem;
+}
+
+[data-login-page] .relative:has(> span.start-3) > input {
+  padding-inline-start: 2.5rem;
+}
+
+[data-login-page] .relative:has(> span.end-3) > input {
+  padding-inline-end: 2.5rem;
 }
 
 .login-auth-panel input::placeholder {
