@@ -19,6 +19,7 @@ const Videos = ({ onAlert, userSession }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [accessFilter, setAccessFilter] = useState('all');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   const categoryOptions = useMemo(() => {
     const map = new Map();
@@ -35,6 +36,29 @@ const Videos = ({ onAlert, userSession }) => {
     });
     return Array.from(map.values());
   }, [allVideos]);
+
+  const applyVideosView = (view) => {
+    if (!view) return;
+    sessionStorage.removeItem('videosView');
+    setShowFavoritesOnly(view === 'favorites');
+    setSelectedCategory(null);
+    setCategoryName('');
+    setCategoryFilter('all');
+    setSearchTerm('');
+    setAccessFilter('all');
+    setVisibleCount(6);
+  };
+
+  useEffect(() => {
+    applyVideosView(sessionStorage.getItem('videosView'));
+
+    const handleVideosNav = (event) => {
+      applyVideosView(event.detail?.view || sessionStorage.getItem('videosView'));
+    };
+
+    window.addEventListener('fitnessVideosNav', handleVideosNav);
+    return () => window.removeEventListener('fitnessVideosNav', handleVideosNav);
+  }, []);
 
   useEffect(() => {
     // Listen for category selection from Categories component
@@ -184,8 +208,21 @@ const Videos = ({ onAlert, userSession }) => {
     document.body.style.overflow = '';
   };
 
+  const favoriteVideoIds = useMemo(() => {
+    try {
+      const saved = localStorage.getItem('traineeFavoriteVideos');
+      return saved ? JSON.parse(saved).map(String) : [];
+    } catch {
+      return [];
+    }
+  }, [showFavoritesOnly, allVideos]);
+
   const filteredVideos = useMemo(() => {
     let result = [...allVideos];
+
+    if (showFavoritesOnly) {
+      result = result.filter((video) => favoriteVideoIds.includes(String(video.id)));
+    }
 
     if (selectedCategory) {
       result = result.filter((video) => String(video.category_id) === String(selectedCategory));
@@ -206,7 +243,7 @@ const Videos = ({ onAlert, userSession }) => {
     }
 
     return result;
-  }, [allVideos, selectedCategory, categoryFilter, accessFilter, searchTerm]);
+  }, [allVideos, showFavoritesOnly, favoriteVideoIds, selectedCategory, categoryFilter, accessFilter, searchTerm]);
 
   // Memoize visible videos to prevent unnecessary re-renders
   const visibleVideos = useMemo(() => {
@@ -226,6 +263,7 @@ const Videos = ({ onAlert, userSession }) => {
     setSearchTerm('');
     setCategoryFilter('all');
     setAccessFilter('all');
+    setShowFavoritesOnly(false);
     setSelectedCategory(null);
     setCategoryName('');
     setVisibleCount(6);
@@ -262,7 +300,11 @@ const Videos = ({ onAlert, userSession }) => {
           ) : (
             <div className="text-center">
               <h2 className="text-4xl font-bold mb-4 gradient-text">
-                {getTranslation('videos-title', currentLanguage)}
+                {showFavoritesOnly
+                  ? getTranslation('sidebar-my-favorites', currentLanguage)
+                  : userSession
+                    ? getTranslation('sidebar-my-videos', currentLanguage)
+                    : getTranslation('videos-title', currentLanguage)}
               </h2>
               <div className="w-20 h-1 bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] mx-auto"></div>
             </div>

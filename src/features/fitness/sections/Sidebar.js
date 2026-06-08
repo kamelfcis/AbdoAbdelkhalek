@@ -37,9 +37,11 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
     onClose();
   };
 
-  const handleMyVideos = (e) => {
+  const openTraineeVideos = (e, view) => {
     e.preventDefault();
-    navigate(buildDashboardPath('fitness', 'overview'));
+    sessionStorage.setItem('videosView', view);
+    window.dispatchEvent(new CustomEvent('fitnessVideosNav', { detail: { view } }));
+    onNavClick('videos');
     onClose();
   };
 
@@ -112,7 +114,7 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
         role="navigation"
         aria-label="Sidebar navigation"
         aria-hidden={!isOpen}
-        {...(!isOpen ? { inert: '' } : {})}
+        {...(!isOpen ? { inert: true } : {})}
         tabIndex={isOpen ? 0 : -1}
       >
       <div className="p-4 border-b flex-shrink-0 relative">
@@ -237,8 +239,8 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
             <>
               <li>
                 <a
-                  href="/dashboard"
-                  onClick={handleMyVideos}
+                  href="#videos"
+                  onClick={(e) => openTraineeVideos(e, 'all')}
                   className={`block py-2 px-4 rounded-lg hover:text-white ${
                     isRTL 
                       ? 'hover:bg-gradient-to-l' 
@@ -252,12 +254,8 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
               </li>
               <li>
                 <a
-                  href="/dashboard"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate(buildDashboardPath('fitness', 'overview'));
-                    onClose();
-                  }}
+                  href="#videos"
+                  onClick={(e) => openTraineeVideos(e, 'favorites')}
                   className={`block py-2 px-4 rounded-lg hover:text-white ${
                     isRTL 
                       ? 'hover:bg-gradient-to-l' 
