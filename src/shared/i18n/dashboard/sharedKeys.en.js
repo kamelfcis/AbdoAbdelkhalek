@@ -85,7 +85,7 @@ export const sharedDashboardEn = {
   'filter-regular': 'Regular',
   'domain-section-unavailable': 'Not available for this domain',
   'domain-switcher-label': 'Domain switcher',
-  'domain.fitness': 'Online Football',
+  'domain.fitness': 'Football',
   'domain.squash': 'Squash',
   'btn-edit': 'Edit',
   'btn-delete': 'Delete',

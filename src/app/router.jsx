@@ -87,7 +87,7 @@ function LandingPage({ variant }) {
   return (
     <Suspense
       fallback={
-        <ComponentLoader message={isSquash ? 'Loading squash site...' : 'Loading Online Football site...'} />
+        <ComponentLoader message={isSquash ? 'Loading squash site...' : 'Loading Football site...'} />
       }
     >
       {isSquash ? <SquashHomePage /> : <FitnessHomePage />}

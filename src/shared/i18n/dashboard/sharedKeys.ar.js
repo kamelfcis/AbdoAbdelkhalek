@@ -85,7 +85,7 @@ export const sharedDashboardAr = {
   'filter-regular': 'عادي',
   'domain-section-unavailable': 'غير متاح لهذا النطاق',
   'domain-switcher-label': 'تبديل النطاق',
-  'domain.fitness': 'Online Football',
+  'domain.fitness': 'كرة قدم',
   'domain.squash': 'الإسكواش',
   'btn-edit': 'تعديل',
   'btn-delete': 'حذف',

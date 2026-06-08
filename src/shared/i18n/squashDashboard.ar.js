@@ -49,7 +49,7 @@ export const squashDashboardAr = {
   'th-duration-days': 'أيام',
   'th-video-title': 'العنوان',
   'th-category': 'التصنيف',
-  'domain.fitness': 'Online Football',
+  'domain.fitness': 'كرة قدم',
   'domain.squash': 'الإسكواش',
   'page-overview': 'نظرة عامة — إسكواش',
   'page-categories': 'إدارة التصنيفات',
