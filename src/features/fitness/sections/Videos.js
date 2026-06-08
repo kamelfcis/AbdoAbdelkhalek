@@ -9,7 +9,7 @@ import { loginPath } from '../../../shared/lib/authRoutes';
 
 const Videos = ({ onAlert, userSession }) => {
   const { currentLanguage } = useLanguage();
-  const { data: allVideos = [], isLoading: loading, isFetching, error } = useVideos(userSession);
+  const { data: allVideos = [], isLoading: loading, isFetching, error } = useVideos('fitness');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categoryName, setCategoryName] = useState('');
   const [showModal, setShowModal] = useState(false);

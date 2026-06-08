@@ -112,7 +112,24 @@ const TraineeAccessModal = ({
     load();
   }, [isOpen, trainee?.id, contentService, categoriesProp, videosProp]);
 
-  const toggle = (set, id, setter) => {
+  const toggleCategory = (catId) => {
+    const next = new Set(selectedCategories);
+    if (next.has(catId)) {
+      next.delete(catId);
+      setSelectedVideos((prev) => {
+        const videoNext = new Set(prev);
+        catalogVideos.forEach((v) => {
+          if (getVideoCategoryId(v) === catId) videoNext.delete(String(v.id));
+        });
+        return videoNext;
+      });
+    } else {
+      next.add(catId);
+    }
+    setSelectedCategories(next);
+  };
+
+  const toggleVideo = (set, id, setter) => {
     const next = new Set(set);
     if (next.has(id)) next.delete(id);
     else next.add(id);
@@ -201,7 +218,7 @@ const TraineeAccessModal = ({
                       key={catId}
                       label={isAr ? cat.name_ar : cat.name_en}
                       checked={selectedCategories.has(catId)}
-                      onChange={() => toggle(selectedCategories, catId, setSelectedCategories)}
+                      onChange={() => toggleCategory(catId)}
                     />
                   );
                 })}
@@ -239,7 +256,7 @@ const TraineeAccessModal = ({
                         key={vidId}
                         label={isAr ? v.title_ar : v.title_en}
                         checked={selectedVideos.has(vidId)}
-                        onChange={() => toggle(selectedVideos, vidId, setSelectedVideos)}
+                        onChange={() => toggleVideo(selectedVideos, vidId, setSelectedVideos)}
                       />
                     );
                   })}

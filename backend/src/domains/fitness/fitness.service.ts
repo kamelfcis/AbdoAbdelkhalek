@@ -124,9 +124,11 @@ export async function getDashboardStats() {
 
 export async function getProfile(userId: string) {
 
-  const { user, videoAccess, categoryAccess, subscriptions } =
-
-    await repo.getUserProfileDetails(userId);
+  const [{ user, subscriptions }, accessibleVideos, accessibleCategories] = await Promise.all([
+    repo.getUserProfileDetails(userId).then(({ user, subscriptions }) => ({ user, subscriptions })),
+    repo.listAccessibleVideos(userId),
+    repo.listAccessibleCategories(userId),
+  ]);
 
   return {
 
@@ -148,9 +150,9 @@ export async function getProfile(userId: string) {
 
       : null,
 
-    videoCount: videoAccess.length,
+    videoCount: accessibleVideos.length,
 
-    categoryCount: categoryAccess.length,
+    categoryCount: accessibleCategories.length,
 
     subscriptions: subscriptions.map((s) => ({
 

@@ -1,11 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
-import { contentService } from '../api/contentService';
+import { getContentService } from '../lib/getContentService';
 import { queryKeys } from '../lib/queryKeys';
+import { useAuthQueryOptions } from './useAuthQuery';
 
-export const useTraineeVideos = () => {
+export const useTraineeVideos = (domain = 'fitness', enabled = true) => {
+  const { enabled: queryEnabled, userId } = useAuthQueryOptions(enabled);
+  const svc = getContentService(domain);
+
   return useQuery({
-    queryKey: queryKeys.trainee.videos(),
-    queryFn: () => contentService.getVideos(),
-    staleTime: 5 * 60 * 1000,
+    queryKey: [...queryKeys.trainee.videos(domain), { userId }],
+    queryFn: () => svc.getVideos(),
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: true,
+    enabled: queryEnabled,
   });
 };
