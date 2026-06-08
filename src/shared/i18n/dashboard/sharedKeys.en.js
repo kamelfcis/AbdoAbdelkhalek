@@ -150,6 +150,8 @@ export const sharedDashboardEn = {
   'trainee-access-categories': 'Categories',
   'trainee-access-categories-section': 'Access to Categories',
   'trainee-access-videos-section': 'Access to Videos',
+  'trainee-access-videos-filter-empty': 'No videos in selected categories',
+  'trainee-access-videos-filtered': 'Showing {count} video(s) in selected categories',
   'video-access-title': 'Video Access',
   'label-total': 'total',
   'no-activity-hint': 'Recent activity will appear here when you add new content',

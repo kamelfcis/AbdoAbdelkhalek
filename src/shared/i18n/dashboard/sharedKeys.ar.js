@@ -150,6 +150,8 @@ export const sharedDashboardAr = {
   'trainee-access-categories': 'التصنيفات',
   'trainee-access-categories-section': 'الوصول إلى التصنيفات',
   'trainee-access-videos-section': 'الوصول إلى الفيديوهات',
+  'trainee-access-videos-filter-empty': 'لا توجد فيديوهات في التصنيفات المحددة',
+  'trainee-access-videos-filtered': 'عرض {count} فيديو في التصنيفات المحددة',
   'video-access-title': 'صلاحيات الفيديو',
   'label-total': 'إجمالي',
   'no-activity-hint': 'سيظهر النشاط الأخير هنا عند إضافة محتوى جديد',

@@ -16,6 +16,8 @@ const Modal = ({
   className,
   contentClassName,
   headerClassName,
+  headerStyle,
+  closeButtonClassName,
 }) => {
   const dialogRef = useRef(null);
   const previousFocusRef = useRef(null);
@@ -98,6 +100,7 @@ const Modal = ({
               'flex items-center justify-between px-6 py-4 border-b border-[var(--color-border)] shrink-0',
               headerClassName
             )}
+            style={headerStyle}
           >
             {title &&
               (typeof title === 'string' ? (
@@ -113,7 +116,10 @@ const Modal = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="p-2 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-text)] transition-colors ms-auto"
+                className={cn(
+                  'p-2 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-text)] transition-colors ms-auto',
+                  closeButtonClassName
+                )}
                 aria-label="Close"
               >
                 <i className="fas fa-times text-lg" aria-hidden="true" />
@@ -143,6 +149,8 @@ Modal.propTypes = {
   className: PropTypes.string,
   contentClassName: PropTypes.string,
   headerClassName: PropTypes.string,
+  headerStyle: PropTypes.object,
+  closeButtonClassName: PropTypes.string,
 };
 
 export default Modal;

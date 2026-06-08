@@ -5,8 +5,11 @@ import { getDashboardTranslation } from '../../../shared/i18n/dashboard';
 import { normalizeListResponse } from '../../../shared/api/listUtils';
 import { Modal, Spinner, Button, EmptyState, toastSuccess, toastError } from '../../../shared/ui';
 import { ModalFormFooter, CheckboxField } from './modalHelpers';
+import { dashTemplate } from '../utils/dashTemplate';
 
 const EMPTY_LIST = [];
+
+const getVideoCategoryId = (video) => String(video.category_id ?? video.categoryId ?? '');
 
 function AccessSection({ title, onGrantAll, onRevokeAll, grantLabel, revokeLabel, children }) {
   return (
@@ -92,9 +95,13 @@ const TraineeAccessModal = ({
         setCatalogCategories(catItems);
         setCatalogVideos(vidItems);
         setSelectedCategories(
-          new Set((access.categories || []).map((a) => a.categoryId || a.category_id))
+          new Set(
+            (access.categories || []).map((a) => String(a.categoryId || a.category_id || ''))
+          )
         );
-        setSelectedVideos(new Set((access.videos || []).map((a) => a.videoId || a.video_id)));
+        setSelectedVideos(
+          new Set((access.videos || []).map((a) => String(a.videoId || a.video_id || '')))
+        );
       } catch (e) {
         console.error(e);
         toastError(e.message);
@@ -129,14 +136,21 @@ const TraineeAccessModal = ({
     }
   };
 
+  const visibleVideos = useMemo(() => {
+    if (selectedCategories.size === 0) return catalogVideos;
+    return catalogVideos.filter((v) => selectedCategories.has(getVideoCategoryId(v)));
+  }, [catalogVideos, selectedCategories]);
+
+  const isFilteringVideos = selectedCategories.size > 0;
+
   const traineeName = trainee?.full_name || trainee?.email || tr('page-trainee');
   const modalTitle = (
-    <div>
+    <div className="text-white">
       <div className="text-xl font-bold leading-snug">
         {tr('trainee-access-manage')}: {traineeName}
       </div>
       {trainee?.email && (
-        <div className="text-sm font-normal opacity-90 mt-1">{trainee.email}</div>
+        <div className="text-sm text-white/90 mt-1">{trainee.email}</div>
       )}
     </div>
   );
@@ -147,7 +161,9 @@ const TraineeAccessModal = ({
       onClose={onClose}
       title={modalTitle}
       size="xl"
-      headerClassName="bg-gradient-to-r from-blue-600 to-blue-700 text-white border-b-0 [&_button]:text-white/90 [&_button:hover]:bg-white/10"
+      headerClassName="border-b-0 text-white [&_#modal-title]:text-white"
+      headerStyle={{ background: 'var(--gradient-brand)' }}
+      closeButtonClassName="text-white/90 hover:bg-white/10 hover:text-white"
       footer={
         <ModalFormFooter
           onClose={onClose}
@@ -170,7 +186,7 @@ const TraineeAccessModal = ({
             grantLabel={tr('btn-grant-all')}
             revokeLabel={tr('btn-revoke-all')}
             onGrantAll={() =>
-              setSelectedCategories(new Set(catalogCategories.map((cat) => cat.id)))
+              setSelectedCategories(new Set(catalogCategories.map((cat) => String(cat.id))))
             }
             onRevokeAll={() => setSelectedCategories(new Set())}
           >
@@ -178,14 +194,17 @@ const TraineeAccessModal = ({
               <EmptyState icon="fa-folder-open" title={tr('trainee-access-categories')} />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto pe-1">
-                {catalogCategories.map((cat) => (
-                  <CheckboxField
-                    key={cat.id}
-                    label={isAr ? cat.name_ar : cat.name_en}
-                    checked={selectedCategories.has(cat.id)}
-                    onChange={() => toggle(selectedCategories, cat.id, setSelectedCategories)}
-                  />
-                ))}
+                {catalogCategories.map((cat) => {
+                  const catId = String(cat.id);
+                  return (
+                    <CheckboxField
+                      key={catId}
+                      label={isAr ? cat.name_ar : cat.name_en}
+                      checked={selectedCategories.has(catId)}
+                      onChange={() => toggle(selectedCategories, catId, setSelectedCategories)}
+                    />
+                  );
+                })}
               </div>
             )}
           </AccessSection>
@@ -194,22 +213,38 @@ const TraineeAccessModal = ({
             title={tr('trainee-access-videos-section')}
             grantLabel={tr('btn-grant-all')}
             revokeLabel={tr('btn-revoke-all')}
-            onGrantAll={() => setSelectedVideos(new Set(catalogVideos.map((v) => v.id)))}
+            onGrantAll={() =>
+              setSelectedVideos(new Set(visibleVideos.map((v) => String(v.id))))
+            }
             onRevokeAll={() => setSelectedVideos(new Set())}
           >
             {catalogVideos.length === 0 ? (
               <EmptyState icon="fa-video" title={tr('videos-empty')} />
+            ) : visibleVideos.length === 0 ? (
+              <EmptyState icon="fa-video" title={tr('trainee-access-videos-filter-empty')} />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[50vh] overflow-y-auto pe-1">
-                {catalogVideos.map((v) => (
-                  <CheckboxField
-                    key={v.id}
-                    label={isAr ? v.title_ar : v.title_en}
-                    checked={selectedVideos.has(v.id)}
-                    onChange={() => toggle(selectedVideos, v.id, setSelectedVideos)}
-                  />
-                ))}
-              </div>
+              <>
+                {isFilteringVideos && (
+                  <p className="text-sm text-[var(--color-text-muted)] mb-2">
+                    {dashTemplate(tr('trainee-access-videos-filtered'), {
+                      count: visibleVideos.length,
+                    })}
+                  </p>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[50vh] overflow-y-auto pe-1">
+                  {visibleVideos.map((v) => {
+                    const vidId = String(v.id);
+                    return (
+                      <CheckboxField
+                        key={vidId}
+                        label={isAr ? v.title_ar : v.title_en}
+                        checked={selectedVideos.has(vidId)}
+                        onChange={() => toggle(selectedVideos, vidId, setSelectedVideos)}
+                      />
+                    );
+                  })}
+                </div>
+              </>
             )}
           </AccessSection>
         </div>

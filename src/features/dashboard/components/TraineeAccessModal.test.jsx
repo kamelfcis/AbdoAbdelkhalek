@@ -62,8 +62,8 @@ const categories = [
 ];
 
 const videos = [
-  { id: 'vid-1', title_en: 'Hurdle Jump', title_ar: 'Hurdle Jump' },
-  { id: 'vid-2', title_en: 'Leg Extension', title_ar: 'Leg Extension' },
+  { id: 'vid-1', category_id: 'cat-1', title_en: 'Hurdle Jump', title_ar: 'Hurdle Jump' },
+  { id: 'vid-2', category_id: 'cat-2', title_en: 'Leg Extension', title_ar: 'Leg Extension' },
 ];
 
 describe('TraineeAccessModal', () => {
@@ -72,8 +72,8 @@ describe('TraineeAccessModal', () => {
     mockGetCategories.mockResolvedValue({ items: categories, total: 2 });
     mockGetVideos.mockResolvedValue({ items: videos, total: 2 });
     mockGetTraineeAccess.mockResolvedValue({
-      categories: [{ category_id: 'cat-1' }],
-      videos: [{ video_id: 'vid-1' }],
+      categories: [],
+      videos: [],
     });
     mockSetTraineeAccess.mockResolvedValue({});
   });
@@ -102,6 +102,86 @@ describe('TraineeAccessModal', () => {
     expect(screen.getByText(/Manage permissions for trainee: Mohamed Kamel/i)).toBeInTheDocument();
   });
 
+  it('shows all videos when no categories are checked', async () => {
+    mockGetTraineeAccess.mockResolvedValue({
+      categories: [],
+      videos: [],
+    });
+
+    render(
+      <TraineeAccessModal
+        isOpen
+        onClose={vi.fn()}
+        trainee={trainee}
+        currentLanguage="en"
+        domain="fitness"
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Hurdle Jump')).toBeInTheDocument();
+      expect(screen.getByText('Leg Extension')).toBeInTheDocument();
+    });
+  });
+
+  it('filters videos when a category is checked', async () => {
+    mockGetTraineeAccess.mockResolvedValue({
+      categories: [],
+      videos: [],
+    });
+
+    render(
+      <TraineeAccessModal
+        isOpen
+        onClose={vi.fn()}
+        trainee={trainee}
+        currentLanguage="en"
+        domain="fitness"
+      />
+    );
+
+    await waitFor(() => expect(screen.getByText('Core')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByLabelText('Core'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Hurdle Jump')).toBeInTheDocument();
+      expect(screen.queryByText('Leg Extension')).not.toBeInTheDocument();
+    });
+  });
+
+  it('Grant All videos selects only visible filtered videos', async () => {
+    mockGetTraineeAccess.mockResolvedValue({
+      categories: [],
+      videos: [],
+    });
+
+    render(
+      <TraineeAccessModal
+        isOpen
+        onClose={vi.fn()}
+        trainee={trainee}
+        currentLanguage="en"
+        domain="fitness"
+      />
+    );
+
+    await waitFor(() => expect(screen.getByText('Core')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByLabelText('Core'));
+
+    const grantButtons = screen.getAllByRole('button', { name: 'Grant All' });
+    fireEvent.click(grantButtons[1]);
+
+    await waitFor(() => {
+      const checkboxes = screen.getAllByRole('checkbox');
+      const checked = checkboxes.filter((box) => box.checked);
+      expect(checked).toHaveLength(2);
+      expect(screen.getByLabelText('Hurdle Jump')).toBeChecked();
+      expect(screen.queryByLabelText('Leg Extension')).not.toBeInTheDocument();
+    });
+  });
+
   it('selects all categories and videos via Grant All', async () => {
     render(
       <TraineeAccessModal
@@ -117,6 +197,12 @@ describe('TraineeAccessModal', () => {
 
     const grantButtons = screen.getAllByRole('button', { name: 'Grant All' });
     fireEvent.click(grantButtons[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText('Hurdle Jump')).toBeInTheDocument();
+      expect(screen.getByText('Leg Extension')).toBeInTheDocument();
+    });
+
     fireEvent.click(grantButtons[1]);
 
     await waitFor(() => {
@@ -126,6 +212,11 @@ describe('TraineeAccessModal', () => {
   });
 
   it('clears all selections via Revoke All', async () => {
+    mockGetTraineeAccess.mockResolvedValue({
+      categories: [{ category_id: 'cat-1' }],
+      videos: [{ video_id: 'vid-1' }],
+    });
+
     render(
       <TraineeAccessModal
         isOpen
