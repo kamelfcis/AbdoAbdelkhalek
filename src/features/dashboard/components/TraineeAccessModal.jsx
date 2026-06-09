@@ -133,9 +133,18 @@ const TraineeAccessModal = ({
 
   const toggleCategory = (catId) => {
     const next = new Set(selectedCategories);
-    if (next.has(catId)) next.delete(catId);
-    else next.add(catId);
+    const nextVideos = new Set(selectedVideos);
+    const categoryVideos = catalogVideos.filter((v) => getVideoCategoryId(v) === catId);
+
+    if (next.has(catId)) {
+      next.delete(catId);
+      categoryVideos.forEach((v) => nextVideos.delete(String(v.id)));
+    } else {
+      next.add(catId);
+      categoryVideos.forEach((v) => nextVideos.add(String(v.id)));
+    }
     setSelectedCategories(next);
+    setSelectedVideos(nextVideos);
   };
 
   const toggleVideo = (set, id, setter) => {

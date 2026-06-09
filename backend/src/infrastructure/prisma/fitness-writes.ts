@@ -1,4 +1,4 @@
-import { resolveAccessibleContent } from './accessible-content.js';
+import { dedupeById, resolveAccessibleContent } from './accessible-content.js';
 import { prisma } from './client.js';
 import { isPoolerError } from './db-errors.js';
 import { toCamelKeys, toSnakeKeys } from '../../common/utils/case-map.js';
@@ -407,11 +407,13 @@ export async function listAccessibleVideos(userId: string) {
     dataListPublicVideos(),
     videoIds.length ? dataListVideosByIds(videoIds) : [],
   ]);
-  return resolveAccessibleContent({
-    hasExplicitAccess,
-    publicItems: publicVids as unknown as Array<{ id: string }>,
-    grantedItems: byVideo as unknown as Array<{ id: string }>,
-  });
+  const publicItems = publicVids as unknown as Array<{ id: string }>;
+  const grantedPrivate = byVideo as unknown as Array<{ id: string }>;
+  if (!hasExplicitAccess) {
+    return dedupeById(publicItems);
+  }
+  // Keep public catalog visible; explicit rows add private grants on top.
+  return dedupeById([...publicItems, ...grantedPrivate]);
 }
 
 async function dataListPublicCategories() {

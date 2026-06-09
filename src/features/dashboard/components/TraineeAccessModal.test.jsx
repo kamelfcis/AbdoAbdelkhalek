@@ -231,18 +231,17 @@ describe('TraineeAccessModal', () => {
     await waitFor(() => expect(screen.getByText('Hurdle Jump')).toBeInTheDocument());
 
     fireEvent.click(screen.getByLabelText('Hurdle Jump'));
-    fireEvent.click(screen.getByLabelText('Core'));
     fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
 
     await waitFor(() => {
       expect(mockSetTraineeAccess).toHaveBeenCalledWith('user-1', {
-        categoryIds: ['cat-1'],
+        categoryIds: [],
         videoIds: ['vid-1'],
       });
     });
   });
 
-  it('category-only save does not send all videos unless checked', async () => {
+  it('checking a category selects all videos in that category for save', async () => {
     const onClose = vi.fn();
     render(
       <TraineeAccessModal
@@ -262,7 +261,7 @@ describe('TraineeAccessModal', () => {
     await waitFor(() => {
       expect(mockSetTraineeAccess).toHaveBeenCalledWith('user-1', {
         categoryIds: ['cat-1'],
-        videoIds: [],
+        videoIds: ['vid-1', 'vid-3'],
       });
     });
   });
