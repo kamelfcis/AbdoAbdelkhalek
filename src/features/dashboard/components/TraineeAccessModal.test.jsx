@@ -31,40 +31,73 @@ vi.mock('../../../shared/ui/Toast', () => ({
 }));
 
 vi.mock('../../../shared/ui', () => ({
-  Modal: ({ isOpen, title, children, footer }) =>
-    isOpen ? (
-      <div role="dialog">
-        <div>{title}</div>
-        <div>{children}</div>
-        <div>{footer}</div>
+  Dialog: ({ isOpen, title, children, footer }) =>
+      isOpen ? (
+        <div role="dialog">
+          <div>{title}</div>
+          <div>{children}</div>
+          <div>{footer}</div>
+        </div>
+      ) : null,
+    Spinner: () => <div aria-label="loading">Loading</div>,
+    Button: ({ children, onClick, type = 'button', ...props }) => (
+      <button type={type} onClick={onClick} {...props}>
+        {children}
+      </button>
+    ),
+    Input: ({ value, onChange, placeholder, ...props }) => (
+      <input value={value} onChange={onChange} placeholder={placeholder} {...props} />
+    ),
+    Select: ({ label, value, onChange, options, ...props }) => (
+      <label>
+        {label}
+        <select
+          value={value}
+          onChange={onChange}
+          aria-label={typeof label === 'string' ? label : undefined}
+          {...props}
+        >
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </label>
+    ),
+    ToggleGroup: ({ children, value, onValueChange, ...props }) => (
+      <div data-toggle-value={value} {...props}>
+        {React.Children.map(children, (child) =>
+          child
+            ? React.cloneElement(child, {
+                onClick: () => onValueChange?.(child.props.value),
+              })
+            : null
+        )}
       </div>
-    ) : null,
-  Spinner: () => <div aria-label="loading">Loading</div>,
-  Button: ({ children, onClick, type = 'button', ...props }) => (
-    <button type={type} onClick={onClick} {...props}>
-      {children}
-    </button>
-  ),
-  Select: ({ label, value, onChange, options, ...props }) => (
-    <label>
-      {label}
-      <select
-        value={value}
-        onChange={onChange}
-        aria-label={typeof label === 'string' ? label : undefined}
-        {...props}
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-    </label>
-  ),
-  EmptyState: ({ title }) => <div>{title}</div>,
-  toastSuccess: vi.fn(),
-  toastError: vi.fn(),
+    ),
+    ToggleGroupItem: ({ children, value, onClick, ...props }) => (
+      <button type="button" onClick={onClick} data-value={value} {...props}>
+        {children}
+      </button>
+    ),
+    Checkbox: ({ checked, indeterminate, onCheckedChange, 'aria-label': ariaLabel, id }) => (
+      <input
+        type="checkbox"
+        id={id}
+        aria-label={ariaLabel}
+        checked={Boolean(checked)}
+        ref={(el) => {
+          if (el) el.indeterminate = Boolean(indeterminate);
+        }}
+        onChange={() => onCheckedChange?.(!checked)}
+      />
+    ),
+    Badge: ({ children, ...props }) => <span {...props}>{children}</span>,
+    EmptyState: ({ title }) => <div>{title}</div>,
+    Skeleton: () => <div aria-hidden="true" />,
+    toastSuccess: vi.fn(),
+    toastError: vi.fn(),
 }));
 
 const trainee = {
@@ -87,6 +120,15 @@ const videos = [
 describe('TraineeAccessModal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: vi.fn().mockImplementation((query) => ({
+        matches: query === '(min-width: 768px)',
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    });
     mockGetCategories.mockResolvedValue({ items: categories, total: 2 });
     mockGetVideos.mockResolvedValue({ items: videos, total: 3 });
     mockGetTraineeAccess.mockResolvedValue({
@@ -231,7 +273,7 @@ describe('TraineeAccessModal', () => {
     await waitFor(() => expect(screen.getByText('Hurdle Jump')).toBeInTheDocument());
 
     fireEvent.click(screen.getByLabelText('Hurdle Jump'));
-    fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save Changes (1 videos)' }));
 
     await waitFor(() => {
       expect(mockSetTraineeAccess).toHaveBeenCalledWith('user-1', {
@@ -256,7 +298,7 @@ describe('TraineeAccessModal', () => {
     await waitFor(() => expect(screen.getByLabelText('Core')).toBeInTheDocument());
 
     fireEvent.click(screen.getByLabelText('Core'));
-    fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save Changes (2 videos)' }));
 
     await waitFor(() => {
       expect(mockSetTraineeAccess).toHaveBeenCalledWith('user-1', {
@@ -336,6 +378,150 @@ describe('TraineeAccessModal', () => {
     await waitFor(() => {
       const checkboxes = screen.getAllByRole('checkbox');
       checkboxes.forEach((box) => expect(box).not.toBeChecked());
+    });
+  });
+
+  it('search filters category list', async () => {
+    render(
+      <TraineeAccessModal
+        isOpen
+        onClose={vi.fn()}
+        trainee={trainee}
+        currentLanguage="en"
+        domain="fitness"
+      />
+    );
+
+    await waitFor(() => expect(screen.getByLabelText('Core')).toBeInTheDocument());
+
+    const searchInputs = screen.getAllByTestId('access-panel-search');
+    fireEvent.change(searchInputs[0], { target: { value: 'Strength' } });
+
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Core')).not.toBeInTheDocument();
+      expect(screen.getByLabelText('Strength')).toBeInTheDocument();
+    });
+  });
+
+  it('search filters video list', async () => {
+    render(
+      <TraineeAccessModal
+        isOpen
+        onClose={vi.fn()}
+        trainee={trainee}
+        currentLanguage="en"
+        domain="fitness"
+      />
+    );
+
+    await waitFor(() => expect(screen.getByText('Hurdle Jump')).toBeInTheDocument());
+
+    const searchInputs = screen.getAllByTestId('access-panel-search');
+    fireEvent.change(searchInputs[1], { target: { value: 'Plank' } });
+
+    await waitFor(() => {
+      expect(screen.queryByText('Hurdle Jump')).not.toBeInTheDocument();
+      expect(screen.getByText('Plank Hold')).toBeInTheDocument();
+    });
+  });
+
+  it('public/private visibility toggle narrows videos', async () => {
+    render(
+      <TraineeAccessModal
+        isOpen
+        onClose={vi.fn()}
+        trainee={trainee}
+        currentLanguage="en"
+        domain="fitness"
+      />
+    );
+
+    await waitFor(() => expect(screen.getByText('Hurdle Jump')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByTestId('visibility-public'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Hurdle Jump')).toBeInTheDocument();
+      expect(screen.queryByText('Leg Extension')).not.toBeInTheDocument();
+      expect(screen.queryByText('Plank Hold')).not.toBeInTheDocument();
+    });
+  });
+
+  it('summary bar shows correct counts', async () => {
+    render(
+      <TraineeAccessModal
+        isOpen
+        onClose={vi.fn()}
+        trainee={trainee}
+        currentLanguage="en"
+        domain="fitness"
+      />
+    );
+
+    await waitFor(() => expect(screen.getByLabelText('Core')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByLabelText('Core'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('access-summary-bar')).toHaveTextContent('1 categories');
+      expect(screen.getByTestId('access-summary-bar')).toHaveTextContent('2 videos');
+      expect(screen.getByTestId('access-unsaved-badge')).toBeInTheDocument();
+    });
+  });
+
+  it('shows indeterminate category when partial videos selected', async () => {
+    render(
+      <TraineeAccessModal
+        isOpen
+        onClose={vi.fn()}
+        trainee={trainee}
+        currentLanguage="en"
+        domain="fitness"
+      />
+    );
+
+    await waitFor(() => expect(screen.getByLabelText('Hurdle Jump')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByLabelText('Hurdle Jump'));
+
+    await waitFor(() => {
+      const coreCheckbox = screen.getByLabelText('Core');
+      expect(coreCheckbox).not.toBeChecked();
+      expect(coreCheckbox).toHaveProperty('indeterminate', true);
+    });
+  });
+
+  it('mobile tab switching shows videos panel', async () => {
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: vi.fn().mockImplementation(() => ({
+        matches: false,
+        media: '',
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    });
+
+    render(
+      <TraineeAccessModal
+        isOpen
+        onClose={vi.fn()}
+        trainee={trainee}
+        currentLanguage="en"
+        domain="fitness"
+      />
+    );
+
+    await waitFor(() => expect(screen.getByTestId('access-tab-layout')).toBeInTheDocument());
+
+    expect(screen.getByLabelText('Core')).toBeInTheDocument();
+    expect(screen.queryByText('Hurdle Jump')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('access-tab-videos'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Hurdle Jump')).toBeInTheDocument();
+      expect(screen.queryByLabelText('Core')).not.toBeInTheDocument();
     });
   });
 });
