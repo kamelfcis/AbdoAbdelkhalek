@@ -1,3 +1,4 @@
+import { resolveAccessibleContent } from './accessible-content.js';
 import { prisma } from './client.js';
 import { isPoolerError } from './db-errors.js';
 import { toCamelKeys, toSnakeKeys } from '../../common/utils/case-map.js';
@@ -386,26 +387,32 @@ export async function getUserProfileDetails(userId: string) {
 }
 
 export async function listAccessibleCategories(userId: string) {
-  const { categoryIds } = await getAccessibleVideoIds(userId);
+  const { videoIds, categoryIds } = await getAccessibleVideoIds(userId);
+  const hasExplicitAccess = categoryIds.length > 0 || videoIds.length > 0;
   const [publicCats, granted] = await Promise.all([
     dataListPublicCategories(),
     categoryIds.length ? dataListCategoriesByIds(categoryIds) : [],
   ]);
-  const rows = [...publicCats, ...granted] as Array<{ id: string }>;
-  const map = new Map(rows.map((c) => [c.id, c]));
-  return [...map.values()];
+  return resolveAccessibleContent({
+    hasExplicitAccess,
+    publicItems: publicCats as Array<{ id: string }>,
+    grantedItems: granted as Array<{ id: string }>,
+  });
 }
 
 export async function listAccessibleVideos(userId: string) {
   const { videoIds, categoryIds } = await getAccessibleVideoIds(userId);
+  const hasExplicitAccess = categoryIds.length > 0 || videoIds.length > 0;
   const [publicVids, byVideo, byCategory] = await Promise.all([
     dataListPublicVideos(),
     videoIds.length ? dataListVideosByIds(videoIds) : [],
     categoryIds.length ? dataListVideosByCategoryIds(categoryIds) : [],
   ]);
-  const rows = [...publicVids, ...byVideo, ...byCategory] as unknown as Array<{ id: string }>;
-  const map = new Map(rows.map((v) => [v.id, v]));
-  return [...map.values()];
+  return resolveAccessibleContent({
+    hasExplicitAccess,
+    publicItems: publicVids as unknown as Array<{ id: string }>,
+    grantedItems: [...byVideo, ...byCategory] as unknown as Array<{ id: string }>,
+  });
 }
 
 async function dataListPublicCategories() {
