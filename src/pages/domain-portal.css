@@ -229,7 +229,10 @@
 }
 
 .domain-portal-card--fitness .domain-portal-card__name {
-  color: #fff;
+  background: linear-gradient(135deg, #fff, #7dd3fc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .domain-portal-card--fitness .domain-portal-card__cta {

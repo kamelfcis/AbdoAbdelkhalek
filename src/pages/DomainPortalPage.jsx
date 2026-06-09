@@ -21,7 +21,7 @@ const cards = [
     to: '/fitness',
     variant: 'fitness',
     badge: 'Coaching',
-    title: 'Football',
+    title: 'Online Football',
     description: 'Football performance coaching, nutrition, and structured training programs.',
     image: fitnessPortalImage,
     cta: 'Enter Football',
