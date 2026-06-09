@@ -1,7 +1,17 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { authService } from '../services/authService';
-import { contentService } from '../services/contentService';
 import { setAuthTokenChangeHandler } from '../services/apiClient';
+
+function userFromSession(session) {
+  if (!session?.user) return null;
+  const { id, email, user_metadata: meta = {} } = session.user;
+  return {
+    id,
+    email,
+    full_name: meta.full_name,
+    is_coach: Boolean(meta.is_coach),
+  };
+}
 
 const AuthContext = createContext(null);
 
@@ -31,16 +41,9 @@ export const AuthProvider = ({ children }) => {
     }
 
     setSession(nextSession);
-
-    try {
-      const { data: profile } = await contentService.getUserProfile(nextSession.user.id);
-      setUser(profile || null);
-      return profile || null;
-    } catch (error) {
-      console.error('Failed to load user profile:', error);
-      setUser(null);
-      return null;
-    }
+    const profile = userFromSession(nextSession);
+    setUser(profile);
+    return profile;
   }, []);
 
   const login = useCallback(async ({ email, password, rememberMe }) => {

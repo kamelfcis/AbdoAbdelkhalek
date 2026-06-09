@@ -8,6 +8,12 @@ import { loginPath } from '../../../shared/lib/authRoutes';
 const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfile, onShowProfile }) => {
   const { t } = useSquashI18n();
   const navigate = useNavigate();
+  const isCoach = userProfile?.is_coach ?? userSession?.user?.user_metadata?.is_coach;
+  const displayName =
+    userProfile?.full_name ||
+    userSession?.user?.user_metadata?.full_name ||
+    userSession?.user?.email ||
+    '';
 
   useEffect(() => {
     loadFontAwesome({ priority: 'high' }).catch(() => {});
@@ -85,7 +91,7 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
               <span className="hidden lg:inline">{t('nav.login')}</span>
             </button>
           )}
-          {userSession && userProfile?.is_coach && (
+          {userSession && isCoach && (
             <button
               onClick={handleDashboard}
               className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 rounded-full text-sm md:text-base font-semibold hover:shadow-lg flex items-center"
@@ -94,15 +100,13 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
               <span className="hidden lg:inline">{t('nav.dashboard')}</span>
             </button>
           )}
-          {userSession && !userProfile?.is_coach && onShowProfile && (
+          {userSession && !isCoach && onShowProfile && (
             <button
               onClick={onShowProfile}
               className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 rounded-full text-sm md:text-base font-semibold hover:shadow-lg flex items-center"
             >
               <i className="fas fa-user mr-2 rtl:ml-2 rtl:mr-0" />
-              <span className="hidden lg:inline">
-                {(userProfile?.full_name || userSession.user.email || '').split(' ')[0]}
-              </span>
+              <span className="hidden lg:inline">{displayName.split(' ')[0]}</span>
             </button>
           )}
           <button

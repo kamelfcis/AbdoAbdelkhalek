@@ -9,6 +9,12 @@ import { loginPath } from '../../../shared/lib/authRoutes';
 const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfile, onShowProfile }) => {
   const { currentLanguage } = useLanguage();
   const navigate = useNavigate();
+  const isCoach = userProfile?.is_coach ?? userSession?.user?.user_metadata?.is_coach;
+  const displayName =
+    userProfile?.full_name ||
+    userSession?.user?.user_metadata?.full_name ||
+    userSession?.user?.email ||
+    '';
 
   // Professional Font Awesome deferred loading
   useEffect(() => {
@@ -110,7 +116,7 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
               <span className="hidden lg:inline">{getTranslation('nav-login', currentLanguage)}</span>
             </button>
           )}
-          {userSession && userProfile?.is_coach && (
+          {userSession && isCoach && (
             <button
               onClick={handleDashboard}
               className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 md:py-3.5 rounded-full text-sm md:text-base font-semibold hover:shadow-lg flex items-center"
@@ -119,13 +125,13 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
               <span className="hidden lg:inline">{getTranslation('nav-dashboard', currentLanguage)}</span>
             </button>
           )}
-          {userSession && !userProfile?.is_coach && (
+          {userSession && !isCoach && (
             <button
               onClick={onShowProfile}
               className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 md:py-3.5 rounded-full text-sm md:text-base font-semibold hover:shadow-lg flex items-center"
             >
               <i className="fas fa-user mr-2 rtl:ml-2 rtl:mr-0"></i>
-              <span className="hidden lg:inline">{(userProfile?.full_name || userSession.user.email || '').split(' ')[0]}</span>
+              <span className="hidden lg:inline">{displayName.split(' ')[0]}</span>
             </button>
           )}
           <button

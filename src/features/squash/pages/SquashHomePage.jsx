@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { useLocation } from 'react-router-dom';
 import { themeIds } from '../../../design-system/themes';
-import { authService } from '../../../shared/api/authService';
-import { contentService } from '../../../shared/api/contentService';
+import { useAuth } from '../../../contexts/AuthContext';
+import RouteGuardLoader from '../../../components/RouteGuardLoader';
 import { ErrorBoundary } from '../../../app/ErrorBoundary';
 import SquashNavbar from '../sections/SquashNavbar';
 import SquashSidebar from '../sections/SquashSidebar';
@@ -45,37 +45,9 @@ const ComponentLoader = ({ message }) => (
 
 export default function SquashHomePage() {
   const location = useLocation();
+  const { user, session, isLoading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [userSession, setUserSession] = useState(null);
-  const [userProfile, setUserProfile] = useState(null);
   const [pageAlert, setPageAlert] = useState(null);
-
-  useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        const {
-          data: { session },
-        } = await authService.getSession();
-        setUserSession(session);
-        if (session?.user) {
-          const { data: profile } = await contentService.getUserProfile(session.user.id);
-          setUserProfile(profile || null);
-        }
-        authService.onAuthStateChange(async (_event, session) => {
-          setUserSession(session);
-          if (session?.user) {
-            const { data: profile } = await contentService.getUserProfile(session.user.id);
-            setUserProfile(profile || null);
-          } else {
-            setUserProfile(null);
-          }
-        });
-      } catch (error) {
-        console.error('Squash home init error:', error);
-      }
-    };
-    initializeApp();
-  }, []);
 
   useEffect(() => {
     const authMessage = location.state?.authMessage;
@@ -98,6 +70,10 @@ export default function SquashHomePage() {
     setTimeout(() => setPageAlert(null), 6000);
   }, []);
 
+  if (isLoading) {
+    return <RouteGuardLoader message="Loading..." />;
+  }
+
   return (
     <div
       className="App font-['Open_Sans',_sans-serif] bg-white scroll-smooth"
@@ -114,15 +90,15 @@ export default function SquashHomePage() {
         isOpen={sidebarOpen}
         onClose={handleSidebarClose}
         onNavClick={handleNavClick}
-        userSession={userSession}
-        userProfile={userProfile}
+        userSession={session}
+        userProfile={user}
       />
 
       <SquashNavbar
         onSidebarToggle={handleSidebarToggle}
         onNavClick={handleNavClick}
-        userSession={userSession}
-        userProfile={userProfile}
+        userSession={session}
+        userProfile={user}
       />
 
       <main>
@@ -163,7 +139,7 @@ export default function SquashHomePage() {
         </ErrorBoundary>
         <ErrorBoundary fallbackTitle="Packages">
           <Suspense fallback={<ComponentLoader />}>
-            <SquashPackages onAlert={showAlert} userSession={userSession} userProfile={userProfile} />
+            <SquashPackages onAlert={showAlert} userSession={session} userProfile={user} />
           </Suspense>
         </ErrorBoundary>
         <ErrorBoundary fallbackTitle="Coaches">

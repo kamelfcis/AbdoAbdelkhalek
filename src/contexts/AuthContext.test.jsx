@@ -13,18 +13,11 @@ vi.mock('../services/authService', () => ({
   },
 }));
 
-vi.mock('../services/contentService', () => ({
-  contentService: {
-    getUserProfile: vi.fn(),
-  },
-}));
-
 vi.mock('../services/apiClient', () => ({
   setAuthTokenChangeHandler: vi.fn(),
 }));
 
 import { authService } from '../services/authService';
-import { contentService } from '../services/contentService';
 
 function Probe() {
   const { isAuthenticated, isCoach, isLoading, user } = useAuth();
@@ -34,6 +27,7 @@ function Probe() {
       <span data-testid="auth">{String(isAuthenticated)}</span>
       <span data-testid="coach">{String(isCoach)}</span>
       <span data-testid="user">{user?.email ?? 'none'}</span>
+      <span data-testid="name">{user?.full_name ?? 'none'}</span>
     </div>
   );
 }
@@ -42,7 +36,6 @@ describe('AuthContext', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     authService.getSession.mockResolvedValue({ data: { session: null } });
-    contentService.getUserProfile.mockResolvedValue({ data: null });
   });
 
   it('exposes unauthenticated state after bootstrap', async () => {
@@ -54,18 +47,20 @@ describe('AuthContext', () => {
     await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
     expect(screen.getByTestId('auth')).toHaveTextContent('false');
     expect(screen.getByTestId('coach')).toHaveTextContent('false');
+    expect(authService.getSession).toHaveBeenCalledTimes(1);
   });
 
-  it('exposes coach when session and profile load', async () => {
+  it('derives coach user from session metadata with a single getSession call', async () => {
     authService.getSession.mockResolvedValue({
       data: {
         session: {
-          user: { id: 'u1', email: 'admin@gmail.com', user_metadata: { is_coach: true } },
+          user: {
+            id: 'u1',
+            email: 'admin@gmail.com',
+            user_metadata: { is_coach: true, full_name: 'Coach Admin' },
+          },
         },
       },
-    });
-    contentService.getUserProfile.mockResolvedValue({
-      data: { id: 'u1', email: 'admin@gmail.com', is_coach: true },
     });
 
     render(
@@ -77,6 +72,8 @@ describe('AuthContext', () => {
     await waitFor(() => expect(screen.getByTestId('auth')).toHaveTextContent('true'));
     expect(screen.getByTestId('coach')).toHaveTextContent('true');
     expect(screen.getByTestId('user')).toHaveTextContent('admin@gmail.com');
+    expect(screen.getByTestId('name')).toHaveTextContent('Coach Admin');
+    expect(authService.getSession).toHaveBeenCalledTimes(1);
   });
 
   it('throws when useAuth is used outside provider', () => {

@@ -11,6 +11,12 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
   const sidebarRef = useRef(null);
   const langText = currentLanguage === 'ar' ? 'English' : 'العربية';
   const isRTL = currentLanguage === 'ar';
+  const isCoach = userProfile?.is_coach ?? userSession?.user?.user_metadata?.is_coach;
+  const displayName =
+    userProfile?.full_name ||
+    userSession?.user?.user_metadata?.full_name ||
+    userSession?.user?.email ||
+    '';
 
   // Load Font Awesome when sidebar component mounts (since it's lazy loaded)
   useEffect(() => {
@@ -235,7 +241,7 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
               {getTranslation('sidebar-contact', currentLanguage)}
             </a>
           </li>
-          {userSession && !userProfile?.is_coach && (
+          {userSession && !isCoach && (
             <>
               <li>
                 <a
@@ -282,7 +288,7 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
               </button>
             </li>
           )}
-          {userSession && userProfile?.is_coach && (
+          {userSession && isCoach && (
             <li>
               <button
                 onClick={handleDashboard}
@@ -294,7 +300,7 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
               </button>
             </li>
           )}
-          {userSession && !userProfile?.is_coach && (
+          {userSession && !isCoach && (
             <li>
               <button
                 onClick={onShowProfile}
@@ -302,7 +308,7 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
                 style={{ direction: 'ltr' }}
               >
                 <i className={`fas fa-user ${isRTL ? 'ml-2' : 'mr-2'}`}></i>
-                {(userProfile?.full_name || userSession.user.email || '').split(' ')[0]}
+                {displayName.split(' ')[0]}
               </button>
             </li>
           )}

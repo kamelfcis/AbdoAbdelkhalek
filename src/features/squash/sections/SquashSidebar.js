@@ -25,6 +25,12 @@ const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, 
   const navigate = useNavigate();
   const sidebarRef = useRef(null);
   const langText = isRTL ? 'English' : 'العربية';
+  const isCoach = userProfile?.is_coach ?? userSession?.user?.user_metadata?.is_coach;
+  const displayName =
+    userProfile?.full_name ||
+    userSession?.user?.user_metadata?.full_name ||
+    userSession?.user?.email ||
+    '';
 
   useEffect(() => {
     loadFontAwesome({ priority: 'low' }).catch(() => {});
@@ -103,7 +109,7 @@ const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, 
         role="navigation"
         aria-label="Sidebar navigation"
         aria-hidden={!isOpen}
-        {...(!isOpen ? { inert: '' } : {})}
+        {...(!isOpen ? { inert: true } : {})}
         tabIndex={isOpen ? 0 : -1}
       >
         <div className="p-4 border-b flex-shrink-0 relative">
@@ -140,7 +146,7 @@ const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, 
                 </button>
               </li>
             )}
-            {userSession && userProfile?.is_coach && (
+            {userSession && isCoach && (
               <li>
                 <button type="button" onClick={handleDashboard} className="w-full py-2 px-4 rounded-lg bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white text-center font-semibold">
                   <i className={`fas fa-tachometer-alt ${isRTL ? 'ml-2' : 'mr-2'}`} />
@@ -148,11 +154,11 @@ const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, 
                 </button>
               </li>
             )}
-            {userSession && !userProfile?.is_coach && onShowProfile && (
+            {userSession && !isCoach && onShowProfile && (
               <li>
                 <button type="button" onClick={onShowProfile} className="w-full py-2 px-4 rounded-lg bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white text-center font-semibold">
                   <i className={`fas fa-user ${isRTL ? 'ml-2' : 'mr-2'}`} />
-                  {(userProfile?.full_name || userSession.user.email || '').split(' ')[0]}
+                  {displayName.split(' ')[0]}
                 </button>
               </li>
             )}

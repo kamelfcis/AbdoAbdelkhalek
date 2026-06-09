@@ -1,9 +1,9 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { authService } from '../../../shared/api/authService';
+import { useAuth } from '../../../contexts/AuthContext';
 import { contentService } from '../../../shared/api/contentService';
-import LoadingModal from '../sections/LoadingModal';
+import RouteGuardLoader from '../../../components/RouteGuardLoader';
 import Navbar from '../sections/Navbar';
 import Sidebar from '../sections/Sidebar';
 import Footer from '../sections/Footer';
@@ -32,10 +32,8 @@ const ComponentLoader = ({ message }) => (
 );
 export default function FitnessHomePage() {
   const location = useLocation();
+  const { user, session, isLoading, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isLoading] = useState(false); // Start as false to avoid blocking
-  const [userSession, setUserSession] = useState(null);
-  const [userProfile, setUserProfile] = useState(null);
   const [pageAlert, setPageAlert] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [profileDetails, setProfileDetails] = useState({
@@ -49,95 +47,13 @@ export default function FitnessHomePage() {
   const { currentLanguage } = useLanguage();
 
   useEffect(() => {
-    // Loading is already set to false initially - no need to set it again
-    
-    // Defer ALL initialization to avoid blocking main thread
-    const initializeApp = async () => {
-      try {
-        // Check session immediately but defer profile fetch
-            const { data: { session } } = await authService.getSession();
-            setUserSession(session);
-        
-        // Fetch profile in background (non-blocking)
-            if (session?.user) {
-          // Use requestIdleCallback for non-critical profile fetch
-          const fetchProfile = async () => {
-            try {
-              const { data: profile } = await contentService.getUserProfile(session.user.id);
-              setUserProfile(profile || null);
-            } catch (error) {
-              console.error('Profile fetch error:', error);
-              setUserProfile(null);
-            }
-          };
-          
-          if ('requestIdleCallback' in window) {
-            requestIdleCallback(fetchProfile, { timeout: 2000 });
-          } else {
-            setTimeout(fetchProfile, 100);
-          }
-        } else {
-          setUserProfile(null);
-        }
-
-        // Listen for auth changes (non-blocking)
-        authService.onAuthStateChange(async (_event, session) => {
-          setUserSession(session);
-          if (session?.user) {
-            // Defer profile fetch to avoid blocking
-            const fetchProfile = async () => {
-              try {
-            const { data: profile } = await contentService.getUserProfile(session.user.id);
-            setUserProfile(profile || null);
-              } catch (error) {
-                console.error('Profile fetch error:', error);
-                setUserProfile(null);
-              }
-            };
-            
-            if ('requestIdleCallback' in window) {
-              requestIdleCallback(fetchProfile, { timeout: 1000 });
-            } else {
-              setTimeout(fetchProfile, 50);
-            }
-          } else {
-            setUserProfile(null);
-          }
-        });
-      } catch (error) {
-        console.error('Error initializing app:', error);
-      }
-    };
-
-    // Initialize immediately for faster session check, but defer heavy operations
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-      // Use requestIdleCallback if available, otherwise setTimeout
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(initializeApp, { timeout: 500 });
-      } else {
-        setTimeout(initializeApp, 100);
-      }
-    } else {
-      document.addEventListener('DOMContentLoaded', () => {
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(initializeApp, { timeout: 500 });
-        } else {
-          setTimeout(initializeApp, 100);
-        }
-      }, { once: true });
-    }
-  }, []);
-
-  useEffect(() => {
     let isMounted = true;
 
     const fetchProfileDetails = async () => {
-      if (!userSession?.user || !showProfileModal) return;
+      if (!session?.user || !showProfileModal) return;
       setProfileDetails(prev => ({ ...prev, loading: true, error: null }));
 
       try {
-        const userId = userSession.user.id;
-
         const profile = await contentService.getProfileDetails();
 
         if (isMounted) {
@@ -170,7 +86,7 @@ export default function FitnessHomePage() {
     return () => {
       isMounted = false;
     };
-  }, [showProfileModal, userSession, currentLanguage]);
+  }, [showProfileModal, session, currentLanguage]);
 
 
   const handleNavClick = (section) => {
@@ -198,20 +114,11 @@ export default function FitnessHomePage() {
 
   const handleLogout = async () => {
     try {
-      // Sign out without scope parameter to avoid 403 error
-      const { error } = await authService.signOut();
-      
-      // Close modal regardless of signOut result
+      await logout();
       setShowProfileModal(false);
-      
-      // Show success message (session will be cleared on client side)
-      if (!error) {
       showAlert(currentLanguage === 'ar' ? 'تم تسجيل الخروج بنجاح' : 'Logged out successfully');
-      }
     } catch (error) {
       console.error('Error during logout:', error);
-      // Close modal even if signOut fails
-      // The session will be cleared when page reloads or navigates
       setShowProfileModal(false);
     }
   };
@@ -221,10 +128,12 @@ export default function FitnessHomePage() {
     return new Date(date).toLocaleDateString(currentLanguage === 'ar' ? 'ar-EG' : 'en-US');
   };
 
+  if (isLoading) {
+    return <RouteGuardLoader message="Loading..." />;
+  }
+
   return (
     <div className="App font-['Open_Sans',_sans-serif] bg-white scroll-smooth" role="main">
-      {isLoading && <LoadingModal isLoading={isLoading} progress={0} />}
-
       {pageAlert && (
         <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded z-50">
           {pageAlert}
@@ -235,16 +144,16 @@ export default function FitnessHomePage() {
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         onNavClick={handleNavClick}
-        userSession={userSession}
-        userProfile={userProfile}
+        userSession={session}
+        userProfile={user}
         onShowProfile={() => setShowProfileModal(true)}
       />
 
       <Navbar
         onSidebarToggle={() => setSidebarOpen(!sidebarOpen)}
         onNavClick={handleNavClick}
-        userSession={userSession}
-        userProfile={userProfile}
+        userSession={session}
+        userProfile={user}
         onShowProfile={() => setShowProfileModal(true)}
       />
 
@@ -276,17 +185,17 @@ export default function FitnessHomePage() {
         </ErrorBoundary>
         <ErrorBoundary fallbackTitle="Categories Section" fallbackMessage="Unable to load categories. Please refresh the page.">
           <Suspense fallback={<ComponentLoader message="Loading categories..." />}>
-            <Categories onAlert={showAlert} userSession={userSession} />
+            <Categories onAlert={showAlert} userSession={session} />
           </Suspense>
         </ErrorBoundary>
         <ErrorBoundary fallbackTitle="Videos Section" fallbackMessage="Unable to load videos. Please refresh the page.">
           <Suspense fallback={<ComponentLoader message="Loading videos..." />}>
-            <Videos onAlert={showAlert} userSession={userSession} />
+            <Videos onAlert={showAlert} userSession={session} />
           </Suspense>
         </ErrorBoundary>
         <ErrorBoundary fallbackTitle="Packages Section" fallbackMessage="Unable to load packages. Please refresh the page.">
           <Suspense fallback={<ComponentLoader message="Loading packages..." />}>
-            <Packages onAlert={showAlert} userSession={userSession} userProfile={userProfile} />
+            <Packages onAlert={showAlert} userSession={session} userProfile={user} />
           </Suspense>
         </ErrorBoundary>
         <ErrorBoundary fallbackTitle="About Coach Section" fallbackMessage="Unable to load about coach section. Please refresh the page.">
@@ -310,7 +219,7 @@ export default function FitnessHomePage() {
       <ScrollToTop />
       <FloatingInstagramButton />
 
-      {userSession && showProfileModal && (
+      {session && showProfileModal && (
         <div
           className="modal fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
           role="dialog"
@@ -352,9 +261,9 @@ export default function FitnessHomePage() {
                       <i className="fas fa-user text-white text-2xl"></i>
                     </div>
                     <h2 className="text-2xl font-bold text-gray-800">
-                      {profileDetails.userData?.full_name || userSession.user.email}
+                      {profileDetails.userData?.full_name || user?.full_name || session?.user?.email}
                     </h2>
-                    <p className="text-gray-600">{profileDetails.userData?.email || userSession.user.email}</p>
+                    <p className="text-gray-600">{profileDetails.userData?.email || session?.user?.email}</p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

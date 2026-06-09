@@ -81,20 +81,15 @@ export function useLoginAuth() {
 
       if (profile?.is_coach) {
         prefetchDashboardData('fitness');
+        navigate(getDefaultDashboardPath());
+      } else {
+        navigate(traineeHomePath(signupDomain), {
+          state: {
+            authMessage: t('trainee-welcome'),
+            authMessageAr: getLoginTranslation('ar', 'trainee-welcome'),
+          },
+        });
       }
-
-      setTimeout(() => {
-        if (profile?.is_coach) {
-          navigate(getDefaultDashboardPath());
-        } else {
-          navigate(traineeHomePath(signupDomain), {
-            state: {
-              authMessage: t('trainee-welcome'),
-              authMessageAr: getLoginTranslation('ar', 'trainee-welcome'),
-            },
-          });
-        }
-      }, 1500);
     } catch (authError) {
       const msg = authError.message || '';
       if (msg.includes('Invalid') || msg.includes('credentials')) {
@@ -146,14 +141,12 @@ export function useLoginAuth() {
         setSuccess(t('account-created'));
         setLoading(false);
 
-        setTimeout(() => {
-          navigate(traineeHomePath(signupDomain), {
-            state: {
-              authMessage: t('trainee-welcome'),
-              authMessageAr: getLoginTranslation('ar', 'trainee-welcome'),
-            },
-          });
-        }, 1500);
+        navigate(traineeHomePath(signupDomain), {
+          state: {
+            authMessage: t('trainee-welcome'),
+            authMessageAr: getLoginTranslation('ar', 'trainee-welcome'),
+          },
+        });
       } catch (loginError) {
         console.error('Auto-login after signup failed:', loginError);
         setError(t('signup-created-login-failed'));
