@@ -125,7 +125,9 @@ const TraineeAccessModal = ({
       onClose={handleClose}
       title={<TraineeAccessHeader trainee={trainee} tr={tr} />}
       size="full"
-      headerClassName="border-b-0 text-white [&_#modal-title]:text-white"
+      className="rounded-2xl border border-[var(--color-border)] shadow-2xl ring-1 ring-[var(--color-primary)]/15"
+      contentClassName="relative bg-[var(--color-bg-muted)]/25 before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(ellipse_at_top_right,var(--color-primary)_0%,transparent_50%),radial-gradient(ellipse_at_bottom_left,var(--color-primary)_0%,transparent_45%)] before:opacity-[0.04]"
+      headerClassName="border-b border-white/10 text-white [&_#modal-title]:text-white"
       headerStyle={{ background: 'var(--gradient-brand)' }}
       closeButtonClassName="text-white/90 hover:bg-white/10 hover:text-white"
       footer={

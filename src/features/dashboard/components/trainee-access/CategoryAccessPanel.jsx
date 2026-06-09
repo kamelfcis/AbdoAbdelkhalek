@@ -1,7 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { EmptyState, Skeleton } from '../../../../shared/ui';
-import { AccessSelectableRow, AccessPanelToolbar } from '../modalHelpers';
+import {
+  AccessSelectableRow,
+  AccessPanelToolbar,
+  AccessPanelShell,
+  AccessScrollList,
+} from '../modalHelpers';
 import {
   getCategoryVideoCount,
   getCategorySelectionState,
@@ -25,22 +30,25 @@ const CategoryAccessPanel = ({
   grantLabel,
   revokeLabel,
 }) => (
-  <section aria-label={tr('trainee-access-categories-section')} data-testid="category-access-panel">
-    <h3 className="mb-3 font-semibold text-[var(--color-text)]">
-      {tr('trainee-access-categories-section')}
-    </h3>
-    <AccessPanelToolbar
-      searchPlaceholder={tr('trainee-access-search-categories')}
-      searchValue={search}
-      onSearchChange={onSearchChange}
-      onGrantAll={onGrantAll}
-      onRevokeAll={onRevokeAll}
-      grantLabel={grantLabel}
-      revokeLabel={revokeLabel}
-      resultCount={categories.length}
-    />
+  <AccessPanelShell
+    ariaLabel={tr('trainee-access-categories-section')}
+    testId="category-access-panel"
+    title={tr('trainee-access-categories-section')}
+    toolbar={
+      <AccessPanelToolbar
+        searchPlaceholder={tr('trainee-access-search-categories')}
+        searchValue={search}
+        onSearchChange={onSearchChange}
+        onGrantAll={onGrantAll}
+        onRevokeAll={onRevokeAll}
+        grantLabel={grantLabel}
+        revokeLabel={revokeLabel}
+        resultCount={categories.length}
+      />
+    }
+  >
     {isLoading ? (
-      <div className="space-y-2" data-testid="category-skeleton">
+      <div className="space-y-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-muted)]/25 p-2 shadow-[inset_0_2px_12px_rgba(0,0,0,0.05)]" data-testid="category-skeleton">
         {Array.from({ length: 6 }).map((_, i) => (
           <Skeleton key={i} variant="rect" className="h-12" />
         ))}
@@ -55,7 +63,7 @@ const CategoryAccessPanel = ({
         }
       />
     ) : (
-      <div className="max-h-[52vh] min-h-[200px] space-y-1 overflow-y-auto pe-1">
+      <AccessScrollList>
         {categories.map((cat) => {
           const catId = String(cat.id);
           const label = isAr ? cat.name_ar : cat.name_en;
@@ -79,9 +87,9 @@ const CategoryAccessPanel = ({
             />
           );
         })}
-      </div>
+      </AccessScrollList>
     )}
-  </section>
+  </AccessPanelShell>
 );
 
 CategoryAccessPanel.propTypes = {

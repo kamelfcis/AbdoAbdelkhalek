@@ -23,7 +23,7 @@ const TraineeAccessLayout = ({ tr, categoryPanel, videoPanel }) => {
   if (isDesktop) {
     return (
       <div
-        className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(240px,34%)_1fr]"
+        className="grid grid-cols-1 gap-5 md:grid-cols-[minmax(240px,34%)_1fr] md:items-stretch"
         data-testid="access-split-layout"
       >
         {categoryPanel}

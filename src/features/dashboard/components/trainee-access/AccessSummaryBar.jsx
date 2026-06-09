@@ -5,7 +5,7 @@ import { dashTemplate } from '../../utils/dashTemplate';
 
 const AccessSummaryBar = ({ categoryCount, videoCount, isDirty, tr }) => (
   <div
-    className="flex flex-wrap items-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-muted)] px-3 py-2"
+    className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-gradient-to-r from-[var(--color-bg-muted)]/90 to-[var(--color-surface)] px-4 py-2.5 shadow-sm ring-1 ring-[var(--color-primary)]/10"
     data-testid="access-summary-bar"
   >
     <span className="text-sm text-[var(--color-text)]">

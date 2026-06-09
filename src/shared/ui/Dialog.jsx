@@ -35,14 +35,14 @@ const Dialog = ({
     <DialogPrimitive.Root open={isOpen} onOpenChange={handleOpenChange}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
-          className="fixed inset-0 z-[1400] bg-black/60 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out"
+          className="fixed inset-0 z-[1400] bg-black/65 backdrop-blur-md data-[state=open]:animate-in data-[state=closed]:animate-out"
           onClick={closeOnOverlay ? undefined : (e) => e.stopPropagation()}
         />
         <DialogPrimitive.Content
           className={cn(
             'fixed left-1/2 top-1/2 z-[1400] flex w-full -translate-x-1/2 -translate-y-1/2 flex-col',
-            'max-h-[90vh] overflow-hidden rounded-xl bg-[var(--color-surface)] shadow-xl',
-            'focus:outline-none',
+            'max-h-[90vh] overflow-hidden rounded-2xl bg-[var(--color-surface)] shadow-2xl',
+            'ring-1 ring-[var(--color-border)] focus:outline-none',
             sizes[size] || sizes.md,
             className
           )}
@@ -91,9 +91,11 @@ const Dialog = ({
               )}
             </div>
           )}
-          <div className={cn('flex-1 overflow-y-auto px-6 py-4', contentClassName)}>{children}</div>
+          <div className={cn('relative flex-1 overflow-y-auto px-6 py-4', contentClassName)}>
+            {children}
+          </div>
           {footer && (
-            <div className="shrink-0 border-t border-[var(--color-border)] bg-[var(--color-bg-muted)] px-6 py-4">
+            <div className="shrink-0 border-t border-[var(--color-border)] bg-gradient-to-b from-[var(--color-bg-muted)]/80 to-[var(--color-bg-muted)] px-6 py-4">
               {footer}
             </div>
           )}

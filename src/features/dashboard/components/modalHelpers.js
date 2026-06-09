@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Checkbox, Badge, Input } from '../../../shared/ui';
+import { cn } from '../../../shared/lib/cn';
 
 /** Shared modal footer with cancel + submit buttons */
 export const ModalFormFooter = ({
@@ -68,6 +69,81 @@ CheckboxField.propTypes = {
   leading: PropTypes.node,
 };
 
+/** Bordered panel shell for category/video access lists */
+export const AccessPanelShell = ({ title, toolbar, filters, children, testId, ariaLabel }) => (
+  <section
+    aria-label={ariaLabel}
+    data-testid={testId}
+    className={cn(
+      'flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border)]',
+      'bg-[var(--color-surface)] shadow-[0_4px_24px_-6px_rgba(0,0,0,0.1)]',
+      'ring-1 ring-[var(--color-primary)]/10'
+    )}
+  >
+    <div
+      className={cn(
+        'shrink-0 border-b border-[var(--color-border)] px-4 py-3',
+        'bg-gradient-to-b from-[var(--color-bg-muted)]/95 to-[var(--color-surface)]/70 backdrop-blur-sm'
+      )}
+    >
+      <h3 className="mb-2 font-semibold tracking-tight text-[var(--color-text)]">{title}</h3>
+      {toolbar}
+      {filters}
+    </div>
+    <div className="relative min-h-0 flex-1 p-3">{children}</div>
+  </section>
+);
+
+AccessPanelShell.propTypes = {
+  title: PropTypes.node.isRequired,
+  toolbar: PropTypes.node,
+  filters: PropTypes.node,
+  children: PropTypes.node,
+  testId: PropTypes.string,
+  ariaLabel: PropTypes.string,
+};
+
+/** Scrollable list container with visible border and fade indicators */
+export const AccessScrollList = React.forwardRef(
+  ({ children, className, testId, style }, ref) => (
+    <div className="relative">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 h-5 rounded-t-xl bg-gradient-to-b from-[var(--color-bg-muted)]/40 to-transparent"
+      />
+      <div
+        ref={ref}
+        data-testid={testId}
+        style={style}
+        className={cn(
+          'max-h-[52vh] min-h-[200px] overflow-y-auto rounded-xl',
+          'border border-[var(--color-border)] bg-[var(--color-bg-muted)]/25',
+          'shadow-[inset_0_2px_12px_rgba(0,0,0,0.05)]',
+          'ring-1 ring-inset ring-[var(--color-primary)]/5',
+          '[mask-image:linear-gradient(to_bottom,transparent,black_14px,black_calc(100%-14px),transparent)]',
+          'space-y-1.5 p-2 pe-1',
+          className
+        )}
+      >
+        {children}
+      </div>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-5 rounded-b-xl bg-gradient-to-t from-[var(--color-bg-muted)]/40 to-transparent"
+      />
+    </div>
+  )
+);
+
+AccessScrollList.displayName = 'AccessScrollList';
+
+AccessScrollList.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
+  testId: PropTypes.string,
+  style: PropTypes.object,
+};
+
 /** Card row with Radix Checkbox + label + optional meta */
 export const AccessSelectableRow = ({
   id,
@@ -80,7 +156,15 @@ export const AccessSelectableRow = ({
   className,
 }) => (
   <div
-    className={`flex items-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 transition-colors hover:bg-[var(--color-bg-muted)]/50 ${className || ''}`}
+    className={cn(
+      'flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-all duration-200',
+      checked
+        ? 'border-[var(--color-primary)]/50 bg-[var(--color-primary)]/8 shadow-sm ring-1 ring-[var(--color-primary)]/15'
+        : 'border-[var(--color-border)] bg-[var(--color-surface)]',
+      'hover:-translate-y-px hover:border-[var(--color-primary)]/35 hover:shadow-md',
+      onRowClick && 'cursor-pointer',
+      className
+    )}
     onClick={onRowClick}
     onKeyDown={(e) => {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -135,7 +219,7 @@ export const AccessPanelToolbar = ({
   revokeLabel,
   resultCount,
 }) => (
-  <div className="mb-3 space-y-2">
+  <div className="space-y-2">
     <div className="flex flex-wrap items-center gap-2">
       <Input
         placeholder={searchPlaceholder}
@@ -178,7 +262,15 @@ const isVideoPublic = (video) => video?.is_public === true || video?.isPublic ==
 export const VideoAccessRow = ({ video, label, checked, onChange, publicLabel, privateLabel }) => {
   const isPublic = isVideoPublic(video);
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2">
+    <div
+      className={cn(
+        'flex items-center gap-2 rounded-xl border px-3 py-2.5 transition-all duration-200',
+        checked
+          ? 'border-[var(--color-primary)]/50 bg-[var(--color-primary)]/8 shadow-sm ring-1 ring-[var(--color-primary)]/15'
+          : 'border-[var(--color-border)] bg-[var(--color-surface)]',
+        'hover:-translate-y-px hover:border-[var(--color-primary)]/35 hover:shadow-md'
+      )}
+    >
       <Checkbox
         checked={checked}
         onCheckedChange={onChange}
