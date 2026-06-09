@@ -461,14 +461,13 @@ export async function listSquashAccessibleCategories(userId: string) {
 export async function listSquashAccessibleVideos(userId: string) {
   const { videoIds, categoryIds } = await getSquashAccessibleVideoIds(userId);
   const hasExplicitAccess = categoryIds.length > 0 || videoIds.length > 0;
-  const [publicVids, byVideo, byCategory] = await Promise.all([
+  const [publicVids, byVideo] = await Promise.all([
     squashDataListPublicVideos(),
     videoIds.length ? squashDataListVideosByIds(videoIds) : [],
-    categoryIds.length ? squashDataListVideosByCategoryIds(categoryIds) : [],
   ]);
   return resolveAccessibleContent({
     hasExplicitAccess,
     publicItems: publicVids as unknown as Array<{ id: string }>,
-    grantedItems: [...byVideo, ...byCategory] as unknown as Array<{ id: string }>,
+    grantedItems: byVideo as unknown as Array<{ id: string }>,
   });
 }

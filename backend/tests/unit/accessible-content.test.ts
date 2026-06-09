@@ -72,7 +72,7 @@ describe('fitness accessible lists', () => {
     vi.clearAllMocks();
   });
 
-  it('category-only grant returns only that category videos', async () => {
+  it('category-only grant returns empty video list (explicit video access only)', async () => {
     const catA = 'cat-a';
     prismaMocks.userVideoAccess.findMany.mockResolvedValue([]);
     prismaMocks.userCategoryAccess.findMany.mockResolvedValue([{ categoryId: catA }]);
@@ -91,7 +91,7 @@ describe('fitness accessible lists', () => {
 
     const result = await listAccessibleVideos('trainee-1');
 
-    expect(result.map((v) => v.id).sort()).toEqual(['priv-a1', 'priv-a2']);
+    expect(result).toEqual([]);
     expect(prismaMocks.video.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { isPublic: true } })
     );
@@ -111,7 +111,7 @@ describe('fitness accessible lists', () => {
     expect(result.map((v) => v.id)).toEqual(['pub-1', 'pub-2']);
   });
 
-  it('category + individual video returns union without duplicates', async () => {
+  it('category + individual video returns only explicit video ids', async () => {
     const catA = 'cat-a';
     prismaMocks.userVideoAccess.findMany.mockResolvedValue([{ videoId: 'shared' }]);
     prismaMocks.userCategoryAccess.findMany.mockResolvedValue([{ categoryId: catA }]);
@@ -133,7 +133,7 @@ describe('fitness accessible lists', () => {
 
     const result = await listAccessibleVideos('trainee-3');
 
-    expect(result.map((v) => v.id).sort()).toEqual(['cat-only', 'shared']);
+    expect(result.map((v) => v.id)).toEqual(['shared']);
   });
 
   it('category-only grant returns only granted categories', async () => {
@@ -160,7 +160,7 @@ describe('squash accessible lists', () => {
     vi.clearAllMocks();
   });
 
-  it('category-only grant returns only that category videos', async () => {
+  it('category-only grant returns empty video list (explicit video access only)', async () => {
     const catA = 'squash-cat-a';
     prismaMocks.squashUserVideoAccess.findMany.mockResolvedValue([]);
     prismaMocks.squashUserCategoryAccess.findMany.mockResolvedValue([{ categoryId: catA }]);
@@ -176,7 +176,7 @@ describe('squash accessible lists', () => {
 
     const result = await listSquashAccessibleVideos('trainee-sq-1');
 
-    expect(result.map((v) => v.id)).toEqual(['squash-a1']);
+    expect(result).toEqual([]);
   });
 
   it('no grants returns public squash videos only', async () => {

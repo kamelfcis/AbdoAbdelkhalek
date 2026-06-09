@@ -403,15 +403,14 @@ export async function listAccessibleCategories(userId: string) {
 export async function listAccessibleVideos(userId: string) {
   const { videoIds, categoryIds } = await getAccessibleVideoIds(userId);
   const hasExplicitAccess = categoryIds.length > 0 || videoIds.length > 0;
-  const [publicVids, byVideo, byCategory] = await Promise.all([
+  const [publicVids, byVideo] = await Promise.all([
     dataListPublicVideos(),
     videoIds.length ? dataListVideosByIds(videoIds) : [],
-    categoryIds.length ? dataListVideosByCategoryIds(categoryIds) : [],
   ]);
   return resolveAccessibleContent({
     hasExplicitAccess,
     publicItems: publicVids as unknown as Array<{ id: string }>,
-    grantedItems: [...byVideo, ...byCategory] as unknown as Array<{ id: string }>,
+    grantedItems: byVideo as unknown as Array<{ id: string }>,
   });
 }
 

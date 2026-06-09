@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import { getContentService } from '../../../shared/lib/getContentService';
 import { getDashboardTranslation } from '../../../shared/i18n/dashboard';
 import { normalizeListResponse } from '../../../shared/api/listUtils';
-import { Modal, Spinner, Button, EmptyState, toastSuccess, toastError } from '../../../shared/ui';
-import { ModalFormFooter, CheckboxField } from './modalHelpers';
+import { Modal, Spinner, Button, EmptyState, Select, toastSuccess, toastError } from '../../../shared/ui';
+import { ModalFormFooter, CheckboxField, VideoAccessRow } from './modalHelpers';
 import { dashTemplate } from '../utils/dashTemplate';
 
 const EMPTY_LIST = [];
+const FILTER_ALL = 'all';
 
 const getVideoCategoryId = (video) => String(video.category_id ?? video.categoryId ?? '');
 
@@ -39,6 +40,23 @@ AccessSection.propTypes = {
   children: PropTypes.node,
 };
 
+const buildSelectedVideos = (access, catalogVideos) => {
+  const fromDb = new Set(
+    (access.videos || []).map((a) => String(a.videoId || a.video_id || ''))
+  );
+  const categoryIds = (access.categories || []).map((a) =>
+    String(a.categoryId || a.category_id || '')
+  );
+
+  if (fromDb.size === 0 && categoryIds.length > 0) {
+    catalogVideos
+      .filter((v) => categoryIds.includes(getVideoCategoryId(v)))
+      .forEach((v) => fromDb.add(String(v.id)));
+  }
+
+  return fromDb;
+};
+
 const TraineeAccessModal = ({
   isOpen,
   onClose,
@@ -56,6 +74,7 @@ const TraineeAccessModal = ({
   const [catalogVideos, setCatalogVideos] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState(new Set());
   const [selectedVideos, setSelectedVideos] = useState(new Set());
+  const [videoFilterCategoryId, setVideoFilterCategoryId] = useState(FILTER_ALL);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const isAr = currentLanguage === 'ar';
@@ -66,6 +85,7 @@ const TraineeAccessModal = ({
       setCatalogVideos([]);
       setSelectedCategories(new Set());
       setSelectedVideos(new Set());
+      setVideoFilterCategoryId(FILTER_ALL);
     }
   }, [isOpen]);
 
@@ -99,9 +119,8 @@ const TraineeAccessModal = ({
             (access.categories || []).map((a) => String(a.categoryId || a.category_id || ''))
           )
         );
-        setSelectedVideos(
-          new Set((access.videos || []).map((a) => String(a.videoId || a.video_id || '')))
-        );
+        setSelectedVideos(buildSelectedVideos(access, vidItems));
+        setVideoFilterCategoryId(FILTER_ALL);
       } catch (e) {
         console.error(e);
         toastError(e.message);
@@ -114,18 +133,8 @@ const TraineeAccessModal = ({
 
   const toggleCategory = (catId) => {
     const next = new Set(selectedCategories);
-    if (next.has(catId)) {
-      next.delete(catId);
-      setSelectedVideos((prev) => {
-        const videoNext = new Set(prev);
-        catalogVideos.forEach((v) => {
-          if (getVideoCategoryId(v) === catId) videoNext.delete(String(v.id));
-        });
-        return videoNext;
-      });
-    } else {
-      next.add(catId);
-    }
+    if (next.has(catId)) next.delete(catId);
+    else next.add(catId);
     setSelectedCategories(next);
   };
 
@@ -153,12 +162,23 @@ const TraineeAccessModal = ({
     }
   };
 
-  const visibleVideos = useMemo(() => {
-    if (selectedCategories.size === 0) return catalogVideos;
-    return catalogVideos.filter((v) => selectedCategories.has(getVideoCategoryId(v)));
-  }, [catalogVideos, selectedCategories]);
+  const categoryFilterOptions = useMemo(
+    () => [
+      { value: FILTER_ALL, label: tr('trainee-access-videos-filter-all') },
+      ...catalogCategories.map((cat) => ({
+        value: String(cat.id),
+        label: isAr ? cat.name_ar : cat.name_en,
+      })),
+    ],
+    [catalogCategories, isAr, tr]
+  );
 
-  const isFilteringVideos = selectedCategories.size > 0;
+  const visibleVideos = useMemo(() => {
+    if (videoFilterCategoryId === FILTER_ALL) return catalogVideos;
+    return catalogVideos.filter((v) => getVideoCategoryId(v) === videoFilterCategoryId);
+  }, [catalogVideos, videoFilterCategoryId]);
+
+  const isFilteringVideos = videoFilterCategoryId !== FILTER_ALL;
 
   const traineeName = trainee?.full_name || trainee?.email || tr('page-trainee');
   const modalTitle = (
@@ -237,30 +257,50 @@ const TraineeAccessModal = ({
           >
             {catalogVideos.length === 0 ? (
               <EmptyState icon="fa-video" title={tr('videos-empty')} />
-            ) : visibleVideos.length === 0 ? (
-              <EmptyState icon="fa-video" title={tr('trainee-access-videos-filter-empty')} />
             ) : (
               <>
-                {isFilteringVideos && (
-                  <p className="text-sm text-[var(--color-text-muted)] mb-2">
-                    {dashTemplate(tr('trainee-access-videos-filtered'), {
-                      count: visibleVideos.length,
-                    })}
+                <div className="mb-3 flex flex-wrap items-end gap-3">
+                  <Select
+                    label={tr('trainee-access-videos-filter-category')}
+                    value={videoFilterCategoryId}
+                    onChange={(e) => setVideoFilterCategoryId(e.target.value)}
+                    options={categoryFilterOptions}
+                    className="max-w-xs"
+                    data-testid="video-category-filter"
+                  />
+                  <p className="text-xs text-[var(--color-text-muted)] pb-2.5">
+                    {tr('trainee-access-public-legend')}
                   </p>
-                )}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[50vh] overflow-y-auto pe-1">
-                  {visibleVideos.map((v) => {
-                    const vidId = String(v.id);
-                    return (
-                      <CheckboxField
-                        key={vidId}
-                        label={isAr ? v.title_ar : v.title_en}
-                        checked={selectedVideos.has(vidId)}
-                        onChange={() => toggleVideo(selectedVideos, vidId, setSelectedVideos)}
-                      />
-                    );
-                  })}
                 </div>
+                {visibleVideos.length === 0 ? (
+                  <EmptyState icon="fa-video" title={tr('trainee-access-videos-filter-empty')} />
+                ) : (
+                  <>
+                    {isFilteringVideos && (
+                      <p className="text-sm text-[var(--color-text-muted)] mb-2">
+                        {dashTemplate(tr('trainee-access-videos-filtered'), {
+                          count: visibleVideos.length,
+                        })}
+                      </p>
+                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[50vh] overflow-y-auto pe-1">
+                      {visibleVideos.map((v) => {
+                        const vidId = String(v.id);
+                        return (
+                          <VideoAccessRow
+                            key={vidId}
+                            video={v}
+                            label={isAr ? v.title_ar : v.title_en}
+                            checked={selectedVideos.has(vidId)}
+                            onChange={() => toggleVideo(selectedVideos, vidId, setSelectedVideos)}
+                            publicLabel={tr('filter-public')}
+                            privateLabel={tr('filter-private')}
+                          />
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
               </>
             )}
           </AccessSection>
