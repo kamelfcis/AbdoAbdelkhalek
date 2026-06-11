@@ -13,9 +13,16 @@ import {
   requestIdMiddleware,
   requestLoggerMiddleware,
 } from '../infrastructure/logging/request-logger.js';
+import { jsonReplacer } from '../common/utils/json-safe.js';
 
 export function createApp(): express.Application {
   const app = express();
+
+  app.use((_req, res, next) => {
+    const sendJson = res.json.bind(res);
+    res.json = (body: unknown) => sendJson(JSON.parse(JSON.stringify(body, jsonReplacer)));
+    next();
+  });
 
   app.use(helmet());
   app.use(compression() as unknown as RequestHandler);

@@ -45,6 +45,18 @@ function mapReview(r: Record<string, unknown>) {
   };
 }
 
+function coercePrice(value: unknown): number | string | null | undefined {
+  if (value == null) return value as null | undefined;
+  if (typeof value === 'number' || typeof value === 'string') return value;
+  if (typeof value === 'object' && value !== null && 'd' in value) {
+    const dec = value as { e?: number; d?: number[] };
+    if (Array.isArray(dec.d) && dec.d.length === 1 && typeof dec.e === 'number') {
+      return dec.d[0] * 10 ** dec.e;
+    }
+  }
+  return String(value);
+}
+
 function mapPackage(row: Record<string, unknown>) {
   const pkg = rewriteMediaUrls(row) as Record<string, unknown>;
   return {
@@ -53,8 +65,8 @@ function mapPackage(row: Record<string, unknown>) {
     name_ar: pkg.name_ar ?? pkg.nameAr,
     description_en: pkg.description_en ?? pkg.descriptionEn,
     description_ar: pkg.description_ar ?? pkg.descriptionAr,
-    price_egp: pkg.price_egp ?? pkg.priceEgp,
-    price_usd: pkg.price_usd ?? pkg.priceUsd,
+    price_egp: coercePrice(pkg.price_egp ?? pkg.priceEgp),
+    price_usd: coercePrice(pkg.price_usd ?? pkg.priceUsd),
     duration_days: pkg.duration_days ?? pkg.durationDays,
     features_en: pkg.features_en ?? pkg.featuresEn,
     features_ar: pkg.features_ar ?? pkg.featuresAr,
