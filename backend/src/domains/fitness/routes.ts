@@ -143,6 +143,15 @@ router.get('/trainees', requireAuth, requireCoach, async (req, res, next) => {
   }
 });
 
+router.delete('/trainees/:id', requireAuth, requireCoach, async (req, res, next) => {
+  try {
+    await fitness.deleteTrainee(req.params.id);
+    res.json({ ok: true });
+  } catch (e) {
+    next(e);
+  }
+});
+
 router.post(
   '/categories',
   requireAuth,

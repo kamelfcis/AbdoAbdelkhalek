@@ -44,6 +44,16 @@ function toRest(data: Record<string, unknown>) {
   return toSnakeKeys(normalize(data));
 }
 
+export async function deleteTrainee(userId: string) {
+  return prisma.$transaction([
+    prisma.userVideoAccess.deleteMany({ where: { userId } }),
+    prisma.userCategoryAccess.deleteMany({ where: { userId } }),
+    prisma.subscription.deleteMany({ where: { userId } }),
+    prisma.passwordResetToken.deleteMany({ where: { userId } }),
+    prisma.user.delete({ where: { id: userId } }),
+  ]);
+}
+
 export async function createCategory(data: Record<string, unknown>) {
   const camel = normalize(data);
   return withWriteFallback(

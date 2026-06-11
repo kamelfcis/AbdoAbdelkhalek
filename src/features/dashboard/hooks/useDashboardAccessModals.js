@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { getContentService } from '../../../shared/lib/getContentService';
 import { showSuccess, showError } from '../../../shared/lib/notifications';
 import { invalidateAccessCrud } from '../../../shared/lib/queryKeys';
+import { confirmEntityDelete } from '../crud/EntityDeleteDialog';
 
 export function useDashboardAccessModals({
   adminDomain,
@@ -34,6 +35,23 @@ export function useDashboardAccessModals({
       invalidateAccessCrud(queryClient, adminDomain);
     } catch (error) {
       showError(error.message || 'Error deleting subscription');
+    }
+  };
+
+  const handleDeleteTrainee = async (userId) => {
+    const confirmed = await confirmEntityDelete({
+      isAr,
+      message: isAr
+        ? 'سيتم حذف المتدرب وجميع بياناته نهائياً'
+        : 'This trainee and all their data will be permanently deleted.',
+    });
+    if (!confirmed) return;
+    try {
+      await contentService.deleteTrainee(userId);
+      showSuccess(isAr ? 'تم حذف المتدرب' : 'Trainee deleted');
+      invalidateAccessCrud(queryClient, adminDomain);
+    } catch (err) {
+      showError(err.message || 'Error deleting trainee');
     }
   };
 
@@ -74,6 +92,7 @@ export function useDashboardAccessModals({
     setTraineeForConversion,
     handleManageSubscription,
     handleDeleteSubscription,
+    handleDeleteTrainee,
     handleConvertToSubscription,
   };
 }

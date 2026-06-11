@@ -152,6 +152,7 @@ export const deleteCoach = repo.deleteSquashCoach;
 export const createProgram = repo.createSquashProgram;
 export const updateProgram = repo.updateSquashProgram;
 export const deleteProgram = repo.deleteSquashProgram;
+export const deleteTrainee = repo.deleteTrainee;
 export const getVideoAccessUserIds = repo.getSquashVideoAccessUserIds;
 export const setVideoAccessUserIds = repo.setSquashVideoAccessUserIds;
 export const getTraineeAccess = repo.getSquashTraineeAccess;

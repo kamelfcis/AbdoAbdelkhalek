@@ -244,6 +244,8 @@ export const updateSubscription = repo.updateSubscription;
 
 export const deleteSubscription = repo.deleteSubscription;
 
+export const deleteTrainee = repo.deleteTrainee;
+
 export const getVideoAccessUserIds = repo.getVideoAccessUserIds;
 
 export const setVideoAccessUserIds = repo.setVideoAccessUserIds;

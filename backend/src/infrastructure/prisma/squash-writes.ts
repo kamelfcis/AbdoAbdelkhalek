@@ -248,6 +248,16 @@ type SquashAccessPrisma = {
 
 const squashAccessDb = prisma as unknown as SquashAccessPrisma;
 
+export async function deleteTrainee(userId: string) {
+  return squashAccessDb.$transaction([
+    squashAccessDb.squashUserVideoAccess.deleteMany({ where: { userId } }),
+    squashAccessDb.squashUserCategoryAccess.deleteMany({ where: { userId } }),
+    prisma.subscription.deleteMany({ where: { userId } }),
+    prisma.passwordResetToken.deleteMany({ where: { userId } }),
+    prisma.user.delete({ where: { id: userId } }),
+  ]);
+}
+
 export async function getSquashVideoAccessUserIds(videoId: string): Promise<string[]> {
   return withWriteFallback(
     async () => {

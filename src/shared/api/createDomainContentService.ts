@@ -128,6 +128,8 @@ export function createDomainContentService(apiPrefix: string) {
       apiFetch(p(`/subscriptions/${id}`), { method: 'PATCH', body: JSON.stringify(data) }),
     deleteSubscription: (id: string | number) => apiFetch(p(`/subscriptions/${id}`), { method: 'DELETE' }),
     getTrainees: (params?: Record<string, unknown>) => fetchList(p('/trainees'), params),
+    deleteTrainee: (id: string | number) =>
+      apiFetch(p(`/trainees/${id}`), { method: 'DELETE' }),
     getCoaches: (params?: Record<string, unknown>) =>
       fetchList(p('/coaches'), params, mapEntity as (row: Record<string, unknown>) => unknown),
     getPrograms: (params?: Record<string, unknown>) =>
