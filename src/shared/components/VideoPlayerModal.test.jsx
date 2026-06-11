@@ -29,7 +29,7 @@ describe('VideoPlayerModal', () => {
         onClose={onClose}
         title="Test Video"
         playUrl="https://cdn.example.com/videos/test.mp4"
-        t={(key) => key}
+        getLabel={(key) => key}
       />
     );
 
@@ -47,7 +47,7 @@ describe('VideoPlayerModal', () => {
         onClose={onClose}
         title="Test Video"
         playUrl="https://cdn.example.com/videos/test.mp4"
-        t={(key) => key}
+        getLabel={(key) => key}
       />
     );
 

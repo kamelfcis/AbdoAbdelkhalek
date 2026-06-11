@@ -6,7 +6,7 @@ import { useSquashContent } from '../../../shared/hooks/useSquashContent';
 import { useSquashI18n } from '../hooks/useSquashI18n';
 import { pickItemField } from '../utils/localize';
 import VideoPlayerModal from '../../../shared/components/VideoPlayerModal';
-import { resolveVideoPlayUrl, isYouTubeUrl } from '../../../shared/lib/resolveVideoPlayUrl';
+import { resolveVideoPlayUrl } from '../../../shared/lib/resolveVideoPlayUrl';
 import { prefetchVideoUrl } from '../../../shared/lib/prefetchVideo';
 
 const SquashVideos = () => {
@@ -188,12 +188,12 @@ const SquashVideos = () => {
           onClose={closeModal}
           title={selectedVideo ? pickItemField(selectedVideo, isAr, 'title_en', 'title_ar') : ''}
           playUrl={playUrl}
-          isYouTube={isYouTubeUrl(playUrl)}
           description={
             selectedVideo ? pickItemField(selectedVideo, isAr, 'description_en', 'description_ar') : ''
           }
           isRTL={isRTL}
-          t={videoT}
+          getLabel={videoT}
+          notAvailableLabel={t('videos.unavailable')}
         />
       </div>
     </section>
