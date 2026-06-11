@@ -157,20 +157,24 @@ export const faqUpdateSchema = bodyWithAliases({
   isActive: optionalBool,
 }).refine((data) => Object.keys(data).length > 0, { message: 'At least one field required' });
 
+const subscriptionStatusValues = ['active', 'paused', 'cancelled', 'expired'] as const;
+
 export const subscriptionCreateSchema = bodyWithAliases({
   userId: z.string().uuid('userId is required'),
   packageId: z.string().uuid().optional().nullable(),
-  status: z.string().optional().nullable(),
-  startDate: z.coerce.date().optional().nullable(),
-  endDate: z.coerce.date().optional().nullable(),
+  status: z.enum(subscriptionStatusValues).optional(),
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date(),
+  paymentReference: optionalString,
 });
 
 export const subscriptionUpdateSchema = bodyWithAliases({
   userId: z.string().uuid().optional(),
   packageId: z.string().uuid().optional().nullable(),
-  status: z.string().optional().nullable(),
-  startDate: z.coerce.date().optional().nullable(),
-  endDate: z.coerce.date().optional().nullable(),
+  status: z.enum(subscriptionStatusValues).optional(),
+  startDate: z.coerce.date().optional(),
+  endDate: z.coerce.date().optional(),
+  paymentReference: optionalString,
 }).refine((data) => Object.keys(data).length > 0, { message: 'At least one field required' });
 
 export const videoAccessSchema = z.object({

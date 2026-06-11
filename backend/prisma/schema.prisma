@@ -104,16 +104,27 @@ model Package {
   @@map("packages")
 }
 
-model Subscription {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  packageId String?  @map("package_id") @db.Uuid
-  status    String?
-  startDate DateTime? @map("start_date") @db.Timestamptz(6)
-  endDate   DateTime? @map("end_date") @db.Timestamptz(6)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+enum SubscriptionStatus {
+  active
+  paused
+  cancelled
+  expired
 
-  user    User     @relation(fields: [userId], references: [id])
+  @@map("subscription_status")
+}
+
+model Subscription {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String?            @map("user_id") @db.Uuid
+  packageId        String?            @map("package_id") @db.Uuid
+  status           SubscriptionStatus
+  startDate        DateTime           @map("start_date") @db.Timestamptz(6)
+  endDate          DateTime           @map("end_date") @db.Timestamptz(6)
+  paymentReference String?            @map("payment_reference")
+  createdAt        DateTime?          @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime?          @map("updated_at") @db.Timestamptz(6)
+
+  user    User?    @relation(fields: [userId], references: [id])
   package Package? @relation(fields: [packageId], references: [id])
 
   @@map("subscriptions")

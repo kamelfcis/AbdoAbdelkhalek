@@ -515,7 +515,7 @@ async function squashTraineeUserIds(): Promise<string[]> {
     ...new Set([
       ...videoAccess.map((r) => r.userId),
       ...categoryAccess.map((r) => r.userId),
-      ...subs.map((r) => r.userId),
+      ...subs.map((r) => r.userId).filter((id): id is string => id != null),
       ...registered.map((r) => r.id),
     ]),
   ];
@@ -523,12 +523,12 @@ async function squashTraineeUserIds(): Promise<string[]> {
 
 type SquashSubRow = {
   id: string;
-  userId: string;
+  userId: string | null;
   packageId: string | null;
-  status: string | null;
-  startDate: Date | null;
-  endDate: Date | null;
-  createdAt: Date;
+  status: string;
+  startDate: Date;
+  endDate: Date;
+  createdAt: Date | null;
   user?: { fullName: string | null; email: string } | null;
 };
 
@@ -713,6 +713,7 @@ async function attachSquashTraineeSubscriptionStatus(
   const byUser = new Map<string, string | null>();
   for (const user of users) byUser.set(user.id, null);
   for (const sub of subs) {
+    if (!sub.userId) continue;
     if (!byUser.has(sub.userId) || byUser.get(sub.userId) == null) {
       byUser.set(sub.userId, sub.status);
     }

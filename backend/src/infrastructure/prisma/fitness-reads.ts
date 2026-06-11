@@ -72,7 +72,7 @@ async function squashEntitledUserIds(): Promise<string[]> {
     ...new Set([
       ...videoAccess.map((r) => r.userId),
       ...categoryAccess.map((r) => r.userId),
-      ...subs.map((r) => r.userId),
+      ...subs.map((r) => r.userId).filter((id): id is string => id != null),
       ...registered.map((r) => r.id),
     ]),
   ];
@@ -129,7 +129,7 @@ async function fitnessTraineeUserIdsPrisma(): Promise<string[]> {
   return mergeFitnessTraineeUserIds({
     videoAccess: videoAccess.map((r) => r.userId),
     categoryAccess: categoryAccess.map((r) => r.userId),
-    subscription: subs.map((r) => r.userId),
+    subscription: subs.map((r) => r.userId).filter((id): id is string => id != null),
     registeredFitness: registeredFitness.map((r) => r.id),
     legacyNull: filterLegacyFitnessUserIds(
       legacyNull.map((r) => r.id),
@@ -545,6 +545,7 @@ async function attachFitnessTraineeSubscriptionStatus(
   const byUser = new Map<string, string | null>();
   for (const user of users) byUser.set(user.id, null);
   for (const sub of subs) {
+    if (!sub.userId) continue;
     if (!byUser.has(sub.userId) || byUser.get(sub.userId) == null) {
       byUser.set(sub.userId, sub.status);
     }
