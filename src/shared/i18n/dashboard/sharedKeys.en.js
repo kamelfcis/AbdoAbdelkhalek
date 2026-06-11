@@ -100,6 +100,8 @@ export const sharedDashboardEn = {
   'btn-preview': 'Preview video',
   'btn-prev': 'Prev',
   'btn-next': 'Next',
+  'pagination-page': 'Go to page {page}',
+  'pagination-current-page': 'Current page, page {page}',
   'btn-cancel': 'Cancel',
   'btn-save': 'Save',
   'btn-save-changes': 'Save Changes',

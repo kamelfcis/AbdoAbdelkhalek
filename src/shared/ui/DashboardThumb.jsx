@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { cn } from 'lib/utils';
+import { isImagePrefetched } from '../lib/prefetchImages';
 
 /**
  * Lightweight dashboard list thumbnail — no IntersectionObserver or srcSet.
@@ -14,17 +15,19 @@ export default function DashboardThumb({
   className,
   imgClassName,
   priority = false,
+  instant = false,
   onError,
 }) {
-  const [loaded, setLoaded] = useState(false);
+  const prefetched = instant && src && isImagePrefetched(src);
+  const [loaded, setLoaded] = useState(prefetched);
   const [currentSrc, setCurrentSrc] = useState(src);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     setCurrentSrc(src);
-    setLoaded(false);
+    setLoaded(instant && src && isImagePrefetched(src));
     setFailed(false);
-  }, [src]);
+  }, [src, instant]);
 
   const handleLoad = useCallback(() => {
     setLoaded(true);
@@ -60,7 +63,9 @@ export default function DashboardThumb({
       className={cn('relative overflow-hidden bg-muted', className)}
       style={width && height ? { width, height } : undefined}
     >
-      {!loaded && <div className="absolute inset-0 animate-pulse bg-muted" aria-hidden="true" />}
+      {!loaded && !prefetched && (
+        <div className="absolute inset-0 animate-pulse bg-muted" aria-hidden="true" />
+      )}
       <img
         src={currentSrc}
         alt={alt}
@@ -70,7 +75,8 @@ export default function DashboardThumb({
         decoding="async"
         fetchPriority={priority ? 'high' : 'auto'}
         className={cn(
-          'h-full w-full object-cover transition-opacity duration-200',
+          'h-full w-full object-cover',
+          !instant && 'transition-opacity duration-200',
           loaded ? 'opacity-100' : 'opacity-0',
           imgClassName
         )}
@@ -90,5 +96,6 @@ DashboardThumb.propTypes = {
   className: PropTypes.string,
   imgClassName: PropTypes.string,
   priority: PropTypes.bool,
+  instant: PropTypes.bool,
   onError: PropTypes.func,
 };

@@ -100,6 +100,8 @@ export const sharedDashboardAr = {
   'btn-preview': 'عرض الفيديو',
   'btn-prev': 'السابق',
   'btn-next': 'التالي',
+  'pagination-page': 'الانتقال إلى الصفحة {page}',
+  'pagination-current-page': 'الصفحة الحالية، صفحة {page}',
   'btn-cancel': 'إلغاء',
   'btn-save': 'حفظ',
   'btn-save-changes': 'حفظ التغييرات',

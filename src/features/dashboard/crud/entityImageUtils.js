@@ -1,4 +1,9 @@
-import { mediaThumbUrl, resolveMediaUrl, deriveThumbStoragePath, deriveCardThumbStoragePath } from '../../../shared/lib/cdn';
+import {
+  mediaThumbUrl,
+  resolveMediaUrl,
+  deriveThumbStoragePath,
+  deriveCardThumbStoragePath,
+} from '../../../shared/lib/cdn';
 import { resolveDomainMediaUrl, getMediaBuckets } from '../../../shared/lib/mediaBuckets';
 
 const TABLE_THUMB = { width: 40, height: 40, fetchWidth: 80 };
@@ -68,6 +73,33 @@ export function getSuccessStoryThumbSrc(row, side, domain, variant = 'table') {
     thumbPath: derivedThumb,
   });
   const fallbackSrc = full || resolveMediaUrl(url, path, bucket);
+  return { src: src || fallbackSrc, fallbackSrc };
+}
+
+function sanitizeVideoStorageValue(value) {
+  if (typeof value !== 'string') return null;
+  return value.trim().replace(/^['"]|['"]$/g, '') || null;
+}
+
+export function getVideoThumbSrc(video, domain, variant = 'card') {
+  if (!video) return { src: null, fallbackSrc: null };
+
+  const url = sanitizeVideoStorageValue(video.thumbnail_url || video.thumbnailUrl);
+  const path = sanitizeVideoStorageValue(video.thumbnail_path || video.thumbnailPath);
+  if (url === 'pending') return { src: null, fallbackSrc: null };
+
+  const bucket = getMediaBuckets(domain).videoThumbnails;
+  const full = resolveDomainMediaUrl(url, path, domain, 'videoThumbnails');
+  if (!full && !path && !url) return { src: null, fallbackSrc: null };
+
+  const size = variant === 'card' ? CARD_THUMB : TABLE_THUMB;
+  const fallbackSrc = full || resolveMediaUrl(url, path, bucket);
+  // thumbnail_path is the thumb file itself — CDN resize the resolved URL, not thumbs/ convention.
+  const src = mediaThumbUrl(full || url, null, bucket, {
+    width: size.fetchWidth || size.width,
+    quality: 75,
+  });
+
   return { src: src || fallbackSrc, fallbackSrc };
 }
 

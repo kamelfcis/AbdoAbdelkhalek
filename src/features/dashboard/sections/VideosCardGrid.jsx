@@ -26,7 +26,6 @@ function VideoCard({
   onEdit,
   onAccess,
   onDelete,
-  priority = false,
 }) {
   const title = isAr ? video.title_ar || video.title_en : video.title_en || video.title_ar;
 
@@ -43,16 +42,20 @@ function VideoCard({
         className="block w-full text-left"
         aria-label={t('btn-preview')}
       >
-        <AspectRatio ratio={16 / 9} className="relative overflow-hidden bg-muted">
+        <AspectRatio
+          ratio={16 / 9}
+          className="relative overflow-hidden rounded-lg bg-muted ring-1 ring-border/60"
+        >
           {thumbSrc ? (
             <DashboardThumb
               src={thumbSrc}
               alt=""
               width={CARD_THUMB.width}
               height={CARD_THUMB.height}
-              priority={priority}
+              priority
+              instant
               className="h-full w-full"
-              imgClassName="transition-transform duration-500 group-hover:scale-105"
+              imgClassName="object-cover object-center"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
@@ -153,7 +156,7 @@ export function VideosCardGrid({
       aria-busy={showFetchingOverlay}
     >
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {videos.map((video, index) => (
+        {videos.map((video) => (
           <VideoCard
             key={video.id}
             video={video}
@@ -166,7 +169,6 @@ export function VideosCardGrid({
             onEdit={onEdit}
             onAccess={onAccess}
             onDelete={onDelete}
-            priority={index < 3}
           />
         ))}
       </div>

@@ -3,13 +3,15 @@ import { uploadService } from '../../../shared/api/uploadService';
 import { getMediaBuckets, resolveDomainMediaUrl } from '../../../shared/lib/mediaBuckets';
 import { getContentService } from '../../../shared/lib/getContentService';
 import { showSuccess, showError, showConfirm } from '../../../shared/lib/notifications';
-import { invalidateContentCrud, removePaginatedListItem } from '../../../shared/lib/queryKeys';
+import { invalidateContentCrud, removePaginatedListItem, queryKeys } from '../../../shared/lib/queryKeys';
 import { getDashboardTranslation } from '../../../shared/i18n/dashboard';
 import { useDebounceValue } from '../../../shared/lib/debounce';
+import { prefetchImageUrls } from '../../../shared/lib/prefetchImages';
 import {
   usePaginatedDashboardList,
   filtersFromCrudState,
 } from '../../../shared/hooks/usePaginatedDashboardList';
+import { getVideoThumbSrc } from '../crud/entityImageUtils';
 import { VIDEOS_PAGE_SIZE } from '../constants/pagination';
 
 export function useDashboardVideoTools({
@@ -141,11 +143,14 @@ export function useDashboardVideoTools({
   const isAbsoluteUrl = (value) => typeof value === 'string' && /^https?:\/\//i.test(value);
 
   const resolveVideoAsset = useCallback(
-    (video, type) => {
+    (video, type, thumbVariant = 'card') => {
       if (!video) return null;
+      if (type === 'thumbnail') {
+        return getVideoThumbSrc(video, adminDomain, thumbVariant).src;
+      }
       const urlKey = `${type}_url`;
       const pathKey = `${type}_path`;
-      const kind = type === 'thumbnail' ? 'videoThumbnails' : 'videos';
+      const kind = 'videos';
       const storedUrl = sanitizeStorageValue(video[urlKey]);
       const storedPath = sanitizeStorageValue(video[pathKey]);
       if (storedUrl && storedUrl !== 'pending') {
@@ -158,6 +163,45 @@ export function useDashboardVideoTools({
     },
     [adminDomain]
   );
+
+  useEffect(() => {
+    if (!enabled || !paginatedVideos.length) return;
+
+    const thumbUrls = paginatedVideos.flatMap((video) => {
+      const card = resolveVideoAsset(video, 'thumbnail', 'card');
+      const table = resolveVideoAsset(video, 'thumbnail', 'table');
+      return [card, table];
+    });
+    prefetchImageUrls(thumbUrls.filter(Boolean));
+  }, [enabled, paginatedVideos, resolveVideoAsset]);
+
+  useEffect(() => {
+    if (!enabled || videoPage >= totalVideoPages) return;
+
+    const nextPage = videoPage + 1;
+    const nextKey = queryKeys.dashboard.videos(adminDomain, {
+      page: nextPage,
+      limit: VIDEOS_PAGE_SIZE,
+      ...videoFilters,
+    });
+    const nextData = queryClient.getQueryData(nextKey);
+    const nextItems = nextData?.items;
+    if (!nextItems?.length) return;
+
+    const thumbUrls = nextItems.flatMap((video) => {
+      const card = getVideoThumbSrc(video, adminDomain, 'card').src;
+      const table = getVideoThumbSrc(video, adminDomain, 'table').src;
+      return [card, table];
+    });
+    prefetchImageUrls(thumbUrls.filter(Boolean));
+  }, [
+    enabled,
+    adminDomain,
+    videoPage,
+    totalVideoPages,
+    videoFilters,
+    queryClient,
+  ]);
 
   const fetchVideoAssetUrl = async (video, type) => {
     const resolved = resolveVideoAsset(video, type);

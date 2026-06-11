@@ -13,7 +13,7 @@ import { VideosCardGrid } from './VideosCardGrid';
 export function VideosSection() {
   const c = useDashboardCoach();
   const { viewMode, setViewMode } = useViewMode('videos', { defaultMode: 'table' });
-  const thumb = (video) => c.resolveVideoAsset?.(video, 'thumbnail');
+  const thumb = (video) => c.resolveVideoAsset?.(video, 'thumbnail', 'table');
   const showSkeleton = c.videosLoading && c.paginatedVideos.length === 0;
   const showFetchingOverlay = c.videosFetching && c.paginatedVideos.length > 0;
 
@@ -32,7 +32,10 @@ export function VideosSection() {
                   alt={c.isRTL ? video.title_ar : video.title_en}
                   width={TABLE_THUMB.width}
                   height={TABLE_THUMB.height}
+                  priority
+                  instant
                   className="w-full h-full"
+                  imgClassName="object-cover object-center"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-[var(--color-bg-muted)] text-[var(--color-text-muted)] text-sm">
@@ -176,7 +179,7 @@ export function VideosSection() {
           videos={c.paginatedVideos}
           isAr={c.isRTL}
           t={c.t}
-          resolveThumb={thumb}
+          resolveThumb={(video) => c.resolveVideoAsset?.(video, 'thumbnail', 'card')}
           getCategoryLabel={c.getCategoryLabel}
           formatDurationSeconds={c.formatDurationSeconds}
           isLoading={c.videosLoading}
