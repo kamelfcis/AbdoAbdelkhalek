@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Inclusive range of page row ids between two row indices (for shift-click selection).
  */
 export function selectRangeIds(pageIds, fromIndex, toIndex) {
