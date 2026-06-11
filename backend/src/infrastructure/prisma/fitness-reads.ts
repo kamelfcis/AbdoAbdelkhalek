@@ -640,6 +640,44 @@ export async function listTrainees(
   }
 }
 
+type FitnessSubRow = {
+  id: string;
+  userId: string | null;
+  packageId: string | null;
+  status: string;
+  startDate: Date;
+  endDate: Date;
+  createdAt: Date | null;
+  user?: { fullName: string | null; email: string } | null;
+  package?: {
+    id: string;
+    nameEn: string;
+    nameAr: string;
+    durationDays: number;
+  } | null;
+};
+
+export function mapFitnessSubscriptionRow(sub: FitnessSubRow) {
+  return {
+    id: sub.id,
+    user_id: sub.userId,
+    package_id: sub.packageId,
+    status: sub.status,
+    start_date: sub.startDate,
+    end_date: sub.endDate,
+    created_at: sub.createdAt,
+    users: sub.user ? { full_name: sub.user.fullName, email: sub.user.email } : undefined,
+    packages: sub.package
+      ? {
+          id: sub.package.id,
+          name_en: sub.package.nameEn,
+          name_ar: sub.package.nameAr,
+          duration_days: sub.package.durationDays,
+        }
+      : null,
+  };
+}
+
 export async function listSubscriptions(
   userId: string,
   isCoach: boolean,
@@ -665,9 +703,9 @@ export async function listSubscriptions(
           }),
           prisma.subscription.count({ where }),
         ]);
-        return toListResponse(items, total, pagination);
+        return toListResponse(items.map(mapFitnessSubscriptionRow), total, pagination);
       }
-      return await prisma.subscription.findMany({
+      const items = await prisma.subscription.findMany({
         where,
         include: {
           package: true,
@@ -675,6 +713,7 @@ export async function listSubscriptions(
         },
         orderBy: { createdAt: 'desc' },
       });
+      return items.map(mapFitnessSubscriptionRow);
     }
     const where: Prisma.SubscriptionWhereInput = {
       AND: [{ userId }, fitnessScope, applySubscriptionListFilters({}, filters)],
@@ -689,13 +728,14 @@ export async function listSubscriptions(
         }),
         prisma.subscription.count({ where }),
       ]);
-      return toListResponse(items, total, pagination);
+      return toListResponse(items.map(mapFitnessSubscriptionRow), total, pagination);
     }
-    return await prisma.subscription.findMany({
+    const items = await prisma.subscription.findMany({
       where,
       include: { package: true },
       orderBy: { createdAt: 'desc' },
     });
+    return items.map(mapFitnessSubscriptionRow);
   } catch (e) {
     if (!isPoolerError(e)) throw e;
     const fitnessIds = await fitnessPackageIdsRest();
