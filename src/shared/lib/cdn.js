@@ -124,14 +124,34 @@ export function rewriteMediaUrls(data) {
 export const CDN_BASE =
   getMediaBase() || `${SUPABASE_URL}/storage/v1/object/public`;
 
+function getActiveMediaHost() {
+  const base = getMediaBase();
+  if (!base) return null;
+  try {
+    return new URL(base).host;
+  } catch {
+    return null;
+  }
+}
+
+/** /cdn-cgi/image/ works only on Cloudflare-proxied custom domains, not pub *.r2.dev. */
+function isCloudflareProxiedMediaHost(host) {
+  if (!host || host.endsWith('.r2.dev')) return false;
+  const cdnHost = CDN_HOST.replace(/^https?:\/\//, '');
+  return host === cdnHost;
+}
+
 /**
  * Cloudflare Image Resizing via /cdn-cgi/image/ (custom domain only).
- * Defaults ON whenever the CDN is enabled; set REACT_APP_CF_IMAGE_RESIZING=false to opt out.
+ * Defaults ON when CDN uses a proxied custom domain; off for *.r2.dev public URLs.
+ * Set REACT_APP_CF_IMAGE_RESIZING=false to opt out entirely.
  */
 export function isCloudflareImageResizingEnabled() {
   if (process.env.REACT_APP_CF_IMAGE_RESIZING === 'false') return false;
+  if (!isCdnEnabled()) return false;
+  if (!isCloudflareProxiedMediaHost(getActiveMediaHost())) return false;
   if (process.env.REACT_APP_CF_IMAGE_RESIZING === 'true') return true;
-  return isCdnEnabled();
+  return true;
 }
 
 /**
@@ -161,11 +181,7 @@ function buildCloudflareImageUrl(baseUrl, { width = 80, quality = 75, format = '
   try {
     const parsed = new URL(baseUrl);
     const host = parsed.host;
-    const cdnHost = CDN_HOST.replace(/^https?:\/\//, '');
-    const r2Host = r2PublicBase() ? new URL(r2PublicBase()).host : null;
-    const isTransformHost =
-      host === cdnHost || (r2Host && host === r2Host) || host.endsWith('.r2.dev');
-    if (!isTransformHost || parsed.pathname.includes('/cdn-cgi/image/')) {
+    if (!isCloudflareProxiedMediaHost(host) || parsed.pathname.includes('/cdn-cgi/image/')) {
       return baseUrl;
     }
     const opts = [`width=${width}`, `quality=${quality}`, `format=${format}`].join(',');

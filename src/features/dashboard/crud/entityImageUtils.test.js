@@ -45,9 +45,10 @@ describe('getVideoThumbSrc', () => {
     expect(fallbackSrc).toBe('https://pub.example.r2.dev/video-thumbnails/abc.jpg');
   });
 
-  it('returns Cloudflare resized URL for card variant when CDN resizing is enabled', async () => {
+  it('returns Cloudflare resized URL for card variant on proxied CDN host', async () => {
     process.env.REACT_APP_USE_CDN = 'true';
     process.env.REACT_APP_CF_IMAGE_RESIZING = 'true';
+    delete process.env.REACT_APP_R2_PUBLIC_URL;
     const getVideoThumbSrc = await loadGetVideoThumbSrc();
 
     const { src } = getVideoThumbSrc(
@@ -62,7 +63,7 @@ describe('getVideoThumbSrc', () => {
     expect(src).toContain('video-thumbnails/hero.jpg');
   });
 
-  it('CF-resizes storage path for card variant with webp when CDN is on', async () => {
+  it('uses direct R2 URL when CDN is on but media base is r2.dev (no CF resize)', async () => {
     process.env.REACT_APP_USE_CDN = 'true';
     process.env.REACT_APP_CF_IMAGE_RESIZING = 'true';
     const getVideoThumbSrc = await loadGetVideoThumbSrc();
@@ -73,16 +74,15 @@ describe('getVideoThumbSrc', () => {
       'card'
     );
 
-    expect(src).toContain('/cdn-cgi/image/');
-    expect(src).toContain('width=480');
-    expect(src).toContain('format=webp');
-    expect(src).toContain('video-thumbnails/hero.jpg');
+    expect(src).not.toContain('/cdn-cgi/image/');
+    expect(src).toBe('https://pub.example.r2.dev/video-thumbnails/hero.jpg');
     expect(fallbackSrc).toBe('https://pub.example.r2.dev/video-thumbnails/hero.jpg');
   });
 
-  it('uses smaller fetch width for table variant when resizing is enabled', async () => {
+  it('uses smaller fetch width for table variant on proxied CDN host', async () => {
     process.env.REACT_APP_USE_CDN = 'true';
     process.env.REACT_APP_CF_IMAGE_RESIZING = 'true';
+    delete process.env.REACT_APP_R2_PUBLIC_URL;
     const getVideoThumbSrc = await loadGetVideoThumbSrc();
 
     const { src } = getVideoThumbSrc(
