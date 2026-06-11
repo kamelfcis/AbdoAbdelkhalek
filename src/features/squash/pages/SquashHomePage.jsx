@@ -64,7 +64,7 @@ function SquashHomeContent({
 
   return (
     <div
-      className="App font-['Open_Sans',_sans-serif] bg-white scroll-smooth"
+      className="App font-['Open_Sans',_sans-serif] bg-white"
       data-theme={themeIds.SQUASH}
       role="main"
     >
@@ -207,7 +207,7 @@ export default function SquashHomePage() {
   }, [location.state, currentLanguage]);
 
   const handleNavClick = useCallback((section) => {
-    document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById(section)?.scrollIntoView({ behavior: 'auto', block: 'start' });
   }, []);
 
   const handleSidebarClose = useCallback(() => setSidebarOpen(false), []);

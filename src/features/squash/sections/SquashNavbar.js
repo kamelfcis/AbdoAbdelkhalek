@@ -47,7 +47,7 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
         <a
           href="#home"
           onClick={(e) => handleNavClick(e, 'home')}
-          className="flex flex-col items-center justify-center space-y-1 group hover:opacity-90"
+          className="flex flex-col items-center justify-center space-y-1"
           aria-label="Home"
         >
           <div className="flex items-center space-x-2 md:space-x-3">
@@ -91,7 +91,7 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
           {!userSession && (
             <button
               onClick={handleLogin}
-              className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 rounded-full text-sm md:text-base font-semibold hover:shadow-lg flex items-center"
+              className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 rounded-full text-sm md:text-base font-semibold shadow-md hover:brightness-95 flex items-center"
             >
               <i className="fas fa-sign-in-alt mr-2 rtl:ml-2 rtl:mr-0" />
               <span className="hidden lg:inline">{t('nav.login')}</span>
@@ -100,7 +100,7 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
           {userSession && isCoach && (
             <button
               onClick={handleDashboard}
-              className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 rounded-full text-sm md:text-base font-semibold hover:shadow-lg flex items-center"
+              className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 rounded-full text-sm md:text-base font-semibold shadow-md hover:brightness-95 flex items-center"
             >
               <i className="fas fa-tachometer-alt mr-2 rtl:ml-2 rtl:mr-0" />
               <span className="hidden lg:inline">{t('nav.dashboard')}</span>
@@ -109,7 +109,7 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
           {userSession && !isCoach && onShowProfile && (
             <button
               onClick={onShowProfile}
-              className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 rounded-full text-sm md:text-base font-semibold hover:shadow-lg flex items-center"
+              className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 rounded-full text-sm md:text-base font-semibold shadow-md hover:brightness-95 flex items-center"
             >
               <i className="fas fa-user mr-2 rtl:ml-2 rtl:mr-0" />
               <span className="hidden lg:inline">{displayName.split(' ')[0]}</span>
@@ -125,7 +125,7 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
           </button>
         </div>
       </div>
-      <style>{`.nav-link { color: #1f2937; font-size: 1rem; padding: 0.75rem 0.5rem; display: flex; align-items: center; height: 100%; } .nav-link:hover { color: var(--color-primary); font-weight: 700; }`}</style>
+      <style>{`.nav-link { color: #1f2937; font-size: 1rem; padding: 0.75rem 0.5rem; display: flex; align-items: center; height: 100%; } .nav-link:hover { color: var(--color-primary); }`}</style>
     </nav>
   );
 });

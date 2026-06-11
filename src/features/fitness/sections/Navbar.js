@@ -46,11 +46,11 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
         <a 
           href="#home" 
           onClick={(e) => handleNavClick(e, 'home')} 
-          className="flex flex-col items-center justify-center space-y-1 group hover:opacity-90"
+          className="flex flex-col items-center justify-center space-y-1"
           aria-label="Home"
         >
           <div className="flex items-center space-x-2 md:space-x-3">
-            <div className="w-12 h-12 md:w-14 md:h-14 overflow-hidden border-2 border-[var(--color-primary)] rounded-lg flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-lg">
+            <div className="w-12 h-12 md:w-14 md:h-14 overflow-hidden border-2 border-[var(--color-primary)] rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
               <img
                 src="/logo.png"
                 alt="Abdelrahman Abdelkhalek Logo"
@@ -75,7 +75,7 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
           <a
             href="#home"
             onClick={(e) => handleNavClick(e, 'home')}
-            className="text-gray-800 hover:text-[var(--color-primary)] hover:font-bold text-base md:text-lg py-3 px-2 flex items-center h-full"
+            className="text-gray-800 hover:text-[var(--color-primary)] text-base md:text-lg py-3 px-2 flex items-center h-full"
           >
             {getTranslation('nav-home', currentLanguage)}
           </a>
@@ -83,7 +83,7 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
             <a
               href="#categories"
               onClick={(e) => handleNavClick(e, 'categories')}
-              className="text-gray-800 hover:text-[var(--color-primary)] hover:font-bold text-base md:text-lg py-3 px-2 flex items-center h-full"
+              className="text-gray-800 hover:text-[var(--color-primary)] text-base md:text-lg py-3 px-2 flex items-center h-full"
             >
               {getTranslation('nav-categories', currentLanguage)}
             </a>
@@ -92,7 +92,7 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
             <a
               href="#packages"
               onClick={(e) => handleNavClick(e, 'packages')}
-              className="text-gray-800 hover:text-[var(--color-primary)] hover:font-bold text-base md:text-lg py-3 px-2 flex items-center h-full"
+              className="text-gray-800 hover:text-[var(--color-primary)] text-base md:text-lg py-3 px-2 flex items-center h-full"
             >
               {getTranslation('nav-packages', currentLanguage)}
             </a>
@@ -100,14 +100,14 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
           <a
             href="#about-me"
             onClick={(e) => handleNavClick(e, 'about-me')}
-            className="text-gray-800 hover:text-[var(--color-primary)] hover:font-bold text-base md:text-lg py-3 px-2 flex items-center h-full"
+            className="text-gray-800 hover:text-[var(--color-primary)] text-base md:text-lg py-3 px-2 flex items-center h-full"
           >
             {getTranslation('nav-about', currentLanguage)}
           </a>
           <a
             href="#contact"
             onClick={(e) => handleNavClick(e, 'contact')}
-            className="text-gray-800 hover:text-[var(--color-primary)] hover:font-bold text-base md:text-lg py-3 px-2 flex items-center h-full"
+            className="text-gray-800 hover:text-[var(--color-primary)] text-base md:text-lg py-3 px-2 flex items-center h-full"
           >
             {getTranslation('nav-contact', currentLanguage)}
           </a>
@@ -116,7 +116,7 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
           {!userSession && (
             <button
               onClick={handleLogin}
-              className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 md:py-3.5 rounded-full text-sm md:text-base font-semibold hover:shadow-lg flex items-center"
+              className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 md:py-3.5 rounded-full text-sm md:text-base font-semibold shadow-md hover:brightness-95 flex items-center"
             >
               <i className="fas fa-sign-in-alt mr-2 rtl:ml-2 rtl:mr-0"></i>
               <span className="hidden lg:inline">{getTranslation('nav-login', currentLanguage)}</span>
@@ -125,7 +125,7 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
           {userSession && isCoach && (
             <button
               onClick={handleDashboard}
-              className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 md:py-3.5 rounded-full text-sm md:text-base font-semibold hover:shadow-lg flex items-center"
+              className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 md:py-3.5 rounded-full text-sm md:text-base font-semibold shadow-md hover:brightness-95 flex items-center"
             >
               <i className="fas fa-tachometer-alt mr-2 rtl:ml-2 rtl:mr-0"></i>
               <span className="hidden lg:inline">{getTranslation('nav-dashboard', currentLanguage)}</span>
@@ -134,7 +134,7 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
           {userSession && !isCoach && (
             <button
               onClick={onShowProfile}
-              className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 md:py-3.5 rounded-full text-sm md:text-base font-semibold hover:shadow-lg flex items-center"
+              className="hidden md:block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-4 md:px-5 py-3 md:py-3.5 rounded-full text-sm md:text-base font-semibold shadow-md hover:brightness-95 flex items-center"
             >
               <i className="fas fa-user mr-2 rtl:ml-2 rtl:mr-0"></i>
               <span className="hidden lg:inline">{displayName.split(' ')[0]}</span>

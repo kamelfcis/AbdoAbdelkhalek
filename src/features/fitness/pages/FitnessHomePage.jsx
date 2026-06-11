@@ -48,7 +48,7 @@ function FitnessHomeContent({
   const { isSectionVisible } = useLandingSectionsContext();
 
   return (
-    <div className="App font-['Open_Sans',_sans-serif] bg-white scroll-smooth" role="main">
+    <div className="App font-['Open_Sans',_sans-serif] bg-white" role="main">
       {pageAlert && (
         <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded z-50">
           {pageAlert}
@@ -171,7 +171,7 @@ export default function FitnessHomePage() {
   const handleNavClick = (section) => {
     const element = document.getElementById(section);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
   };
 

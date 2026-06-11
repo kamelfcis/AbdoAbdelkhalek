@@ -119,11 +119,17 @@ nav {
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
   z-index: 40 !important;
-  /* Disable all animations and transitions during load for better performance */
   animation: none !important;
   transition: none !important;
   opacity: 1 !important;
   visibility: visible !important;
+}
+
+nav *,
+nav a,
+nav button {
+  animation: none !important;
+  transition: none !important;
 }
 
 /* Ensure sticky works on mobile - more specific rules */
@@ -173,7 +179,8 @@ img {
 /* Sidebar styles - matching original index.html */
 .sidebar {
   transform: translateX(100%);
-  transition: transform 0.3s ease-in-out;
+  animation: none !important;
+  transition: none !important;
   visibility: hidden;
   opacity: 0;
   display: none; /* Start hidden to prevent flash on mobile */
@@ -367,16 +374,6 @@ img {
   border-radius: 10px;
 }
 
-/* Sidebar animation */
-.sidebar {
-  transform: translateX(100%);
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.sidebar.open {
-  transform: translateX(0);
-}
-
 /* Splide slider customizations */
 .splide__pagination__page.is-active {
   background: linear-gradient(135deg, #bfd7ed 0%, #0074b7 100%);
@@ -536,12 +533,10 @@ img {
   100% { transform: rotate(360deg); }
 }
 
-.sidebar-transition {
-  transition: transform 0.3s ease-in-out;
-}
-
+.sidebar-transition,
 .content-transition {
-  transition: margin-right 0.3s ease-in-out;
+  animation: none !important;
+  transition: none !important;
 }
 
 /* Sidebar on the right - always toggleable */
@@ -554,8 +549,8 @@ img {
   background-color: white !important;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1) !important;
   z-index: 50 !important;
-  transition: transform 0.3s ease-in-out !important;
-  will-change: transform;
+  animation: none !important;
+  transition: none !important;
   display: flex !important;
   flex-direction: column !important;
   visibility: hidden !important;
@@ -569,4 +564,14 @@ img {
 #sidebar.sidebar-open {
   transform: translateX(0) !important;
   visibility: visible !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

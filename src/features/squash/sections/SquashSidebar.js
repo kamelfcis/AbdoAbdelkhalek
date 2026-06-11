@@ -71,6 +71,7 @@ const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, 
     transform: isOpen ? 'translateX(0)' : isRTL ? 'translateX(-100%)' : 'translateX(100%)',
     visibility: isOpen ? 'visible' : 'hidden',
     opacity: isOpen ? 1 : 0,
+    transition: 'none',
   };
 
   useEffect(() => {
