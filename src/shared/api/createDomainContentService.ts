@@ -74,6 +74,7 @@ function mapPackage(row: Record<string, unknown>) {
     daily_support: pkg.daily_support ?? pkg.dailySupport,
     created_at: pkg.created_at ?? pkg.createdAt,
     updated_at: pkg.updated_at ?? pkg.updatedAt,
+    level: pkg.level ?? pkg.packageLevel,
     type: pkg.type ?? pkg.packageType,
   };
 }

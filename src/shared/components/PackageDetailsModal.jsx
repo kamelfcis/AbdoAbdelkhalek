@@ -1,8 +1,32 @@
 import React, { useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import { formatPrice } from '../lib/currency';
 import { getTranslation } from '../../utils/translations';
 import './package-details-modal.css';
+
+const LEVEL_KEYS = {
+  beginner: 'level-beginner',
+  intermediate: 'level-intermediate',
+  advanced: 'level-advanced',
+  elite: 'level-elite',
+};
+
+const TYPE_KEYS = {
+  training: 'type-training',
+  nutrition: 'type-nutrition',
+  combined: 'type-combined',
+};
+
+function formatPackageMetaValue(rawValue, keyMap, lang) {
+  if (rawValue == null || rawValue === '') return null;
+  const normalized = String(rawValue).trim().toLowerCase();
+  const translationKey = keyMap[normalized];
+  if (translationKey) {
+    return getTranslation(translationKey, lang);
+  }
+  return String(rawValue).trim();
+}
 
 const PackageDetailsModal = ({
   isOpen,
@@ -56,8 +80,11 @@ const PackageDetailsModal = ({
     : undefined;
 
   const heroTextClass = packageColor?.text === 'text-gray-900' ? 'text-gray-900' : 'text-white';
+  const levelValue = formatPackageMetaValue(pkg.level, LEVEL_KEYS, lang);
+  const typeValue = formatPackageMetaValue(pkg.type, TYPE_KEYS, lang);
+  const showMetaGrid = Boolean(levelValue || typeValue);
 
-  return (
+  return createPortal(
     <div
       className="package-details-modal"
       data-domain={domain}
@@ -113,20 +140,26 @@ const PackageDetailsModal = ({
           </div>
 
           <div className="package-details-modal__body">
-            <div className="package-details-modal__meta-grid">
-              <div className="package-details-modal__meta-card">
-                <span className="package-details-modal__meta-label">
-                  {getTranslation('level-label', lang)}
-                </span>
-                <span className="package-details-modal__meta-value">{pkg.level || '—'}</span>
+            {showMetaGrid && (
+              <div className="package-details-modal__meta-grid">
+                {levelValue && (
+                  <div className="package-details-modal__meta-card">
+                    <span className="package-details-modal__meta-label">
+                      {getTranslation('level-label', lang)}
+                    </span>
+                    <span className="package-details-modal__meta-value">{levelValue}</span>
+                  </div>
+                )}
+                {typeValue && (
+                  <div className="package-details-modal__meta-card">
+                    <span className="package-details-modal__meta-label">
+                      {getTranslation('type-label', lang)}
+                    </span>
+                    <span className="package-details-modal__meta-value">{typeValue}</span>
+                  </div>
+                )}
               </div>
-              <div className="package-details-modal__meta-card">
-                <span className="package-details-modal__meta-label">
-                  {getTranslation('type-label', lang)}
-                </span>
-                <span className="package-details-modal__meta-value">{pkg.type || '—'}</span>
-              </div>
-            </div>
+            )}
 
             {description && (
               <p className="package-details-modal__description">{description}</p>
@@ -220,7 +253,8 @@ const PackageDetailsModal = ({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
