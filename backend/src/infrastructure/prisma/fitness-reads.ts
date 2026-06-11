@@ -450,12 +450,12 @@ export async function listSuccessStoriesPublic(
   try {
     if (paginated) {
       const [items, total] = await Promise.all([
-        prisma.successStory.findMany({ where: baseWhere, orderBy: { createdAt: 'desc' }, ...page }),
+        prisma.successStory.findMany({ where: baseWhere, orderBy: { displayOrder: 'asc' }, ...page }),
         prisma.successStory.count({ where: baseWhere }),
       ]);
       return toListResponse(items, total, pagination);
     }
-    return await prisma.successStory.findMany({ where: baseWhere, orderBy: { createdAt: 'desc' } });
+    return await prisma.successStory.findMany({ where: baseWhere, orderBy: { displayOrder: 'asc' } });
   } catch (e) {
     if (!isPoolerError(e)) throw e;
     return restFetch();

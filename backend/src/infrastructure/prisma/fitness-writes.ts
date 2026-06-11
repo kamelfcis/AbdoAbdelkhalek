@@ -20,6 +20,15 @@ function normalize(data: Record<string, unknown>) {
   return toCamelKeys(data);
 }
 
+function packageData(data: Record<string, unknown>) {
+  const camel = normalize(data);
+  if (camel.type !== undefined && camel.packageType === undefined) {
+    camel.packageType = camel.type;
+    delete camel.type;
+  }
+  return camel;
+}
+
 function toRest(data: Record<string, unknown>) {
   return toSnakeKeys(normalize(data));
 }
@@ -86,7 +95,7 @@ export async function deleteVideo(id: string) {
 
 export async function createPackage(data: Record<string, unknown>) {
   const payload = { level: 'beginner', type: 'combined', ...data };
-  const camel = normalize(payload);
+  const camel = packageData(payload);
   return withWriteFallback(
     () => prisma.package.create({ data: camel as never }),
     () => rest.restCreate('packages', toRest(payload))
@@ -94,7 +103,7 @@ export async function createPackage(data: Record<string, unknown>) {
 }
 
 export async function updatePackage(id: string, data: Record<string, unknown>) {
-  const camel = normalize(data);
+  const camel = packageData(data);
   return withWriteFallback(
     () => prisma.package.update({ where: { id }, data: camel as never }),
     () => rest.restPatch('packages', id, toRest(data))

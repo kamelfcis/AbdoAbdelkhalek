@@ -102,11 +102,20 @@ export const reviewUpdateSchema = bodyWithAliases({
 export const successStoryCreateSchema = bodyWithAliases({
   titleEn: optionalString,
   titleAr: optionalString,
+  contentEn: optionalString,
+  contentAr: optionalString,
   descriptionEn: optionalString,
   descriptionAr: optionalString,
+  beforeImagePath: optionalString,
+  beforeImageUrl: optionalString,
+  afterImagePath: optionalString,
+  afterImageUrl: optionalString,
   imageUrl: optionalString,
   imagePath: optionalString,
   isPublic: optionalBool,
+  isFeatured: optionalBool,
+  displayOrder: optionalInt,
+  publishedAt: optionalString,
 }).refine((data) => Object.keys(data).length > 0, {
   message: 'At least one field required',
 });
@@ -114,11 +123,20 @@ export const successStoryCreateSchema = bodyWithAliases({
 export const successStoryUpdateSchema = bodyWithAliases({
   titleEn: optionalString,
   titleAr: optionalString,
+  contentEn: optionalString,
+  contentAr: optionalString,
   descriptionEn: optionalString,
   descriptionAr: optionalString,
+  beforeImagePath: optionalString,
+  beforeImageUrl: optionalString,
+  afterImagePath: optionalString,
+  afterImageUrl: optionalString,
   imageUrl: optionalString,
   imagePath: optionalString,
   isPublic: optionalBool,
+  isFeatured: optionalBool,
+  displayOrder: optionalInt,
+  publishedAt: optionalString,
 }).refine((data) => Object.keys(data).length > 0, { message: 'At least one field required' });
 
 export const faqCreateSchema = bodyWithAliases({

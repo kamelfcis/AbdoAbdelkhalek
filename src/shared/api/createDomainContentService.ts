@@ -45,6 +45,48 @@ function mapReview(r: Record<string, unknown>) {
   };
 }
 
+function mapPackage(row: Record<string, unknown>) {
+  const pkg = rewriteMediaUrls(row) as Record<string, unknown>;
+  return {
+    ...pkg,
+    name_en: pkg.name_en ?? pkg.nameEn,
+    name_ar: pkg.name_ar ?? pkg.nameAr,
+    description_en: pkg.description_en ?? pkg.descriptionEn,
+    description_ar: pkg.description_ar ?? pkg.descriptionAr,
+    price_egp: pkg.price_egp ?? pkg.priceEgp,
+    price_usd: pkg.price_usd ?? pkg.priceUsd,
+    duration_days: pkg.duration_days ?? pkg.durationDays,
+    features_en: pkg.features_en ?? pkg.featuresEn,
+    features_ar: pkg.features_ar ?? pkg.featuresAr,
+    includes_video_feedback: pkg.includes_video_feedback ?? pkg.includesVideoFeedback,
+    daily_support: pkg.daily_support ?? pkg.dailySupport,
+    created_at: pkg.created_at ?? pkg.createdAt,
+    updated_at: pkg.updated_at ?? pkg.updatedAt,
+    type: pkg.type ?? pkg.packageType,
+  };
+}
+
+function mapSuccessStory(row: Record<string, unknown>) {
+  const story = rewriteMediaUrls(row) as Record<string, unknown>;
+  return {
+    ...story,
+    title_en: story.title_en ?? story.titleEn,
+    title_ar: story.title_ar ?? story.titleAr,
+    content_en: story.content_en ?? story.contentEn ?? story.description_en ?? story.descriptionEn,
+    content_ar: story.content_ar ?? story.contentAr ?? story.description_ar ?? story.descriptionAr,
+    before_image_url: story.before_image_url ?? story.beforeImageUrl,
+    before_image_path: story.before_image_path ?? story.beforeImagePath,
+    after_image_url: story.after_image_url ?? story.afterImageUrl,
+    after_image_path: story.after_image_path ?? story.afterImagePath,
+    is_public: story.is_public ?? story.isPublic,
+    is_featured: story.is_featured ?? story.isFeatured,
+    display_order: story.display_order ?? story.displayOrder,
+    published_at: story.published_at ?? story.publishedAt,
+    created_at: story.created_at ?? story.createdAt,
+    updated_at: story.updated_at ?? story.updatedAt,
+  };
+}
+
 function mapEntity(row: Record<string, unknown>) {
   return rewriteMediaUrls(row);
 }
@@ -60,11 +102,12 @@ export function createDomainContentService(apiPrefix: string) {
       fetchList(p('/categories'), params, mapCategory),
     getVideos: (params?: Record<string, unknown>) =>
       fetchList(p('/videos'), params, mapVideo),
-    getPackages: (params?: Record<string, unknown>) => fetchList(p('/packages'), params),
+    getPackages: (params?: Record<string, unknown>) =>
+      fetchList(p('/packages'), params, mapPackage as (row: Record<string, unknown>) => unknown),
     getReviews: (params?: Record<string, unknown>) =>
       fetchList(p('/reviews'), params, mapReview as (row: Record<string, unknown>) => unknown),
     getSuccessStories: (params?: Record<string, unknown>) =>
-      fetchList(p('/success-stories'), params, mapEntity as (row: Record<string, unknown>) => unknown),
+      fetchList(p('/success-stories'), params, mapSuccessStory as (row: Record<string, unknown>) => unknown),
     getFaqs: (params?: Record<string, unknown>) => fetchList(p('/faqs'), params),
     getSubscriptions: (params?: Record<string, unknown>) => fetchList(p('/subscriptions'), params),
     createSubscription: (data: unknown) =>
