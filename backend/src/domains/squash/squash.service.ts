@@ -70,6 +70,52 @@ export async function getDashboardStats() {
   return repo.getSquashDashboardStats();
 }
 
+export async function getProfile(userId: string) {
+  const [user, accessibleVideos, accessibleCategories, subscriptionsResult] = await Promise.all([
+    findUserById(userId),
+    repo.listSquashAccessibleVideos(userId),
+    repo.listSquashAccessibleCategories(userId),
+    repo.listSquashSubscriptions(userId, false),
+  ]);
+
+  const subscriptions = Array.isArray(subscriptionsResult)
+    ? subscriptionsResult
+    : ((subscriptionsResult as { items?: unknown[] })?.items ?? []);
+
+  return {
+    userData: user
+      ? {
+          full_name: user.fullName,
+          email: user.email,
+          phone: user.phone,
+          created_at: null,
+          is_coach: user.isCoach,
+        }
+      : null,
+    videoCount: accessibleVideos.length,
+    categoryCount: accessibleCategories.length,
+    subscriptions: subscriptions.map((s) => {
+      const row = s as Record<string, unknown>;
+      const pkg = (row.packages ?? row.package) as Record<string, unknown> | null | undefined;
+      return {
+        id: row.id,
+        status: row.status,
+        start_date: row.start_date ?? row.startDate,
+        end_date: row.end_date ?? row.endDate,
+        created_at: row.created_at ?? row.createdAt,
+        packages: pkg
+          ? {
+              id: pkg.id,
+              name_en: pkg.name_en ?? pkg.nameEn,
+              name_ar: pkg.name_ar ?? pkg.nameAr,
+              duration_days: pkg.duration_days ?? pkg.durationDays,
+            }
+          : null,
+      };
+    }),
+  };
+}
+
 export async function listSubscriptions(
   user: TokenPayload,
   pagination?: PaginationParams,

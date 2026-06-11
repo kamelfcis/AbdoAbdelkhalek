@@ -115,6 +115,14 @@ router.get('/programs', optionalAuth, async (req: AuthRequest, res, next) => {
   }
 });
 
+router.get('/profile', requireAuth, async (req: AuthRequest, res, next) => {
+  try {
+    res.json(await squash.getProfile(req.user!.sub));
+  } catch (e) {
+    next(e);
+  }
+});
+
 router.get('/stats', requireAuth, requireCoach, async (_req, res, next) => {
   try {
     res.json(await squash.getDashboardStats());

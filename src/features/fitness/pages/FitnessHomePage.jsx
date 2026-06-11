@@ -2,8 +2,9 @@ import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useAuth } from '../../../contexts/AuthContext';
-import { contentService } from '../../../shared/api/contentService';
+import { getTranslation } from '../../../utils/translations';
 import RouteGuardLoader from '../../../components/RouteGuardLoader';
+import TraineeProfileModal from '../../../shared/components/TraineeProfileModal';
 import Navbar from '../sections/Navbar';
 import Sidebar from '../sections/Sidebar';
 import Footer from '../sections/Footer';
@@ -36,58 +37,7 @@ export default function FitnessHomePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pageAlert, setPageAlert] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [profileDetails, setProfileDetails] = useState({
-    loading: false,
-    userData: null,
-    videoCount: 0,
-    categoryCount: 0,
-    subscriptions: [],
-    error: null,
-  });
   const { currentLanguage } = useLanguage();
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchProfileDetails = async () => {
-      if (!session?.user || !showProfileModal) return;
-      setProfileDetails(prev => ({ ...prev, loading: true, error: null }));
-
-      try {
-        const profile = await contentService.getProfileDetails();
-
-        if (isMounted) {
-          setProfileDetails({
-            loading: false,
-            userData: profile.userData || null,
-            videoCount: profile.videoCount || 0,
-            categoryCount: profile.categoryCount || 0,
-            subscriptions: profile.subscriptions || [],
-            error: null,
-          });
-        }
-      } catch (error) {
-        if (isMounted) {
-          setProfileDetails(prev => ({
-            ...prev,
-            loading: false,
-            error: error?.message || 'Failed to load profile data.',
-          }));
-        }
-        console.error('Error loading profile details:', error);
-        showAlert(currentLanguage === 'ar' ? 'حدث خطأ أثناء تحميل الملف الشخصي' : 'Error loading profile');
-      }
-    };
-
-    if (showProfileModal) {
-      fetchProfileDetails();
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [showProfileModal, session, currentLanguage]);
-
 
   const handleNavClick = (section) => {
     const element = document.getElementById(section);
@@ -116,16 +66,11 @@ export default function FitnessHomePage() {
     try {
       await logout();
       setShowProfileModal(false);
-      showAlert(currentLanguage === 'ar' ? 'تم تسجيل الخروج بنجاح' : 'Logged out successfully');
+      showAlert(getTranslation('profile.logoutSuccess', currentLanguage));
     } catch (error) {
       console.error('Error during logout:', error);
       setShowProfileModal(false);
     }
-  };
-
-  const formatDate = (date) => {
-    if (!date) return currentLanguage === 'ar' ? 'غير متاح' : 'N/A';
-    return new Date(date).toLocaleDateString(currentLanguage === 'ar' ? 'ar-EG' : 'en-US');
   };
 
   if (isLoading) {
@@ -219,214 +164,16 @@ export default function FitnessHomePage() {
       <ScrollToTop />
       <FloatingInstagramButton />
 
-      {session && showProfileModal && (
-        <div
-          className="modal fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setShowProfileModal(false)}
-        >
-          <div
-            className="modal-content bg-white rounded-lg overflow-hidden max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-center p-4 border-b">
-              <h3 className="text-xl font-bold gradient-text">
-                {currentLanguage === 'ar' ? 'الملف الشخصي' : 'User Profile'}
-              </h3>
-              <button
-                className="text-gray-600 hover:text-[var(--color-primary)] text-2xl"
-                onClick={() => setShowProfileModal(false)}
-                aria-label="Close profile modal"
-              >
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
-            <div className="p-6 space-y-6">
-              {profileDetails.loading ? (
-                <div className="text-center py-10">
-                  <div className="inline-block rounded-full h-10 w-10 border-4 border-gray-200 border-t-[var(--color-primary)] animate-spin mb-4"></div>
-                  <p className="text-gray-600">
-                    {currentLanguage === 'ar' ? 'جاري تحميل الملف الشخصي...' : 'Loading profile...'}
-                  </p>
-                </div>
-              ) : profileDetails.error ? (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-4 rounded">
-                  {profileDetails.error}
-                </div>
-              ) : (
-                <>
-                  <div className="text-center mb-6">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] flex items-center justify-center mx-auto mb-4">
-                      <i className="fas fa-user text-white text-2xl"></i>
-                    </div>
-                    <h2 className="text-2xl font-bold text-gray-800">
-                      {profileDetails.userData?.full_name || user?.full_name || session?.user?.email}
-                    </h2>
-                    <p className="text-gray-600">{profileDetails.userData?.email || session?.user?.email}</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="font-semibold text-gray-800 mb-2">
-                        <i className="fas fa-info-circle mr-2 text-[var(--color-primary)]"></i>
-                        {currentLanguage === 'ar' ? 'المعلومات الشخصية' : 'Personal Information'}
-                      </h3>
-                      <ul className="space-y-2 text-sm text-gray-700">
-                        <li>
-                          <span className="font-medium">
-                            {currentLanguage === 'ar' ? 'الاسم الكامل:' : 'Full Name:'}
-                          </span>{' '}
-                          {profileDetails.userData?.full_name || 'N/A'}
-                        </li>
-                        <li>
-                          <span className="font-medium">
-                            {currentLanguage === 'ar' ? 'الهاتف:' : 'Phone:'}
-                          </span>{' '}
-                          {profileDetails.userData?.phone || (currentLanguage === 'ar' ? 'غير متاح' : 'N/A')}
-                        </li>
-                        <li>
-                          <span className="font-medium">
-                            {currentLanguage === 'ar' ? 'تاريخ الانضمام:' : 'Joined:'}
-                          </span>{' '}
-                          {formatDate(profileDetails.userData?.created_at)}
-                        </li>
-                        <li>
-                          <span className="font-medium">
-                            {currentLanguage === 'ar' ? 'نوع الحساب:' : 'Account Type:'}
-                          </span>{' '}
-                          {profileDetails.userData?.is_coach
-                            ? currentLanguage === 'ar'
-                              ? 'مدرب'
-                              : 'Coach'
-                            : currentLanguage === 'ar'
-                              ? 'متدرب'
-                              : 'Trainee'}
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="font-semibold text-gray-800 mb-2">
-                        <i className="fas fa-video mr-2 text-[var(--color-primary)]"></i>
-                        {currentLanguage === 'ar' ? 'الوصول للفيديوهات' : 'Video Access'}
-                      </h3>
-                      <div className="space-y-2 text-sm text-gray-700">
-                        <p>
-                          <span className="font-medium">
-                            {currentLanguage === 'ar' ? 'الفيديوهات الفردية:' : 'Individual Videos:'}
-                          </span>{' '}
-                          {profileDetails.videoCount}
-                        </p>
-                        <p>
-                          <span className="font-medium">
-                            {currentLanguage === 'ar' ? 'الوصول للفئات:' : 'Category Access:'}
-                          </span>{' '}
-                          {profileDetails.categoryCount}
-                        </p>
-                        <p>
-                          <span className="font-medium">
-                            {currentLanguage === 'ar' ? 'الاشتراكات النشطة:' : 'Active Subscriptions:'}
-                          </span>{' '}
-                          {profileDetails.subscriptions.filter(
-                            sub => sub.status === 'active' && new Date(sub.end_date) > new Date()
-                          ).length}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {currentLanguage === 'ar'
-                            ? 'تواصل مع مدربك للحصول على المزيد من الفيديوهات.'
-                            : 'Contact your coach to gain access to more videos.'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {profileDetails.subscriptions.length > 0 && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
-                        <i className="fas fa-user-check mr-2 text-[var(--color-primary)]"></i>
-                        {currentLanguage === 'ar' ? 'الاشتراكات النشطة' : 'Active Subscriptions'}
-                      </h3>
-                      <div className="space-y-3">
-                        {profileDetails.subscriptions.slice(0, 3).map(sub => {
-                          const isActive = sub.status === 'active' && new Date(sub.end_date) > new Date();
-                          const statusClass = isActive
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800';
-                          return (
-                            <div
-                              key={sub.id}
-                              className="flex justify-between items-center p-3 bg-white rounded-lg border"
-                            >
-                              <div>
-                                <h4 className="font-medium text-gray-800">
-                                  {currentLanguage === 'ar'
-                                    ? sub.packages?.name_ar || sub.packages?.name_en
-                                    : sub.packages?.name_en || sub.packages?.name_ar}
-                                </h4>
-                                <p className="text-xs text-gray-500">
-                                  {currentLanguage === 'ar' ? 'ينتهي:' : 'Expires:'}{' '}
-                                  {formatDate(sub.end_date)}
-                                </p>
-                              </div>
-                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusClass}`}>
-                                {isActive
-                                  ? currentLanguage === 'ar'
-                                    ? 'نشط'
-                                    : 'Active'
-                                  : currentLanguage === 'ar'
-                                    ? 'منتهي'
-                                    : 'Expired'}
-                              </span>
-                            </div>
-                          );
-                        })}
-                        {profileDetails.subscriptions.length > 3 && (
-                          <p className="text-xs text-gray-500 text-center">
-                            {currentLanguage === 'ar'
-                              ? `+${profileDetails.subscriptions.length - 3} اشتراكات أخرى`
-                              : `+${profileDetails.subscriptions.length - 3} more subscriptions`}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
-                      <i className="fas fa-star mr-2 text-[var(--color-primary)]"></i>
-                      {currentLanguage === 'ar' ? 'رحلتك التدريبية' : 'Your Training Journey'}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {currentLanguage === 'ar'
-                        ? 'لديك وصول لمحتوى تدريبي حصري. استمر في العمل الرائع!'
-                        : 'You have access to exclusive training content. Keep up the great work!'}
-                    </p>
-                  </div>
-                </>
-              )}
-
-              <div className="flex justify-end">
-                <div className="flex flex-col md:flex-row md:items-center md:space-x-3 space-y-3 md:space-y-0 w-full md:w-auto">
-                  <button
-                    onClick={handleLogout}
-                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition flex items-center justify-center"
-                  >
-                    <i className={`fas fa-sign-out-alt ${currentLanguage === 'ar' ? 'ml-2' : 'mr-2'}`}></i>
-                    {currentLanguage === 'ar' ? 'تسجيل الخروج' : 'Logout'}
-                  </button>
-                  <button
-                    onClick={() => setShowProfileModal(false)}
-                    className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
-                  >
-                    {currentLanguage === 'ar' ? 'إغلاق' : 'Close'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <TraineeProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        session={session}
+        user={user}
+        domain="fitness"
+        onLogout={handleLogout}
+        onError={showAlert}
+        currentLanguage={currentLanguage}
+      />
     </div>
   );
 }

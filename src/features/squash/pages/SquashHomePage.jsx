@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { useLocation } from 'react-router-dom';
 import { themeIds } from '../../../design-system/themes';
+import { useLanguage } from '../../../contexts/LanguageContext';
 import { useAuth } from '../../../contexts/AuthContext';
+import { getSquashTranslation } from '../../../shared/i18n';
 import RouteGuardLoader from '../../../components/RouteGuardLoader';
+import TraineeProfileModal from '../../../shared/components/TraineeProfileModal';
 import { ErrorBoundary } from '../../../app/ErrorBoundary';
 import SquashNavbar from '../sections/SquashNavbar';
 import SquashSidebar from '../sections/SquashSidebar';
@@ -45,18 +48,22 @@ const ComponentLoader = ({ message }) => (
 
 export default function SquashHomePage() {
   const location = useLocation();
-  const { user, session, isLoading } = useAuth();
+  const { user, session, isLoading, logout } = useAuth();
+  const { currentLanguage } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pageAlert, setPageAlert] = useState(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   useEffect(() => {
     const authMessage = location.state?.authMessage;
     const authMessageAr = location.state?.authMessageAr;
     if (authMessage || authMessageAr) {
-      setPageAlert(authMessage || authMessageAr);
+      const message =
+        currentLanguage === 'ar' && authMessageAr ? authMessageAr : authMessage || authMessageAr;
+      setPageAlert(message);
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [location.state]);
+  }, [location.state, currentLanguage]);
 
   const handleNavClick = useCallback((section) => {
     document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
@@ -69,6 +76,17 @@ export default function SquashHomePage() {
     setPageAlert(message);
     setTimeout(() => setPageAlert(null), 6000);
   }, []);
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await logout();
+      setShowProfileModal(false);
+      showAlert(getSquashTranslation(currentLanguage, 'profile.logoutSuccess'));
+    } catch (error) {
+      console.error('Error during logout:', error);
+      setShowProfileModal(false);
+    }
+  }, [logout, currentLanguage, showAlert]);
 
   if (isLoading) {
     return <RouteGuardLoader message="Loading..." />;
@@ -92,6 +110,7 @@ export default function SquashHomePage() {
         onNavClick={handleNavClick}
         userSession={session}
         userProfile={user}
+        onShowProfile={() => setShowProfileModal(true)}
       />
 
       <SquashNavbar
@@ -99,6 +118,7 @@ export default function SquashHomePage() {
         onNavClick={handleNavClick}
         userSession={session}
         userProfile={user}
+        onShowProfile={() => setShowProfileModal(true)}
       />
 
       <main>
@@ -166,6 +186,17 @@ export default function SquashHomePage() {
 
       <SquashFooter />
       <SquashScrollToTop />
+
+      <TraineeProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        session={session}
+        user={user}
+        domain="squash"
+        onLogout={handleLogout}
+        onError={showAlert}
+        currentLanguage={currentLanguage}
+      />
     </div>
   );
 }
