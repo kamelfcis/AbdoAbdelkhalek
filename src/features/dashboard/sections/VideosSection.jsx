@@ -12,7 +12,7 @@ import { VideosCardGrid } from './VideosCardGrid';
 
 export function VideosSection() {
   const c = useDashboardCoach();
-  const { viewMode, setViewMode } = useViewMode('videos', { defaultMode: 'table' });
+  const { viewMode, setViewMode } = useViewMode('videos', { defaultMode: 'cards' });
   const thumb = (video) => c.resolveVideoThumb?.(video, 'table');
   const showSkeleton = c.videosLoading && c.paginatedVideos.length === 0;
   const showFetchingOverlay = c.videosFetching && c.paginatedVideos.length > 0;
