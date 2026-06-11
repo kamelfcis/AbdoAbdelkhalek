@@ -4,10 +4,12 @@ import { useSquashI18n } from '../hooks/useSquashI18n';
 import { loadFontAwesome } from '../../../shared/lib/fontAwesomeLoader';
 import { buildDashboardPath } from '../../dashboard/config/dashboardRoutes';
 import { loginPath } from '../../../shared/lib/authRoutes';
+import { useLandingSectionsOptional } from '../../../shared/contexts/LandingSectionsContext';
 
 const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfile, onShowProfile }) => {
   const { t } = useSquashI18n();
   const navigate = useNavigate();
+  const { isSlugVisible } = useLandingSectionsOptional();
   const isCoach = userProfile?.is_coach ?? userSession?.user?.user_metadata?.is_coach;
   const displayName =
     userProfile?.full_name ||
@@ -67,12 +69,16 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
           <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="nav-link">
             {t('nav.home')}
           </a>
-          <a href="#categories" onClick={(e) => handleNavClick(e, 'categories')} className="nav-link">
-            {t('nav.categories')}
-          </a>
-          <a href="#packages" onClick={(e) => handleNavClick(e, 'packages')} className="nav-link">
-            {t('nav.packages')}
-          </a>
+          {isSlugVisible('categories') && (
+            <a href="#categories" onClick={(e) => handleNavClick(e, 'categories')} className="nav-link">
+              {t('nav.categories')}
+            </a>
+          )}
+          {isSlugVisible('packages') && (
+            <a href="#packages" onClick={(e) => handleNavClick(e, 'packages')} className="nav-link">
+              {t('nav.packages')}
+            </a>
+          )}
           <a href="#about-me" onClick={(e) => handleNavClick(e, 'about-me')} className="nav-link">
             {t('nav.about')}
           </a>

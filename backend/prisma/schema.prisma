@@ -326,3 +326,11 @@ model SquashUserCategoryAccess {
   @@id([userId, categoryId])
   @@map("squash_user_category_access")
 }
+
+model LandingPageSettings {
+  domain    String   @id
+  sections  Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("landing_page_settings")
+}

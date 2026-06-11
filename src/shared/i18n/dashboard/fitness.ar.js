@@ -15,6 +15,7 @@ export const fitnessDashboardAr = {
   'page-success-stories': 'إدارة قصص النجاح',
   'page-faqs': 'إدارة الأسئلة الشائعة',
   'page-reviews': 'إدارة آراء العملاء',
+  'page-landing-settings': 'إعدادات صفحة الهبوط',
 };
 
 export default fitnessDashboardAr;

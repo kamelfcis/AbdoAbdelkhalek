@@ -4,6 +4,7 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import RouteGuardLoader from '../../../components/RouteGuardLoader';
 import TraineeProfileModal from '../../../shared/components/TraineeProfileModal';
+import { LandingSectionsProvider, useLandingSectionsContext } from '../../../shared/contexts/LandingSectionsContext';
 import Navbar from '../sections/Navbar';
 import Sidebar from '../sections/Sidebar';
 import Footer from '../sections/Footer';
@@ -30,44 +31,21 @@ const ComponentLoader = ({ message }) => (
     {message && <span className="sr-only">{message}</span>}
   </div>
 );
-export default function FitnessHomePage() {
-  const location = useLocation();
-  const { user, session, isLoading, logout } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [pageAlert, setPageAlert] = useState(null);
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const { currentLanguage } = useLanguage();
 
-  const handleNavClick = (section) => {
-    const element = document.getElementById(section);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const showAlert = (message) => {
-    setPageAlert(message);
-    setTimeout(() => setPageAlert(null), 6000);
-  };
-
-  useEffect(() => {
-    const authMessage = location.state?.authMessage;
-    const authMessageAr = location.state?.authMessageAr;
-    if (authMessage || authMessageAr) {
-      const message =
-        currentLanguage === 'ar' && authMessageAr ? authMessageAr : authMessage || authMessageAr;
-      showAlert(message);
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, [location.state, currentLanguage]);
-
-  const handleLogout = async () => {
-    await logout();
-  };
-
-  if (isLoading) {
-    return <RouteGuardLoader message="Loading..." />;
-  }
+function FitnessHomeContent({
+  pageAlert,
+  sidebarOpen,
+  setSidebarOpen,
+  session,
+  user,
+  showProfileModal,
+  setShowProfileModal,
+  handleNavClick,
+  showAlert,
+  handleLogout,
+  currentLanguage,
+}) {
+  const { isSectionVisible } = useLandingSectionsContext();
 
   return (
     <div className="App font-['Open_Sans',_sans-serif] bg-white scroll-smooth" role="main">
@@ -110,41 +88,53 @@ export default function FitnessHomePage() {
             <WhyChooseMe />
           </Suspense>
         </ErrorBoundary>
-        <ErrorBoundary fallbackTitle="Success Stories Section" fallbackMessage="Unable to load success stories. Please refresh the page.">
-          <Suspense fallback={<ComponentLoader message="Loading success stories..." />}>
-            <SuccessStories onAlert={showAlert} />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary fallbackTitle="Reviews Section" fallbackMessage="Unable to load reviews. Please refresh the page.">
-          <Suspense fallback={<ComponentLoader message="Loading reviews..." />}>
-            <Reviews onAlert={showAlert} />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary fallbackTitle="Categories Section" fallbackMessage="Unable to load categories. Please refresh the page.">
-          <Suspense fallback={<ComponentLoader message="Loading categories..." />}>
-            <Categories onAlert={showAlert} userSession={session} />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary fallbackTitle="Videos Section" fallbackMessage="Unable to load videos. Please refresh the page.">
-          <Suspense fallback={<ComponentLoader message="Loading videos..." />}>
-            <Videos onAlert={showAlert} userSession={session} />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary fallbackTitle="Packages Section" fallbackMessage="Unable to load packages. Please refresh the page.">
-          <Suspense fallback={<ComponentLoader message="Loading packages..." />}>
-            <Packages onAlert={showAlert} userSession={session} userProfile={user} />
-          </Suspense>
-        </ErrorBoundary>
+        {isSectionVisible('success-stories') && (
+          <ErrorBoundary fallbackTitle="Success Stories Section" fallbackMessage="Unable to load success stories. Please refresh the page.">
+            <Suspense fallback={<ComponentLoader message="Loading success stories..." />}>
+              <SuccessStories onAlert={showAlert} />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {isSectionVisible('reviews') && (
+          <ErrorBoundary fallbackTitle="Reviews Section" fallbackMessage="Unable to load reviews. Please refresh the page.">
+            <Suspense fallback={<ComponentLoader message="Loading reviews..." />}>
+              <Reviews onAlert={showAlert} />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {isSectionVisible('categories') && (
+          <ErrorBoundary fallbackTitle="Categories Section" fallbackMessage="Unable to load categories. Please refresh the page.">
+            <Suspense fallback={<ComponentLoader message="Loading categories..." />}>
+              <Categories onAlert={showAlert} userSession={session} />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {isSectionVisible('videos') && (
+          <ErrorBoundary fallbackTitle="Videos Section" fallbackMessage="Unable to load videos. Please refresh the page.">
+            <Suspense fallback={<ComponentLoader message="Loading videos..." />}>
+              <Videos onAlert={showAlert} userSession={session} />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {isSectionVisible('packages') && (
+          <ErrorBoundary fallbackTitle="Packages Section" fallbackMessage="Unable to load packages. Please refresh the page.">
+            <Suspense fallback={<ComponentLoader message="Loading packages..." />}>
+              <Packages onAlert={showAlert} userSession={session} userProfile={user} />
+            </Suspense>
+          </ErrorBoundary>
+        )}
         <ErrorBoundary fallbackTitle="About Coach Section" fallbackMessage="Unable to load about coach section. Please refresh the page.">
           <Suspense fallback={<ComponentLoader message="Loading about coach section..." />}>
             <AboutCoach />
           </Suspense>
         </ErrorBoundary>
-        <ErrorBoundary fallbackTitle="FAQ Section" fallbackMessage="Unable to load FAQ. Please refresh the page.">
-          <Suspense fallback={<ComponentLoader message="Loading FAQ..." />}>
-            <FAQ onAlert={showAlert} />
-          </Suspense>
-        </ErrorBoundary>
+        {isSectionVisible('faq') && (
+          <ErrorBoundary fallbackTitle="FAQ Section" fallbackMessage="Unable to load FAQ. Please refresh the page.">
+            <Suspense fallback={<ComponentLoader message="Loading FAQ..." />}>
+              <FAQ onAlert={showAlert} />
+            </Suspense>
+          </ErrorBoundary>
+        )}
         <ErrorBoundary fallbackTitle="Contact Section" fallbackMessage="Unable to load contact section. Please refresh the page.">
           <Suspense fallback={<ComponentLoader message="Loading contact section..." />}>
             <Contact onAlert={showAlert} />
@@ -167,5 +157,63 @@ export default function FitnessHomePage() {
         currentLanguage={currentLanguage}
       />
     </div>
+  );
+}
+
+export default function FitnessHomePage() {
+  const location = useLocation();
+  const { user, session, isLoading, logout } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pageAlert, setPageAlert] = useState(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const { currentLanguage } = useLanguage();
+
+  const handleNavClick = (section) => {
+    const element = document.getElementById(section);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const showAlert = (message) => {
+    setPageAlert(message);
+    setTimeout(() => setPageAlert(null), 6000);
+  };
+
+  useEffect(() => {
+    const authMessage = location.state?.authMessage;
+    const authMessageAr = location.state?.authMessageAr;
+    if (authMessage || authMessageAr) {
+      const message =
+        currentLanguage === 'ar' && authMessageAr ? authMessageAr : authMessage || authMessageAr;
+      showAlert(message);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [location.state, currentLanguage]);
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  if (isLoading) {
+    return <RouteGuardLoader message="Loading..." />;
+  }
+
+  return (
+    <LandingSectionsProvider domain="fitness">
+      <FitnessHomeContent
+        pageAlert={pageAlert}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        session={session}
+        user={user}
+        showProfileModal={showProfileModal}
+        setShowProfileModal={setShowProfileModal}
+        handleNavClick={handleNavClick}
+        showAlert={showAlert}
+        handleLogout={handleLogout}
+        currentLanguage={currentLanguage}
+      />
+    </LandingSectionsProvider>
   );
 }

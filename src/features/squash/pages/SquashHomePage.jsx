@@ -5,6 +5,7 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import RouteGuardLoader from '../../../components/RouteGuardLoader';
 import TraineeProfileModal from '../../../shared/components/TraineeProfileModal';
+import { LandingSectionsProvider, useLandingSectionsContext } from '../../../shared/contexts/LandingSectionsContext';
 import { ErrorBoundary } from '../../../app/ErrorBoundary';
 import SquashNavbar from '../sections/SquashNavbar';
 import SquashSidebar from '../sections/SquashSidebar';
@@ -45,44 +46,21 @@ const ComponentLoader = ({ message }) => (
   </div>
 );
 
-export default function SquashHomePage() {
-  const location = useLocation();
-  const { user, session, isLoading, logout } = useAuth();
-  const { currentLanguage } = useLanguage();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [pageAlert, setPageAlert] = useState(null);
-  const [showProfileModal, setShowProfileModal] = useState(false);
-
-  useEffect(() => {
-    const authMessage = location.state?.authMessage;
-    const authMessageAr = location.state?.authMessageAr;
-    if (authMessage || authMessageAr) {
-      const message =
-        currentLanguage === 'ar' && authMessageAr ? authMessageAr : authMessage || authMessageAr;
-      setPageAlert(message);
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, [location.state, currentLanguage]);
-
-  const handleNavClick = useCallback((section) => {
-    document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
-
-  const handleSidebarClose = useCallback(() => setSidebarOpen(false), []);
-  const handleSidebarToggle = useCallback(() => setSidebarOpen((open) => !open), []);
-
-  const showAlert = useCallback((message) => {
-    setPageAlert(message);
-    setTimeout(() => setPageAlert(null), 6000);
-  }, []);
-
-  const handleLogout = useCallback(async () => {
-    await logout();
-  }, [logout]);
-
-  if (isLoading) {
-    return <RouteGuardLoader message="Loading..." />;
-  }
+function SquashHomeContent({
+  pageAlert,
+  sidebarOpen,
+  handleSidebarClose,
+  handleSidebarToggle,
+  session,
+  user,
+  showProfileModal,
+  setShowProfileModal,
+  handleNavClick,
+  showAlert,
+  handleLogout,
+  currentLanguage,
+}) {
+  const { isSectionVisible } = useLandingSectionsContext();
 
   return (
     <div
@@ -129,46 +107,62 @@ export default function SquashHomePage() {
             <SquashWhyChooseMe />
           </Suspense>
         </ErrorBoundary>
-        <ErrorBoundary fallbackTitle="Success Stories">
-          <Suspense fallback={<ComponentLoader />}>
-            <SquashSuccessStories />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary fallbackTitle="Reviews">
-          <Suspense fallback={<ComponentLoader />}>
-            <SquashReviews />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary fallbackTitle="Categories">
-          <Suspense fallback={<ComponentLoader />}>
-            <SquashCategories />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary fallbackTitle="Videos">
-          <Suspense fallback={<ComponentLoader />}>
-            <SquashVideos />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary fallbackTitle="Packages">
-          <Suspense fallback={<ComponentLoader />}>
-            <SquashPackages onAlert={showAlert} userSession={session} userProfile={user} />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary fallbackTitle="Coaches">
-          <Suspense fallback={<ComponentLoader />}>
-            <SquashCoaches />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary fallbackTitle="Programs">
-          <Suspense fallback={<ComponentLoader />}>
-            <SquashPrograms />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary fallbackTitle="FAQ">
-          <Suspense fallback={<ComponentLoader />}>
-            <SquashFAQ />
-          </Suspense>
-        </ErrorBoundary>
+        {isSectionVisible('success-stories') && (
+          <ErrorBoundary fallbackTitle="Success Stories">
+            <Suspense fallback={<ComponentLoader />}>
+              <SquashSuccessStories />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {isSectionVisible('reviews') && (
+          <ErrorBoundary fallbackTitle="Reviews">
+            <Suspense fallback={<ComponentLoader />}>
+              <SquashReviews />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {isSectionVisible('categories') && (
+          <ErrorBoundary fallbackTitle="Categories">
+            <Suspense fallback={<ComponentLoader />}>
+              <SquashCategories />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {isSectionVisible('videos') && (
+          <ErrorBoundary fallbackTitle="Videos">
+            <Suspense fallback={<ComponentLoader />}>
+              <SquashVideos />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {isSectionVisible('packages') && (
+          <ErrorBoundary fallbackTitle="Packages">
+            <Suspense fallback={<ComponentLoader />}>
+              <SquashPackages onAlert={showAlert} userSession={session} userProfile={user} />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {isSectionVisible('coaches') && (
+          <ErrorBoundary fallbackTitle="Coaches">
+            <Suspense fallback={<ComponentLoader />}>
+              <SquashCoaches />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {isSectionVisible('programs') && (
+          <ErrorBoundary fallbackTitle="Programs">
+            <Suspense fallback={<ComponentLoader />}>
+              <SquashPrograms />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {isSectionVisible('faq') && (
+          <ErrorBoundary fallbackTitle="FAQ">
+            <Suspense fallback={<ComponentLoader />}>
+              <SquashFAQ />
+            </Suspense>
+          </ErrorBoundary>
+        )}
         <ErrorBoundary fallbackTitle="Contact">
           <Suspense fallback={<ComponentLoader />}>
             <SquashContact />
@@ -190,5 +184,64 @@ export default function SquashHomePage() {
         currentLanguage={currentLanguage}
       />
     </div>
+  );
+}
+
+export default function SquashHomePage() {
+  const location = useLocation();
+  const { user, session, isLoading, logout } = useAuth();
+  const { currentLanguage } = useLanguage();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pageAlert, setPageAlert] = useState(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  useEffect(() => {
+    const authMessage = location.state?.authMessage;
+    const authMessageAr = location.state?.authMessageAr;
+    if (authMessage || authMessageAr) {
+      const message =
+        currentLanguage === 'ar' && authMessageAr ? authMessageAr : authMessage || authMessageAr;
+      setPageAlert(message);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [location.state, currentLanguage]);
+
+  const handleNavClick = useCallback((section) => {
+    document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+
+  const handleSidebarClose = useCallback(() => setSidebarOpen(false), []);
+  const handleSidebarToggle = useCallback(() => setSidebarOpen((open) => !open), []);
+
+  const showAlert = useCallback((message) => {
+    setPageAlert(message);
+    setTimeout(() => setPageAlert(null), 6000);
+  }, []);
+
+  const handleLogout = useCallback(async () => {
+    await logout();
+  }, [logout]);
+
+  if (isLoading) {
+    return <RouteGuardLoader message="Loading..." />;
+  }
+
+  return (
+    <LandingSectionsProvider domain="squash">
+      <SquashHomeContent
+        pageAlert={pageAlert}
+        sidebarOpen={sidebarOpen}
+        handleSidebarClose={handleSidebarClose}
+        handleSidebarToggle={handleSidebarToggle}
+        session={session}
+        user={user}
+        showProfileModal={showProfileModal}
+        setShowProfileModal={setShowProfileModal}
+        handleNavClick={handleNavClick}
+        showAlert={showAlert}
+        handleLogout={handleLogout}
+        currentLanguage={currentLanguage}
+      />
+    </LandingSectionsProvider>
   );
 }

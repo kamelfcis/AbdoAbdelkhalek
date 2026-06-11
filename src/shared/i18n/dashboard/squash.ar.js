@@ -15,6 +15,7 @@ export const squashDashboardAr = {
   'page-success-stories': 'إدارة قصص النجاح',
   'page-faqs': 'إدارة الأسئلة الشائعة',
   'page-reviews': 'إدارة التقييمات',
+  'page-landing-settings': 'إعدادات صفحة الهبوط',
 };
 
 export default squashDashboardAr;

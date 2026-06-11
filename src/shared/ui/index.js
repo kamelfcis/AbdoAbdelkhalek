@@ -12,6 +12,7 @@ export { default as Badge } from './Badge';
 export { default as Spinner } from './Spinner';
 export { default as Skeleton, SkeletonGroup } from './Skeleton';
 export { default as Alert } from './Alert';
+export { default as ToggleSwitch } from './ToggleSwitch';
 export { default as Toast, toastSuccess, toastError, toastWarning, toastInfo, toastLoading, toastDismiss } from './Toast';
 export { default as EmptyState } from './EmptyState';
 export { default as StatCard } from './StatCard';

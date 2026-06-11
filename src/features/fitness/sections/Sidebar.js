@@ -4,10 +4,12 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 import { getTranslation } from '../../../utils/translations';
 import { buildDashboardPath } from '../../dashboard/config/dashboardRoutes';
 import { loginPath } from '../../../shared/lib/authRoutes';
+import { useLandingSectionsOptional } from '../../../shared/contexts/LandingSectionsContext';
 
 const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShowProfile }) => {
   const { currentLanguage, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
+  const { isSlugVisible } = useLandingSectionsOptional();
   const sidebarRef = useRef(null);
   const langText = currentLanguage === 'ar' ? 'English' : 'العربية';
   const isRTL = currentLanguage === 'ar';
@@ -171,34 +173,38 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
               {getTranslation('sidebar-home', currentLanguage)}
             </a>
           </li>
-          <li>
-            <a
-              href="#categories"
-              onClick={(e) => handleNavClick(e, 'categories')}
-              className={`block py-2 px-4 rounded-lg hover:text-white ${
-                isRTL 
-                  ? 'hover:bg-gradient-to-l' 
-                  : 'hover:bg-gradient-to-r'
-              } from-[#bfd7ed] to-[#0074b7]`}
-              style={{ textAlign: isRTL ? 'right' : 'left' }}
-            >
-              {getTranslation('sidebar-categories', currentLanguage)}
-            </a>
-          </li>
-          <li>
-            <a
-              href="#packages"
-              onClick={(e) => handleNavClick(e, 'packages')}
-              className={`block py-2 px-4 rounded-lg hover:text-white ${
-                isRTL 
-                  ? 'hover:bg-gradient-to-l' 
-                  : 'hover:bg-gradient-to-r'
-              } from-[#bfd7ed] to-[#0074b7]`}
-              style={{ textAlign: isRTL ? 'right' : 'left' }}
-            >
-              {getTranslation('sidebar-packages', currentLanguage)}
-            </a>
-          </li>
+          {isSlugVisible('categories') && (
+            <li>
+              <a
+                href="#categories"
+                onClick={(e) => handleNavClick(e, 'categories')}
+                className={`block py-2 px-4 rounded-lg hover:text-white ${
+                  isRTL 
+                    ? 'hover:bg-gradient-to-l' 
+                    : 'hover:bg-gradient-to-r'
+                } from-[#bfd7ed] to-[#0074b7]`}
+                style={{ textAlign: isRTL ? 'right' : 'left' }}
+              >
+                {getTranslation('sidebar-categories', currentLanguage)}
+              </a>
+            </li>
+          )}
+          {isSlugVisible('packages') && (
+            <li>
+              <a
+                href="#packages"
+                onClick={(e) => handleNavClick(e, 'packages')}
+                className={`block py-2 px-4 rounded-lg hover:text-white ${
+                  isRTL 
+                    ? 'hover:bg-gradient-to-l' 
+                    : 'hover:bg-gradient-to-r'
+                } from-[#bfd7ed] to-[#0074b7]`}
+                style={{ textAlign: isRTL ? 'right' : 'left' }}
+              >
+                {getTranslation('sidebar-packages', currentLanguage)}
+              </a>
+            </li>
+          )}
           <li>
             <a
               href="#about-me"
@@ -213,20 +219,22 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
               {getTranslation('sidebar-about', currentLanguage)}
             </a>
           </li>
-          <li>
-            <a
-              href="#success"
-              onClick={(e) => handleNavClick(e, 'success')}
-              className={`block py-2 px-4 rounded-lg hover:text-white ${
-                isRTL 
-                  ? 'hover:bg-gradient-to-l' 
-                  : 'hover:bg-gradient-to-r'
-              } from-[#bfd7ed] to-[#0074b7]`}
-              style={{ textAlign: isRTL ? 'right' : 'left' }}
-            >
-              {getTranslation('sidebar-success', currentLanguage)}
-            </a>
-          </li>
+          {isSlugVisible('success') && (
+            <li>
+              <a
+                href="#success"
+                onClick={(e) => handleNavClick(e, 'success')}
+                className={`block py-2 px-4 rounded-lg hover:text-white ${
+                  isRTL 
+                    ? 'hover:bg-gradient-to-l' 
+                    : 'hover:bg-gradient-to-r'
+                } from-[#bfd7ed] to-[#0074b7]`}
+                style={{ textAlign: isRTL ? 'right' : 'left' }}
+              >
+                {getTranslation('sidebar-success', currentLanguage)}
+              </a>
+            </li>
+          )}
           <li>
             <a
               href="#contact"
@@ -241,7 +249,7 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
               {getTranslation('sidebar-contact', currentLanguage)}
             </a>
           </li>
-          {userSession && !isCoach && (
+          {userSession && !isCoach && isSlugVisible('videos') && (
             <>
               <li>
                 <a

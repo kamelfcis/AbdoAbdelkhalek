@@ -26,6 +26,8 @@ export const coachNavItems = [
 
   { key: 'reviews', icon: 'whatsapp', labelKey: 'nav-reviews', iconClassName: 'text-green-600' },
 
+  { key: 'landing-settings', icon: 'sliders-h', labelKey: 'nav-landing-settings' },
+
 ];
 
 

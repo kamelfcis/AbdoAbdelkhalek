@@ -5,10 +5,12 @@ import { getTranslation } from '../../../utils/translations';
 import { loadFontAwesome } from '../../../shared/lib/fontAwesomeLoader';
 import { buildDashboardPath } from '../../dashboard/config/dashboardRoutes';
 import { loginPath } from '../../../shared/lib/authRoutes';
+import { useLandingSectionsOptional } from '../../../shared/contexts/LandingSectionsContext';
 
 const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfile, onShowProfile }) => {
   const { currentLanguage } = useLanguage();
   const navigate = useNavigate();
+  const { isSlugVisible } = useLandingSectionsOptional();
   const isCoach = userProfile?.is_coach ?? userSession?.user?.user_metadata?.is_coach;
   const displayName =
     userProfile?.full_name ||
@@ -77,20 +79,24 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
           >
             {getTranslation('nav-home', currentLanguage)}
           </a>
-          <a
-            href="#categories"
-            onClick={(e) => handleNavClick(e, 'categories')}
-            className="text-gray-800 hover:text-[var(--color-primary)] hover:font-bold text-base md:text-lg py-3 px-2 flex items-center h-full"
-          >
-            {getTranslation('nav-categories', currentLanguage)}
-          </a>
-          <a
-            href="#packages"
-            onClick={(e) => handleNavClick(e, 'packages')}
-            className="text-gray-800 hover:text-[var(--color-primary)] hover:font-bold text-base md:text-lg py-3 px-2 flex items-center h-full"
-          >
-            {getTranslation('nav-packages', currentLanguage)}
-          </a>
+          {isSlugVisible('categories') && (
+            <a
+              href="#categories"
+              onClick={(e) => handleNavClick(e, 'categories')}
+              className="text-gray-800 hover:text-[var(--color-primary)] hover:font-bold text-base md:text-lg py-3 px-2 flex items-center h-full"
+            >
+              {getTranslation('nav-categories', currentLanguage)}
+            </a>
+          )}
+          {isSlugVisible('packages') && (
+            <a
+              href="#packages"
+              onClick={(e) => handleNavClick(e, 'packages')}
+              className="text-gray-800 hover:text-[var(--color-primary)] hover:font-bold text-base md:text-lg py-3 px-2 flex items-center h-full"
+            >
+              {getTranslation('nav-packages', currentLanguage)}
+            </a>
+          )}
           <a
             href="#about-me"
             onClick={(e) => handleNavClick(e, 'about-me')}

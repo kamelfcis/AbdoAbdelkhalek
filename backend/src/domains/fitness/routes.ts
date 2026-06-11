@@ -27,6 +27,7 @@ import {
   traineeAccessSchema,
 } from '../../common/validation/fitness-schemas.js';
 import * as fitness from './fitness.service.js';
+import * as landingSettings from '../shared/landing-settings/landing-settings.service.js';
 import { parseListFilters, parsePagination } from '../../common/utils/pagination.js';
 
 const router = Router();
@@ -419,6 +420,27 @@ router.get('/profile', requireAuth, async (req: AuthRequest, res, next) => {
 router.get('/stats', requireAuth, requireCoach, async (_req, res, next) => {
   try {
     res.json(await fitness.getDashboardStats());
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.get('/landing-sections', async (_req, res, next) => {
+  try {
+    res.json(await landingSettings.getLandingSections('fitness'));
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.put('/landing-sections/:key', requireAuth, requireCoach, async (req, res, next) => {
+  try {
+    const visible = req.body?.visible;
+    if (typeof visible !== 'boolean') {
+      res.status(400).json({ error: 'visible must be a boolean' });
+      return;
+    }
+    res.json(await landingSettings.updateLandingSection('fitness', req.params.key, visible));
   } catch (e) {
     next(e);
   }

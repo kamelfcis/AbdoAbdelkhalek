@@ -15,6 +15,7 @@ export const squashDashboardEn = {
   'page-success-stories': 'Success Stories Management',
   'page-faqs': 'FAQs Management',
   'page-reviews': 'Reviews Management',
+  'page-landing-settings': 'Landing Page Settings',
 };
 
 export default squashDashboardEn;

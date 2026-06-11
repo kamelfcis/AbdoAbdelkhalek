@@ -112,6 +112,12 @@ const ReviewsSection = lazy(() =>
 
 );
 
+const LandingSettingsSection = lazy(() =>
+  import(/* webpackChunkName: "dash-landing-settings" */ './sections/LandingSettingsSection').then((m) => ({
+    default: m.LandingSettingsSection,
+  }))
+);
+
 const SECTION_COMPONENTS = {
 
   overview: OverviewSection,
@@ -131,6 +137,8 @@ const SECTION_COMPONENTS = {
   faqs: FaqsSection,
 
   reviews: ReviewsSection,
+
+  'landing-settings': LandingSettingsSection,
 
 };
 

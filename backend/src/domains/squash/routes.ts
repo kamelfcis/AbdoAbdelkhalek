@@ -34,6 +34,7 @@ import {
 } from '../../common/validation/fitness-schemas.js';
 import * as squash from './squash.service.js';
 import * as fitness from '../fitness/fitness.service.js';
+import * as landingSettings from '../shared/landing-settings/landing-settings.service.js';
 import { parseListFilters, parsePagination } from '../../common/utils/pagination.js';
 
 const router = Router();
@@ -524,5 +525,26 @@ router.put(
     }
   }
 );
+
+router.get('/landing-sections', async (_req, res, next) => {
+  try {
+    res.json(await landingSettings.getLandingSections('squash'));
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.put('/landing-sections/:key', requireAuth, requireCoach, async (req, res, next) => {
+  try {
+    const visible = req.body?.visible;
+    if (typeof visible !== 'boolean') {
+      res.status(400).json({ error: 'visible must be a boolean' });
+      return;
+    }
+    res.json(await landingSettings.updateLandingSection('squash', req.params.key, visible));
+  } catch (e) {
+    next(e);
+  }
+});
 
 export default router;

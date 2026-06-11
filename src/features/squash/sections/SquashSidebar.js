@@ -4,6 +4,7 @@ import { useSquashI18n } from '../hooks/useSquashI18n';
 import { loadFontAwesome } from '../../../shared/lib/fontAwesomeLoader';
 import { buildDashboardPath } from '../../dashboard/config/dashboardRoutes';
 import { loginPath } from '../../../shared/lib/authRoutes';
+import { useLandingSectionsOptional } from '../../../shared/contexts/LandingSectionsContext';
 
 const NAV_ITEMS = [
   { section: 'home', key: 'sidebar.home' },
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
 const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShowProfile }) => {
   const { t, isRTL, toggleLanguage } = useSquashI18n();
   const navigate = useNavigate();
+  const { isSlugVisible } = useLandingSectionsOptional();
   const sidebarRef = useRef(null);
   const langText = isRTL ? 'English' : 'العربية';
   const isCoach = userProfile?.is_coach ?? userSession?.user?.user_metadata?.is_coach;
@@ -131,7 +133,7 @@ const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, 
 
         <nav className="p-4 flex-1 overflow-y-auto">
           <ul className="space-y-4">
-            {NAV_ITEMS.map(({ section, key }) => (
+            {NAV_ITEMS.filter(({ section }) => isSlugVisible(section)).map(({ section, key }) => (
               <li key={section}>
                 <a href={`#${section}`} onClick={(e) => handleNavClick(e, section)} className={linkClass} style={{ textAlign: isRTL ? 'right' : 'left' }}>
                   {t(key)}

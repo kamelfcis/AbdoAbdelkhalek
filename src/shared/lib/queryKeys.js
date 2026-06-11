@@ -24,6 +24,9 @@ export const queryKeys = {
   coaches: (domain = 'fitness') => (domain === 'squash' ? ['squash', 'coaches'] : ['coaches']),
   programs: (domain = 'fitness') => (domain === 'squash' ? ['squash', 'programs'] : ['programs']),
 
+  landingSections: (domain = 'fitness') =>
+    domain === 'squash' ? ['landing-sections', 'squash'] : ['landing-sections', 'fitness'],
+
   dashboard: {
     all: (domain = 'fitness') => (domain === 'squash' ? ['dashboard', 'squash'] : ['dashboard']),
     categories: (domain = 'fitness', pageParams = {}) =>
