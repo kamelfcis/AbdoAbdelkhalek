@@ -21,6 +21,7 @@ import {
   successStoryUpdateSchema,
   faqCreateSchema,
   faqUpdateSchema,
+  faqBulkDeleteSchema,
   coachCreateSchema,
   coachUpdateSchema,
   programCreateSchema,
@@ -399,6 +400,20 @@ router.patch(
   async (req, res, next) => {
     try {
       res.json(await squash.updateFaq(req.params.id, req.body));
+    } catch (e) {
+      next(e);
+    }
+  }
+);
+
+router.delete(
+  '/faqs/bulk',
+  requireAuth,
+  requireCoach,
+  validateBody(faqBulkDeleteSchema),
+  async (req, res, next) => {
+    try {
+      res.json(await squash.deleteFaqsBulk(req.body.ids));
     } catch (e) {
       next(e);
     }

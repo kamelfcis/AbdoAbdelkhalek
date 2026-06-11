@@ -229,6 +229,19 @@ export async function deleteFaq(id: string) {
   );
 }
 
+export async function deleteFaqsBulk(ids: string[]) {
+  return withWriteFallback(
+    async () => {
+      const result = await prisma.faq.deleteMany({ where: { id: { in: ids } } });
+      return { deleted: result.count };
+    },
+    async () => {
+      await rest.restDeleteWhere('faqs', `id=in.(${ids.join(',')})`);
+      return { deleted: ids.length };
+    }
+  );
+}
+
 export async function getVideoAccessUserIds(videoId: string): Promise<string[]> {
   return withWriteFallback(
     async () => {

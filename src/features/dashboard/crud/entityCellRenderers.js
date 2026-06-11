@@ -24,10 +24,15 @@ function getPublicBadgeVariant(isPublic) {
   return isPublic ? 'success' : 'destructive';
 }
 
-function getBooleanBadgeLabel(col, row, t) {
+function getBooleanBadgeLabel(col, row, t, isAr) {
   const isTrue = Boolean(row[col.key]);
   if (col.key === 'is_public') {
     return isTrue ? t('filter-public') : t('filter-private');
+  }
+  if (col.key === 'is_active') {
+    const activeLabel = isAr ? col.labelAr || t('th-active') : col.labelEn || t('th-active');
+    const inactiveLabel = isAr ? 'غير نشط' : 'Inactive';
+    return isTrue ? activeLabel : inactiveLabel;
   }
   return isTrue ? t('yes') : t('no');
 }
@@ -53,7 +58,7 @@ export function renderCell(col, row, { isAr, t, domain = 'fitness', rowIndex = 0
       const variant = col.key === 'is_public' ? getPublicBadgeVariant(isTrue) : isTrue ? 'success' : 'destructive';
       return (
         <div className="text-center">
-          <Badge variant={variant}>{getBooleanBadgeLabel(col, row, t)}</Badge>
+          <Badge variant={variant}>{getBooleanBadgeLabel(col, row, t, isAr)}</Badge>
         </div>
       );
     }
@@ -96,7 +101,16 @@ export function renderCell(col, row, { isAr, t, domain = 'fitness', rowIndex = 0
     }
 
     case 'text':
-    default:
-      return <span className="block text-center">{row[col.key] ?? '—'}</span>;
+    default: {
+      const value = row[col.key] ?? '—';
+      if (col.key === 'question_ar') {
+        return (
+          <span dir="rtl" className="block text-end">
+            {value}
+          </span>
+        );
+      }
+      return <span className="block text-center">{value}</span>;
+    }
   }
 }

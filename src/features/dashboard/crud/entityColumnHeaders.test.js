@@ -29,6 +29,21 @@ describe('resolveColumnHeader', () => {
     ).toBe('Featured');
   });
 
+  it('maps FAQ column keys to i18n labels', () => {
+    const faqT = (key) =>
+      ({
+        'th-question': 'Question',
+        'th-order': 'Order',
+      }[key] ?? key);
+
+    expect(
+      resolveColumnHeader({ key: 'question_ar', type: 'text' }, { isAr: false, t: faqT })
+    ).toBe('Question');
+    expect(
+      resolveColumnHeader({ key: 'order_index', type: 'text' }, { isAr: false, t: faqT })
+    ).toBe('Order');
+  });
+
   it('maps common keys to i18n labels', () => {
     expect(resolveColumnHeader({ key: 'name', type: 'bilingualName' }, { isAr: false, t })).toBe(
       'Name'

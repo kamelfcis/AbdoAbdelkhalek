@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Button } from 'components/ui/button';
-import { EmptyState } from '../../../shared/ui';
+import { EmptyState, Checkbox } from '../../../shared/ui';
 import { Table } from '../../../shared/ui';
 import { TableSkeleton } from '../../fitness/components/Skeletons';
 import { renderCell } from './entityCellRenderers';
@@ -19,13 +19,52 @@ export function EntityTable({
   onEdit,
   onDelete,
   actionsExtra,
+  selectedIds,
+  onToggleRow,
+  onToggleSelectAll,
 }) {
   const tr = typeof t === 'function' ? t : (key) => key;
-  const columnCount = (config?.columns?.length || 3) + 1;
+  const bulkDelete = Boolean(config?.bulkDelete);
+  const selectionEnabled = bulkDelete && selectedIds && onToggleRow && onToggleSelectAll;
+  const pageIds = useMemo(
+    () => data.map((row) => row.id).filter((id) => id != null),
+    [data]
+  );
+  const allSelected = pageIds.length > 0 && pageIds.every((id) => selectedIds?.has(id));
+  const someSelected = pageIds.some((id) => selectedIds?.has(id));
+  const columnCount = (config?.columns?.length || 3) + 1 + (selectionEnabled ? 1 : 0);
   const showSkeleton = isLoading && data.length === 0;
   const showFetchingOverlay = isMutating && data.length > 0;
 
   const columns = [
+    ...(selectionEnabled
+      ? [
+          {
+            key: '_select',
+            align: 'center',
+            header: (
+              <Checkbox
+                checked={allSelected}
+                indeterminate={someSelected && !allSelected}
+                disabled={isMutating || pageIds.length === 0}
+                onCheckedChange={() => onToggleSelectAll()}
+                aria-label={tr('select-all')}
+              />
+            ),
+            render: (row, rowIndex) => (
+              <Checkbox
+                checked={selectedIds.has(row.id)}
+                disabled={isMutating}
+                aria-label={tr('select-row')}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onToggleRow(row.id, rowIndex, { shiftKey: e.shiftKey });
+                }}
+              />
+            ),
+          },
+        ]
+      : []),
     ...(config?.columns || []).map((col) => ({
       key: col.key,
       align: 'center',

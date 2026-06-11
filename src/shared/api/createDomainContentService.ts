@@ -173,6 +173,8 @@ export function createDomainContentService(apiPrefix: string) {
     updateFaq: (id: string | number, data: unknown) =>
       apiFetch(p(`/faqs/${id}`), { method: 'PATCH', body: JSON.stringify(data) }),
     deleteFaq: (id: string | number) => apiFetch(p(`/faqs/${id}`), { method: 'DELETE' }),
+    deleteFaqsBulk: (ids: string[]) =>
+      apiFetch(p('/faqs/bulk'), { method: 'DELETE', body: JSON.stringify({ ids }) }),
 
     createCoach: (data: unknown) =>
       apiFetch(p('/coaches'), { method: 'POST', body: JSON.stringify(data) }),

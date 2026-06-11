@@ -187,6 +187,10 @@ export const faqUpdateSchema = bodyWithAliases({
   isActive: optionalBool,
 }).refine((data) => Object.keys(data).length > 0, { message: 'At least one field required' });
 
+export const faqBulkDeleteSchema = z.object({
+  ids: z.array(z.string().uuid()).min(1),
+});
+
 const subscriptionStatusValues = ['active', 'paused', 'cancelled', 'expired'] as const;
 
 export const subscriptionCreateSchema = bodyWithAliases({

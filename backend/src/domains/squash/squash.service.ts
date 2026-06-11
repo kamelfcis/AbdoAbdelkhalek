@@ -146,6 +146,7 @@ export const deleteSuccessStory = repo.deleteSquashSuccessStory;
 export const createFaq = repo.createSquashFaq;
 export const updateFaq = repo.updateSquashFaq;
 export const deleteFaq = repo.deleteSquashFaq;
+export const deleteFaqsBulk = repo.deleteSquashFaqsBulk;
 export const createCoach = repo.createSquashCoach;
 export const updateCoach = repo.updateSquashCoach;
 export const deleteCoach = repo.deleteSquashCoach;

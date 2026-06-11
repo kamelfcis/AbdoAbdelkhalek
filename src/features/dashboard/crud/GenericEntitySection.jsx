@@ -136,6 +136,9 @@ export function GenericEntitySection({ entityKey, actionsExtra }) {
     onEdit: crud.openEdit,
     onDelete: crud.deleteItem,
     actionsExtra,
+    selectedIds: crud.selectedIds,
+    onToggleRow: crud.toggleRow,
+    onToggleSelectAll: crud.toggleSelectAll,
   };
 
 
@@ -201,8 +204,12 @@ export function GenericEntitySection({ entityKey, actionsExtra }) {
 
 
         onAdd={crud.openCreate}
+        bulkDelete={Boolean(crud.config.bulkDelete)}
+        selectedCount={crud.selectedCount}
 
+        onDeleteSelected={crud.deleteSelected}
 
+        isMutating={crud.isMutating}
 
       />
 

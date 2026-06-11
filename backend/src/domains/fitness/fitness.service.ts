@@ -238,6 +238,8 @@ export const updateFaq = repo.updateFaq;
 
 export const deleteFaq = repo.deleteFaq;
 
+export const deleteFaqsBulk = repo.deleteFaqsBulk;
+
 export const createSubscription = repo.createSubscription;
 
 export const updateSubscription = repo.updateSubscription;

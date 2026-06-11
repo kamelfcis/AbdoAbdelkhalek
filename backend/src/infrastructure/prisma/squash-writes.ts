@@ -190,6 +190,19 @@ export async function deleteSquashFaq(id: string) {
   );
 }
 
+export async function deleteSquashFaqsBulk(ids: string[]) {
+  return withWriteFallback(
+    async () => {
+      const result = await prisma.squashFaq.deleteMany({ where: { id: { in: ids } } });
+      return { deleted: result.count };
+    },
+    async () => {
+      await rest.restDeleteWhere(T.faqs, `id=in.(${ids.join(',')})`);
+      return { deleted: ids.length };
+    }
+  );
+}
+
 export async function createSquashCoach(data: Record<string, unknown>) {
   return withWriteFallback(
     () => prisma.squashCoach.create({ data: normalize(data) as never }),

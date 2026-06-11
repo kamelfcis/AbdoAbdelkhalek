@@ -21,6 +21,7 @@ import {
   successStoryUpdateSchema,
   faqCreateSchema,
   faqUpdateSchema,
+  faqBulkDeleteSchema,
   subscriptionCreateSchema,
   subscriptionUpdateSchema,
   videoAccessSchema,
@@ -354,6 +355,20 @@ router.patch(
   async (req, res, next) => {
     try {
       res.json(await fitness.updateFaq(req.params.id, req.body));
+    } catch (e) {
+      next(e);
+    }
+  }
+);
+
+router.delete(
+  '/faqs/bulk',
+  requireAuth,
+  requireCoach,
+  validateBody(faqBulkDeleteSchema),
+  async (req, res, next) => {
+    try {
+      res.json(await fitness.deleteFaqsBulk(req.body.ids));
     } catch (e) {
       next(e);
     }

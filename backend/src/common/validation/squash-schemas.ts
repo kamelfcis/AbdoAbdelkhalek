@@ -9,6 +9,7 @@ export {
   successStoryUpdateSchema,
   faqCreateSchema,
   faqUpdateSchema,
+  faqBulkDeleteSchema,
 } from './fitness-schemas.js';
 
 import { z } from 'zod';
