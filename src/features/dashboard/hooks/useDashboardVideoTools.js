@@ -7,11 +7,13 @@ import { invalidateContentCrud, removePaginatedListItem, queryKeys } from '../..
 import { getDashboardTranslation } from '../../../shared/i18n/dashboard';
 import { useDebounceValue } from '../../../shared/lib/debounce';
 import { prefetchImageUrls } from '../../../shared/lib/prefetchImages';
+import { prefetchVideoUrl, warmVideoUrl } from '../../../shared/lib/prefetchVideo';
 import {
   usePaginatedDashboardList,
   filtersFromCrudState,
 } from '../../../shared/hooks/usePaginatedDashboardList';
 import { getVideoThumbSrc } from '../crud/entityImageUtils';
+import { useVideoThumbBatch } from './useVideoThumbBatch';
 import { VIDEOS_PAGE_SIZE } from '../constants/pagination';
 
 export function useDashboardVideoTools({
@@ -142,11 +144,16 @@ export function useDashboardVideoTools({
 
   const isAbsoluteUrl = (value) => typeof value === 'string' && /^https?:\/\//i.test(value);
 
+  const resolveVideoThumb = useCallback(
+    (video, thumbVariant = 'card') => getVideoThumbSrc(video, adminDomain, thumbVariant),
+    [adminDomain]
+  );
+
   const resolveVideoAsset = useCallback(
     (video, type, thumbVariant = 'card') => {
       if (!video) return null;
       if (type === 'thumbnail') {
-        return getVideoThumbSrc(video, adminDomain, thumbVariant).src;
+        return resolveVideoThumb(video, thumbVariant).src;
       }
       const urlKey = `${type}_url`;
       const pathKey = `${type}_path`;
@@ -161,19 +168,14 @@ export function useDashboardVideoTools({
       if (isAbsoluteUrl(storedPath)) return storedPath;
       return resolveDomainMediaUrl(null, storedPath, adminDomain, kind);
     },
-    [adminDomain]
+    [adminDomain, resolveVideoThumb]
   );
 
-  useEffect(() => {
-    if (!enabled || !paginatedVideos.length) return;
-
-    const thumbUrls = paginatedVideos.flatMap((video) => {
-      const card = resolveVideoAsset(video, 'thumbnail', 'card');
-      const table = resolveVideoAsset(video, 'thumbnail', 'table');
-      return [card, table];
-    });
-    prefetchImageUrls(thumbUrls.filter(Boolean));
-  }, [enabled, paginatedVideos, resolveVideoAsset]);
+  const { isThumbBatchReady: videoThumbsReady } = useVideoThumbBatch({
+    videos: paginatedVideos,
+    resolveThumbPair: (video) => resolveVideoThumb(video, 'card'),
+    enabled: enabled && !videosLoading,
+  });
 
   useEffect(() => {
     if (!enabled || videoPage >= totalVideoPages) return;
@@ -189,11 +191,11 @@ export function useDashboardVideoTools({
     if (!nextItems?.length) return;
 
     const thumbUrls = nextItems.flatMap((video) => {
-      const card = getVideoThumbSrc(video, adminDomain, 'card').src;
-      const table = getVideoThumbSrc(video, adminDomain, 'table').src;
-      return [card, table];
+      const card = getVideoThumbSrc(video, adminDomain, 'card');
+      const table = getVideoThumbSrc(video, adminDomain, 'table');
+      return [card.src, card.fallbackSrc, table.src, table.fallbackSrc];
     });
-    prefetchImageUrls(thumbUrls.filter(Boolean));
+    void prefetchImageUrls(thumbUrls.filter(Boolean));
   }, [
     enabled,
     adminDomain,
@@ -203,41 +205,62 @@ export function useDashboardVideoTools({
     queryClient,
   ]);
 
-  const fetchVideoAssetUrl = async (video, type) => {
-    const resolved = resolveVideoAsset(video, type);
-    if (resolved) return resolved;
-    if (!video) return null;
-    const pathKey = `${type}_path`;
-    const kind = type === 'thumbnail' ? 'videoThumbnails' : 'videos';
-    const storedPath = sanitizeStorageValue(video[pathKey]);
-    if (!storedPath) return null;
-    const bucket = getMediaBuckets(adminDomain)[kind];
-    const { data: publicData } = uploadService.getPublicUrl(bucket, storedPath);
-    return publicData?.publicUrl || resolveDomainMediaUrl(null, storedPath, adminDomain, kind);
-  };
+  // URL resolution is fully synchronous (stored url/path + public bucket URL) —
+  // no network round-trip is needed before playback can start.
+  const fetchVideoAssetUrl = useCallback(
+    (video, type) => {
+      const resolved = resolveVideoAsset(video, type);
+      if (resolved) return resolved;
+      if (!video) return null;
+      const pathKey = `${type}_path`;
+      const kind = type === 'thumbnail' ? 'videoThumbnails' : 'videos';
+      const storedPath = sanitizeStorageValue(video[pathKey]);
+      if (!storedPath) return null;
+      const bucket = getMediaBuckets(adminDomain)[kind];
+      const { data: publicData } = uploadService.getPublicUrl(bucket, storedPath);
+      return publicData?.publicUrl || resolveDomainMediaUrl(null, storedPath, adminDomain, kind);
+    },
+    [adminDomain, resolveVideoAsset]
+  );
 
-  const handlePreviewVideo = async (video) => {
+  /** CDN warmup for a card's video (hover/focus = debounced, pointerdown = immediate). */
+  const warmPreviewVideo = useCallback(
+    (video, immediate = false) => {
+      try {
+        const url = fetchVideoAssetUrl(video, 'video');
+        if (!url) return;
+        if (immediate) warmVideoUrl(url);
+        else prefetchVideoUrl(url);
+      } catch {
+        // warmup is best-effort
+      }
+    },
+    [fetchVideoAssetUrl]
+  );
+
+  const handlePreviewVideo = (video) => {
     if (!video) return;
     setPreviewVideo(video);
-    setPreviewVideoUrl('');
     setPreviewVideoError('');
+    setPreviewVideoLoading(false);
     setShowVideoModal(true);
-    setPreviewVideoLoading(true);
+    let url = null;
     try {
-      const url = await fetchVideoAssetUrl(video, 'video');
-      if (!url) {
-        setPreviewVideoError(
-          getDashboardTranslation(adminDomain, currentLanguage, 'video-preview-error-load')
-        );
-      } else {
-        setPreviewVideoUrl(url);
-      }
+      url = fetchVideoAssetUrl(video, 'video');
     } catch {
+      setPreviewVideoUrl('');
       setPreviewVideoError(
         getDashboardTranslation(adminDomain, currentLanguage, 'video-preview-error-generic')
       );
-    } finally {
-      setPreviewVideoLoading(false);
+      return;
+    }
+    if (url) {
+      setPreviewVideoUrl(url);
+    } else {
+      setPreviewVideoUrl('');
+      setPreviewVideoError(
+        getDashboardTranslation(adminDomain, currentLanguage, 'video-preview-error-load')
+      );
     }
   };
 
@@ -306,9 +329,12 @@ export function useDashboardVideoTools({
     videoEndIndex,
     videosLoading,
     videosFetching,
+    videoThumbsReady,
     getCategoryLabel,
     formatDurationSeconds,
     resolveVideoAsset,
+    resolveVideoThumb,
+    warmPreviewVideo,
     handlePreviewVideo,
     closeVideoPreview,
     handleDeleteVideo,

@@ -38,6 +38,20 @@ export function prefetchVideoUrl(url) {
   );
 }
 
+/**
+ * Immediate (non-debounced) warmup — for pointerdown/click, when playback is imminent.
+ * @param {string} url
+ */
+export function warmVideoUrl(url) {
+  if (!url || isYouTubeUrl(url)) return;
+  const existing = timers.get(url);
+  if (existing) {
+    clearTimeout(existing);
+    timers.delete(url);
+  }
+  warmup(url);
+}
+
 /** @internal test helper */
 export function _resetPrefetchState() {
   warmed.clear();

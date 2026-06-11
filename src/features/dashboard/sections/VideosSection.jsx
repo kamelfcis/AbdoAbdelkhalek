@@ -13,7 +13,7 @@ import { VideosCardGrid } from './VideosCardGrid';
 export function VideosSection() {
   const c = useDashboardCoach();
   const { viewMode, setViewMode } = useViewMode('videos', { defaultMode: 'table' });
-  const thumb = (video) => c.resolveVideoAsset?.(video, 'thumbnail', 'table');
+  const thumb = (video) => c.resolveVideoThumb?.(video, 'table');
   const showSkeleton = c.videosLoading && c.paginatedVideos.length === 0;
   const showFetchingOverlay = c.videosFetching && c.paginatedVideos.length > 0;
 
@@ -22,13 +22,23 @@ export function VideosSection() {
       key: 'title',
       align: 'center',
       header: c.t('th-video-title'),
-      render: (video) => (
+      render: (video) => {
+        const thumbPair = thumb(video);
+        return (
         <div className="flex flex-col items-center gap-2">
-          <button type="button" onClick={() => c.handlePreviewVideo(video)} className="relative group">
+          <button
+            type="button"
+            onClick={() => c.handlePreviewVideo(video)}
+            onMouseEnter={() => c.warmPreviewVideo?.(video)}
+            onFocus={() => c.warmPreviewVideo?.(video)}
+            onPointerDown={() => c.warmPreviewVideo?.(video, true)}
+            className="relative group"
+          >
             <div className="w-20 h-12 rounded-lg overflow-hidden shadow border border-[var(--color-border)]">
-              {thumb(video) ? (
+              {thumbPair?.src ? (
                 <DashboardThumb
-                  src={thumb(video)}
+                  src={thumbPair.src}
+                  fallbackSrc={thumbPair.fallbackSrc}
                   alt={c.isRTL ? video.title_ar : video.title_en}
                   width={TABLE_THUMB.width}
                   height={TABLE_THUMB.height}
@@ -56,7 +66,8 @@ export function VideosSection() {
             </p>
           </div>
         </div>
-      ),
+        );
+      },
     },
     {
       key: 'category',
@@ -179,12 +190,14 @@ export function VideosSection() {
           videos={c.paginatedVideos}
           isAr={c.isRTL}
           t={c.t}
-          resolveThumb={(video) => c.resolveVideoAsset?.(video, 'thumbnail', 'card')}
+          resolveThumb={(video) => c.resolveVideoThumb?.(video, 'card')}
           getCategoryLabel={c.getCategoryLabel}
           formatDurationSeconds={c.formatDurationSeconds}
           isLoading={c.videosLoading}
           isFetching={c.videosFetching}
+          videoThumbsReady={c.videoThumbsReady}
           onPreview={c.handlePreviewVideo}
+          onWarmPreview={c.warmPreviewVideo}
           onEdit={(video) => {
             c.setEditingVideoId(video.id);
             c.setShowVideoForm(true);

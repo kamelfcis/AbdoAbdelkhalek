@@ -54,19 +54,47 @@ export const videoUpdateSchema = bodyWithAliases({
   isPublic: optionalBool,
 }).refine((data) => Object.keys(data).length > 0, { message: 'At least one field required' });
 
+const emptyToUndefined = (v: unknown) => (v === '' || v === null ? undefined : v);
+
+const packageLevelEnum = z.enum(['beginner', 'intermediate', 'advanced', 'elite']);
+const packageTypeEnum = z.enum(['training', 'nutrition', 'combined']);
+
+const optionalFeatures = z
+  .union([z.array(z.string()), z.string()])
+  .optional()
+  .nullable()
+  .transform((v) => {
+    if (v == null || v === '') return null;
+    if (Array.isArray(v)) return v.length ? v : null;
+    const lines = v
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    return lines.length ? lines : null;
+  });
+
+const packagePrice = z.preprocess(
+  (v) => (v === null || v === '' || v === undefined ? 0 : v),
+  z.number().nonnegative()
+);
+
 export const packageCreateSchema = bodyWithAliases({
   nameEn: z.string().min(1, 'nameEn is required'),
   nameAr: z.string().min(1, 'nameAr is required'),
-  level: z.string().min(1).optional(),
   descriptionEn: optionalString,
   descriptionAr: optionalString,
-  price: optionalNumber,
-  priceEgp: optionalNumber,
-  priceUsd: optionalNumber,
-  durationDays: optionalInt,
-  featuresEn: optionalString,
-  featuresAr: optionalString,
-  isActive: optionalBool,
+  priceEgp: packagePrice,
+  priceUsd: packagePrice,
+  durationDays: z.preprocess(
+    emptyToUndefined,
+    z.number({ invalid_type_error: 'durationDays is required' }).int().min(1)
+  ),
+  level: z.preprocess(emptyToUndefined, packageLevelEnum.default('beginner')),
+  type: z.preprocess(emptyToUndefined, packageTypeEnum.default('combined')),
+  featuresEn: optionalFeatures,
+  featuresAr: optionalFeatures,
+  includesVideoFeedback: optionalBool,
+  dailySupport: optionalBool,
 });
 
 export const packageUpdateSchema = bodyWithAliases({
@@ -74,13 +102,15 @@ export const packageUpdateSchema = bodyWithAliases({
   nameAr: z.string().min(1).optional(),
   descriptionEn: optionalString,
   descriptionAr: optionalString,
-  price: optionalNumber,
-  priceEgp: optionalNumber,
-  priceUsd: optionalNumber,
-  durationDays: optionalInt,
-  featuresEn: optionalString,
-  featuresAr: optionalString,
-  isActive: optionalBool,
+  priceEgp: z.preprocess(emptyToUndefined, optionalNumber),
+  priceUsd: z.preprocess(emptyToUndefined, optionalNumber),
+  durationDays: z.preprocess(emptyToUndefined, optionalInt),
+  level: packageLevelEnum.optional(),
+  type: packageTypeEnum.optional(),
+  featuresEn: optionalFeatures,
+  featuresAr: optionalFeatures,
+  includesVideoFeedback: optionalBool,
+  dailySupport: optionalBool,
 }).refine((data) => Object.keys(data).length > 0, { message: 'At least one field required' });
 
 export const reviewCreateSchema = bodyWithAliases({

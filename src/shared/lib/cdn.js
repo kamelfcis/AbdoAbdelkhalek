@@ -124,9 +124,14 @@ export function rewriteMediaUrls(data) {
 export const CDN_BASE =
   getMediaBase() || `${SUPABASE_URL}/storage/v1/object/public`;
 
-/** Cloudflare Image Resizing via /cdn-cgi/image/ (custom domain only). */
+/**
+ * Cloudflare Image Resizing via /cdn-cgi/image/ (custom domain only).
+ * Defaults ON whenever the CDN is enabled; set REACT_APP_CF_IMAGE_RESIZING=false to opt out.
+ */
 export function isCloudflareImageResizingEnabled() {
-  return process.env.REACT_APP_CF_IMAGE_RESIZING === 'true';
+  if (process.env.REACT_APP_CF_IMAGE_RESIZING === 'false') return false;
+  if (process.env.REACT_APP_CF_IMAGE_RESIZING === 'true') return true;
+  return isCdnEnabled();
 }
 
 /**
@@ -174,11 +179,13 @@ function buildCloudflareImageUrl(baseUrl, { width = 80, quality = 75, format = '
  * Resolve a dashboard list thumbnail URL (prefers stored/convention thumb, then CF resize, else full).
  */
 export function mediaThumbUrl(url, path, bucket, options = {}) {
-  const { width = 80, quality = 75, format = 'auto', thumbPath } = options;
+  const { width = 80, quality = 75, format = 'auto', thumbPath, skipDerivedThumb = false } =
+    options;
   const full = resolveMediaUrl(url, path, bucket);
   if (!full) return '';
 
-  const storedThumb = thumbPath || deriveThumbStoragePath(path || url);
+  const storedThumb =
+    thumbPath ?? (skipDerivedThumb ? null : deriveThumbStoragePath(path || url));
   if (storedThumb && !/^https?:\/\//.test(storedThumb)) {
     const thumbFull = mediaUrl(bucket, storedThumb);
     if (thumbFull) return thumbFull;

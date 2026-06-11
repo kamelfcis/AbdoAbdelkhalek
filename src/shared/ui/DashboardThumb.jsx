@@ -63,8 +63,11 @@ export default function DashboardThumb({
       className={cn('relative overflow-hidden bg-muted', className)}
       style={width && height ? { width, height } : undefined}
     >
-      {!loaded && !prefetched && (
-        <div className="absolute inset-0 animate-pulse bg-muted" aria-hidden="true" />
+      {!loaded && !prefetched && !instant && (
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-muted to-muted/80"
+          aria-hidden="true"
+        />
       )}
       <img
         src={currentSrc}

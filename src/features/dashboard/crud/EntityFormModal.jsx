@@ -58,6 +58,12 @@ function buildInitial(fields, record) {
 
       base[f.name] = pickField(record, f.name) ?? f.default ?? '';
 
+    } else if (f.type === 'textarea' && f.name.startsWith('features_')) {
+
+      const val = pickField(record, f.name);
+
+      base[f.name] = Array.isArray(val) ? val.join('\n') : (val ?? f.default ?? '');
+
     } else {
 
       base[f.name] = pickField(record, f.name) ?? f.default ?? '';
@@ -78,9 +84,17 @@ function serializePayload(formData, fields) {
 
   fields.forEach((f) => {
 
-    if (f.type === 'number' && body[f.name] !== '' && body[f.name] != null) {
+    if (f.type === 'number') {
 
-      body[f.name] = Number(body[f.name]);
+      if (body[f.name] === '' || body[f.name] == null) {
+
+        delete body[f.name];
+
+      } else {
+
+        body[f.name] = Number(body[f.name]);
+
+      }
 
     }
 

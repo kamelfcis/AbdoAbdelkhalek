@@ -26,7 +26,18 @@ function packageData(data: Record<string, unknown>) {
     camel.packageType = camel.type;
     delete camel.type;
   }
+  if (camel.priceEgp == null) camel.priceEgp = 0;
+  if (camel.priceUsd == null) camel.priceUsd = 0;
   return camel;
+}
+
+function packageToRest(data: Record<string, unknown>) {
+  const snake = toSnakeKeys(packageData(data));
+  if (snake.package_type !== undefined) {
+    snake.type = snake.package_type;
+    delete snake.package_type;
+  }
+  return snake;
 }
 
 function toRest(data: Record<string, unknown>) {
@@ -94,11 +105,10 @@ export async function deleteVideo(id: string) {
 }
 
 export async function createPackage(data: Record<string, unknown>) {
-  const payload = { level: 'beginner', type: 'combined', ...data };
-  const camel = packageData(payload);
+  const camel = packageData(data);
   return withWriteFallback(
     () => prisma.package.create({ data: camel as never }),
-    () => rest.restCreate('packages', toRest(payload))
+    () => rest.restCreate('packages', packageToRest(data))
   );
 }
 
@@ -106,7 +116,7 @@ export async function updatePackage(id: string, data: Record<string, unknown>) {
   const camel = packageData(data);
   return withWriteFallback(
     () => prisma.package.update({ where: { id }, data: camel as never }),
-    () => rest.restPatch('packages', id, toRest(data))
+    () => rest.restPatch('packages', id, packageToRest(data))
   );
 }
 

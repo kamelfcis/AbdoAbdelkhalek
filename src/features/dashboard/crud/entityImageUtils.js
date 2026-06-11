@@ -94,10 +94,14 @@ export function getVideoThumbSrc(video, domain, variant = 'card') {
 
   const size = variant === 'card' ? CARD_THUMB : TABLE_THUMB;
   const fallbackSrc = full || resolveMediaUrl(url, path, bucket);
-  // thumbnail_path is the thumb file itself — CDN resize the resolved URL, not thumbs/ convention.
-  const src = mediaThumbUrl(full || url, null, bucket, {
+  // thumbnail_path is the thumb file itself; passing the absolute URL as
+  // thumbPath skips the thumbs/ convention derivation inside mediaThumbUrl so
+  // the resolved URL is CF-resized directly.
+  const src = mediaThumbUrl(url, path, bucket, {
     width: size.fetchWidth || size.width,
     quality: 75,
+    format: variant === 'card' ? 'webp' : 'auto',
+    thumbPath: fallbackSrc,
   });
 
   return { src: src || fallbackSrc, fallbackSrc };

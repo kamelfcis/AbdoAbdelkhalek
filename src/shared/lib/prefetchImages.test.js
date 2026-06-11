@@ -75,6 +75,51 @@ describe('prefetchImageUrls', () => {
     global.Image = OriginalImage;
   });
 
+  it('does not mark failed URLs as prefetched', async () => {
+    global.Image = class MockImage {
+      set src(value) {
+        this._src = value;
+        queueMicrotask(() => this.onerror?.());
+      }
+
+      get src() {
+        return this._src;
+      }
+    };
+
+    const result = await prefetchImageUrls(['https://example.com/broken.jpg']);
+
+    expect(result.failed).toEqual(['https://example.com/broken.jpg']);
+    expect(result.loaded).toEqual([]);
+    expect(isImagePrefetched('https://example.com/broken.jpg')).toBe(false);
+  });
+
+  it('returns loaded and failed URL lists', async () => {
+    global.Image = class MockImage {
+      set src(value) {
+        this._src = value;
+        queueMicrotask(() => {
+          if (value.includes('bad')) this.onerror?.();
+          else this.onload?.();
+        });
+      }
+
+      get src() {
+        return this._src;
+      }
+    };
+
+    const result = await prefetchImageUrls([
+      'https://example.com/good.jpg',
+      'https://example.com/bad.jpg',
+    ]);
+
+    expect(result.loaded).toEqual(['https://example.com/good.jpg']);
+    expect(result.failed).toEqual(['https://example.com/bad.jpg']);
+    expect(isImagePrefetched('https://example.com/good.jpg')).toBe(true);
+    expect(isImagePrefetched('https://example.com/bad.jpg')).toBe(false);
+  });
+
   it('respects concurrency limit', async () => {
     let inFlight = 0;
     let maxInFlight = 0;

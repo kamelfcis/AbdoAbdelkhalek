@@ -14,20 +14,23 @@ import { EmptyState } from '../../../shared/ui';
 import DashboardThumb from '../../../shared/ui/DashboardThumb';
 import { CardGridSkeleton } from '../../fitness/components/Skeletons';
 import { CARD_THUMB } from '../crud/entityImageUtils';
+import { VIDEOS_PAGE_SIZE } from '../constants/pagination';
 
 function VideoCard({
   video,
   isAr,
   t,
-  thumbSrc,
+  thumb,
   categoryLabel,
   durationLabel,
   onPreview,
+  onWarmPreview,
   onEdit,
   onAccess,
   onDelete,
 }) {
   const title = isAr ? video.title_ar || video.title_en : video.title_en || video.title_ar;
+  const { src: thumbSrc, fallbackSrc: thumbFallbackSrc } = thumb || {};
 
   return (
     <Card
@@ -35,10 +38,13 @@ function VideoCard({
         'group overflow-hidden transition-all duration-300',
         'hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md'
       )}
+      onMouseEnter={() => onWarmPreview?.(video)}
     >
       <button
         type="button"
         onClick={() => onPreview(video)}
+        onFocus={() => onWarmPreview?.(video)}
+        onPointerDown={() => onWarmPreview?.(video, true)}
         className="block w-full text-left"
         aria-label={t('btn-preview')}
       >
@@ -49,6 +55,7 @@ function VideoCard({
           {thumbSrc ? (
             <DashboardThumb
               src={thumbSrc}
+              fallbackSrc={thumbFallbackSrc}
               alt=""
               width={CARD_THUMB.width}
               height={CARD_THUMB.height}
@@ -132,28 +139,33 @@ export function VideosCardGrid({
   formatDurationSeconds,
   isLoading,
   isFetching,
+  videoThumbsReady = true,
   onPreview,
+  onWarmPreview,
   onEdit,
   onAccess,
   onDelete,
   emptyTitle,
   emptyDescription,
 }) {
-  const showSkeleton = isLoading && videos.length === 0;
-  const showFetchingOverlay = isFetching && videos.length > 0;
+  const showDataSkeleton = isLoading && videos.length === 0;
 
-  if (showSkeleton) {
-    return <CardGridSkeleton count={6} />;
+  if (showDataSkeleton) {
+    return <CardGridSkeleton count={VIDEOS_PAGE_SIZE} />;
   }
 
   if (!videos.length) {
     return <EmptyState title={emptyTitle} description={emptyDescription} />;
   }
 
+  if (!videoThumbsReady) {
+    return <CardGridSkeleton count={VIDEOS_PAGE_SIZE} />;
+  }
+
   return (
     <div
-      className={`relative transition-opacity ${showFetchingOverlay ? 'opacity-60' : ''}`}
-      aria-busy={showFetchingOverlay}
+      className={cn('relative transition-opacity', isFetching && 'opacity-60')}
+      aria-busy={isFetching}
     >
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
         {videos.map((video) => (
@@ -162,10 +174,11 @@ export function VideosCardGrid({
             video={video}
             isAr={isAr}
             t={t}
-            thumbSrc={resolveThumb(video)}
+            thumb={resolveThumb(video)}
             categoryLabel={getCategoryLabel(video.category_id)}
             durationLabel={formatDurationSeconds(video.duration_seconds)}
             onPreview={onPreview}
+            onWarmPreview={onWarmPreview}
             onEdit={onEdit}
             onAccess={onAccess}
             onDelete={onDelete}

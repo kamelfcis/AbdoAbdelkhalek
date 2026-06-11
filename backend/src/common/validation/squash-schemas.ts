@@ -3,8 +3,6 @@ export {
   categoryUpdateSchema,
   videoCreateSchema,
   videoUpdateSchema,
-  packageCreateSchema,
-  packageUpdateSchema,
   reviewCreateSchema,
   reviewUpdateSchema,
   successStoryCreateSchema,
@@ -20,6 +18,41 @@ const optionalString = z.string().optional().nullable();
 const optionalBool = z.boolean().optional();
 const optionalInt = z.number().int().optional().nullable();
 const optionalNumber = z.number().optional().nullable();
+
+const squashFeatures = z
+  .union([z.array(z.string()), z.string()])
+  .optional()
+  .nullable()
+  .transform((v) => {
+    if (v == null || v === '') return null;
+    if (Array.isArray(v)) return v.join('\n');
+    return v;
+  });
+
+/** Squash packages table still uses legacy price / string features / is_active columns. */
+export const packageCreateSchema = bodyWithAliases({
+  nameEn: z.string().min(1, 'nameEn is required'),
+  nameAr: z.string().min(1, 'nameAr is required'),
+  descriptionEn: optionalString,
+  descriptionAr: optionalString,
+  price: optionalNumber,
+  durationDays: optionalInt,
+  featuresEn: squashFeatures,
+  featuresAr: squashFeatures,
+  isActive: optionalBool,
+});
+
+export const packageUpdateSchema = bodyWithAliases({
+  nameEn: z.string().min(1).optional(),
+  nameAr: z.string().min(1).optional(),
+  descriptionEn: optionalString,
+  descriptionAr: optionalString,
+  price: optionalNumber,
+  durationDays: optionalInt,
+  featuresEn: squashFeatures,
+  featuresAr: squashFeatures,
+  isActive: optionalBool,
+}).refine((data) => Object.keys(data).length > 0, { message: 'At least one field required' });
 
 export const coachCreateSchema = bodyWithAliases({
   nameEn: z.string().min(1, 'nameEn is required'),
