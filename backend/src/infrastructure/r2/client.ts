@@ -19,6 +19,21 @@ function getClient(): S3Client {
   return client;
 }
 
+function cacheControlForKey(key: string, contentType: string): string {
+  const lower = key.toLowerCase();
+  if (
+    lower.includes('/video-thumbnails/') ||
+    lower.includes('/thumbs/') ||
+    (contentType.startsWith('image/') && !lower.endsWith('.mp4'))
+  ) {
+    return 'public, max-age=2592000';
+  }
+  if (lower.includes('/videos/') || lower.endsWith('.mp4') || contentType.startsWith('video/')) {
+    return 'public, max-age=604800, immutable';
+  }
+  return 'public, max-age=31536000';
+}
+
 export async function getPresignedUploadUrl(
   key: string,
   contentType: string
@@ -27,6 +42,7 @@ export async function getPresignedUploadUrl(
     Bucket: env.r2.bucketName,
     Key: key,
     ContentType: contentType,
+    CacheControl: cacheControlForKey(key, contentType),
   });
   const uploadUrl = await getSignedUrl(getClient(), command, { expiresIn: 3600 });
   const publicUrl = buildMediaUrl(bucketFromKey(key), key);
@@ -43,7 +59,7 @@ export async function uploadObject(
     Key: key,
     Body: body,
     ContentType: contentType,
-    CacheControl: 'public, max-age=31536000',
+    CacheControl: cacheControlForKey(key, contentType),
   });
   await getClient().send(command);
   const publicUrl = buildMediaUrl(bucketFromKey(key), key);

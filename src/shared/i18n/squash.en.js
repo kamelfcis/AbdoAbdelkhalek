@@ -99,6 +99,10 @@ export const squashEn = {
   'videos.empty': 'Videos coming soon.',
   'videos.play': 'Watch lesson',
   'videos.loadMore': 'Load more',
+  'videos.fullscreen': 'Enter fullscreen',
+  'videos.exitFullscreen': 'Exit fullscreen',
+  'videos.loading': 'Loading video...',
+  'videos.unavailable': 'Video content not available',
 
   'stories.title': 'Success Stories',
   'stories.subtitle': 'Athletes who transformed their game with us.',

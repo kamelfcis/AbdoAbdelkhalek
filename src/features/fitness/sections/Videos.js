@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { cdnUrl, toCdnUrl } from '../../../shared/lib/cdn';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { getTranslation } from '../../../utils/translations';
@@ -6,6 +6,9 @@ import { useVideos } from '../../../shared/hooks/useVideos';
 import { VideoSkeletonGrid } from '../components/Skeletons';
 import OptimizedImage from './OptimizedImage';
 import { loginPath } from '../../../shared/lib/authRoutes';
+import VideoPlayerModal from '../../../shared/components/VideoPlayerModal';
+import { resolveVideoPlayUrl } from '../../../shared/lib/resolveVideoPlayUrl';
+import { prefetchVideoUrl } from '../../../shared/lib/prefetchVideo';
 
 const Videos = ({ onAlert, userSession }) => {
   const { currentLanguage } = useLanguage();
@@ -115,80 +118,19 @@ const Videos = ({ onAlert, userSession }) => {
     }
   }, [error, onAlert]);
 
-  // Prevent video download with keyboard shortcuts and context menu
-  useEffect(() => {
-    if (!showModal) return;
+  const handleVideoWarmup = useCallback((video) => {
+    const url = resolveVideoPlayUrl(video, 'fitness');
+    if (url) prefetchVideoUrl(url);
+  }, []);
 
-    const handleKeyDown = (e) => {
-      // Prevent Ctrl+S (Save)
-      if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
-        e.preventDefault();
-        return false;
-      }
-      // Prevent Ctrl+Shift+I (Developer Tools)
-      if (e.ctrlKey && e.shiftKey && e.key === 'I') {
-        e.preventDefault();
-        return false;
-      }
-      // Prevent F12 (Developer Tools)
-      if (e.key === 'F12') {
-        e.preventDefault();
-        return false;
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [showModal]);
-
-  const isYouTube = (url) => /youtu\.be|youtube\.com/.test(url || '');
-
-  const toYouTubeEmbed = (url) => {
-    try {
-      if (!url) return '';
-      // Handle various YouTube URL formats
-      const shortMatch = url.match(/youtu\.be\/([\w-]+)/);
-      const watchMatch = url.match(/[?&]v=([\w-]+)/);
-      const embedMatch = url.match(/youtube\.com\/embed\/([\w-]+)/);
-      const id = (shortMatch && shortMatch[1]) || (watchMatch && watchMatch[1]) || (embedMatch && embedMatch[1]);
-      if (!id) return url; // fallback to original
-      return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`;
-    } catch {
-      return url;
-    }
-  };
-
-  const resolvePlayableUrl = async (video) => {
-    // Prefer explicit video_url
-    if (video.video_url) {
-      // If YouTube link, convert to embed with autoplay
-      if (isYouTube(video.video_url)) return toYouTubeEmbed(video.video_url);
-      // If it's already a full URL to a file, return as-is
-      if (/^https?:\/\//.test(video.video_url)) return toCdnUrl(video.video_url);
-    }
-
-    // Try to resolve from storage path if available
-    if (video.video_path) {
-      // If already a full URL
-      if (/^https?:\/\//.test(video.video_path)) return toCdnUrl(video.video_path);
-      const normalized = String(video.video_path).replace(/^\/+/, '');
-      return cdnUrl('videos', normalized);
-    }
-    return '';
-  };
-
-  const handleVideoClick = async (video) => {
-    // Block private video for public users
+  const handleVideoClick = (video) => {
     if (!userSession && !video.is_public) {
       onAlert?.(currentLanguage === 'ar' ? 'يرجى تسجيل الدخول للوصول لهذا الفيديو' : 'Please login to access this video');
       setTimeout(() => { window.location.href = loginPath('fitness'); }, 1200);
       return;
     }
 
-    const url = await resolvePlayableUrl(video);
+    const url = resolveVideoPlayUrl(video, 'fitness');
     if (!url) {
       onAlert?.(getTranslation('video-not-available', currentLanguage));
       return;
@@ -197,15 +139,12 @@ const Videos = ({ onAlert, userSession }) => {
     setPlayUrl(url);
     setSelectedVideo(video);
     setShowModal(true);
-    // Prevent body scroll while modal open
-    document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setShowModal(false);
     setSelectedVideo(null);
     setPlayUrl('');
-    document.body.style.overflow = '';
   };
 
   const favoriteVideoIds = useMemo(() => {
@@ -382,6 +321,11 @@ const Videos = ({ onAlert, userSession }) => {
                   <div
                     key={video.id}
                     onClick={() => handleVideoClick(video)}
+                    onMouseEnter={() => handleVideoWarmup(video)}
+                    onFocus={() => handleVideoWarmup(video)}
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && handleVideoClick(video)}
+                    role="button"
                     className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all video-card"
                   >
                     <div className="relative bg-gray-200">
@@ -461,72 +405,28 @@ const Videos = ({ onAlert, userSession }) => {
               </div>
             )}
 
-            {showModal && selectedVideo && (
-              <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={closeModal}>
-                <div className="bg-white rounded-lg p-6 max-w-4xl w-full m-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-2xl font-bold">
-                      {currentLanguage === 'ar' ? selectedVideo.title_ar : selectedVideo.title_en}
-                    </h3>
-                    <button onClick={closeModal} className="text-gray-600 hover:text-gray-800" aria-label="Close video">
-                      <i className="fas fa-times text-2xl"></i>
-                    </button>
-                  </div>
-                  <div className="relative bg-gray-200 mb-4" 
-                       onContextMenu={(e) => e.preventDefault()}
-                       onDragStart={(e) => e.preventDefault()}
-                       style={{ userSelect: 'none', WebkitUserSelect: 'none' }}>
-                    {isYouTube(playUrl) ? (
-                      <iframe
-                        key={playUrl}
-                        src={playUrl}
-                        className="w-full h-96"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        title="video"
-                      ></iframe>
-                    ) : playUrl ? (
-                      <video 
-                        key={playUrl} 
-                        className="w-full h-96" 
-                        controls 
-                        controlsList="nodownload noplaybackrate nofullscreen" 
-                        disablePictureInPicture
-                        autoPlay 
-                        playsInline 
-                        preload="metadata"
-                        onContextMenu={(e) => e.preventDefault()}
-                        onDragStart={(e) => e.preventDefault()}
-                        onKeyDown={(e) => {
-                          // Prevent common download shortcuts
-                          if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
-                            e.preventDefault();
-                          }
-                          if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-                            e.preventDefault();
-                          }
-                        }}
-                        style={{ userSelect: 'none', WebkitUserSelect: 'none', pointerEvents: 'auto' }}>
-                        <source src={playUrl} />
-                        Your browser does not support the video tag.
-                      </video>
-                    ) : (
-                      <div className="absolute w-full h-full flex items-center justify-center text-gray-600">
-                        {getTranslation('video-not-available', currentLanguage)}
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-gray-600 mb-2">
-                      {currentLanguage === 'ar' ? selectedVideo.category_name_ar : selectedVideo.category_name_en}
-                    </p>
-                    <p className="text-gray-700">
-                      {currentLanguage === 'ar' ? selectedVideo.description_ar : selectedVideo.description_en}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
+            <VideoPlayerModal
+              isOpen={showModal && !!selectedVideo}
+              onClose={closeModal}
+              title={selectedVideo ? (currentLanguage === 'ar' ? selectedVideo.title_ar : selectedVideo.title_en) : ''}
+              playUrl={playUrl}
+              categoryLabel={
+                selectedVideo
+                  ? currentLanguage === 'ar'
+                    ? selectedVideo.category_name_ar
+                    : selectedVideo.category_name_en
+                  : ''
+              }
+              description={
+                selectedVideo
+                  ? currentLanguage === 'ar'
+                    ? selectedVideo.description_ar
+                    : selectedVideo.description_en
+                  : ''
+              }
+              isRTL={currentLanguage === 'ar'}
+              getLabel={(key) => getTranslation(key, currentLanguage)}
+            />
           </>
         )}
       </div>

@@ -130,6 +130,8 @@ export const sharedDashboardEn = {
   'aria-close-sidebar': 'Close sidebar',
   'aria-toggle-sidebar': 'Toggle sidebar',
   'video-loading': 'Loading video...',
+  'video-fullscreen': 'Enter fullscreen',
+  'video-exit-fullscreen': 'Exit fullscreen',
   'video-unavailable': 'Video file not available.',
   'package-name-required': 'Please enter the package name',
   'package-duration-required': 'Please specify the package duration in days',

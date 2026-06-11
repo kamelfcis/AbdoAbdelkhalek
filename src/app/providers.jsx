@@ -6,6 +6,7 @@ import { queryClient } from '../config/queryClient';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import { AuthProvider } from '../contexts/AuthContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
+import MediaPreconnect from '../shared/layout/MediaPreconnect';
 
 export function AppProviders({ children }) {
   return (
@@ -13,6 +14,7 @@ export function AppProviders({ children }) {
       <LanguageProvider>
         <AuthProvider>
           <QueryClientProvider client={queryClient}>
+            <MediaPreconnect />
             {children}
             <Toaster
               position="top-center"

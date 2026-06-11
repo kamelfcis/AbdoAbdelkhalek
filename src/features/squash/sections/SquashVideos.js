@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { toCdnUrl } from '../../../shared/lib/cdn';
 import { resolveDomainMediaUrl } from '../../../shared/lib/mediaBuckets';
 import OptimizedImage from '../../fitness/sections/OptimizedImage';
 import { useSquashContent } from '../../../shared/hooks/useSquashContent';
 import { useSquashI18n } from '../hooks/useSquashI18n';
 import { pickItemField } from '../utils/localize';
+import VideoPlayerModal from '../../../shared/components/VideoPlayerModal';
+import { resolveVideoPlayUrl, isYouTubeUrl } from '../../../shared/lib/resolveVideoPlayUrl';
+import { prefetchVideoUrl } from '../../../shared/lib/prefetchVideo';
 
 const SquashVideos = () => {
   const { t, isAr, isRTL } = useSquashI18n();
@@ -35,26 +38,23 @@ const SquashVideos = () => {
     return () => window.removeEventListener('categorySelected', handleCategorySelected);
   }, [isAr]);
 
-  const isYouTube = (url) => /youtu\.be|youtube\.com/.test(url || '');
+  const videoT = useCallback(
+    (key) => {
+      const map = {
+        'video-fullscreen': 'videos.fullscreen',
+        'video-exit-fullscreen': 'videos.exitFullscreen',
+        'video-loading': 'videos.loading',
+        'video-not-available': 'videos.unavailable',
+      };
+      return t(map[key] || key);
+    },
+    [t]
+  );
 
-  const toYouTubeEmbed = (url) => {
-    const shortMatch = url.match(/youtu\.be\/([\w-]+)/);
-    const watchMatch = url.match(/[?&]v=([\w-]+)/);
-    const id = (shortMatch && shortMatch[1]) || (watchMatch && watchMatch[1]);
-    return id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0` : url;
-  };
-
-  const resolvePlayableUrl = (video) => {
-    if (video.video_url) {
-      if (isYouTube(video.video_url)) return toYouTubeEmbed(video.video_url);
-      if (/^https?:\/\//.test(video.video_url)) return toCdnUrl(video.video_url);
-    }
-    if (video.video_path) {
-      if (/^https?:\/\//.test(video.video_path)) return toCdnUrl(video.video_path);
-      return resolveDomainMediaUrl(null, video.video_path, 'squash', 'videos');
-    }
-    return '';
-  };
+  const handleVideoWarmup = useCallback((video) => {
+    const url = resolveVideoPlayUrl(video, 'squash');
+    if (url) prefetchVideoUrl(url);
+  }, []);
 
   const filteredVideos = useMemo(() => {
     if (!selectedCategory) return allVideos;
@@ -64,19 +64,17 @@ const SquashVideos = () => {
   const visibleVideos = useMemo(() => filteredVideos.slice(0, visibleCount), [filteredVideos, visibleCount]);
 
   const handleVideoClick = (video) => {
-    const url = resolvePlayableUrl(video);
+    const url = resolveVideoPlayUrl(video, 'squash');
     if (!url) return;
     setPlayUrl(url);
     setSelectedVideo(video);
     setShowModal(true);
-    document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setShowModal(false);
     setSelectedVideo(null);
     setPlayUrl('');
-    document.body.style.overflow = '';
   };
 
   const showAllVideos = () => {
@@ -131,6 +129,8 @@ const SquashVideos = () => {
                   <div
                     key={video.id}
                     onClick={() => handleVideoClick(video)}
+                    onMouseEnter={() => handleVideoWarmup(video)}
+                    onFocus={() => handleVideoWarmup(video)}
                     onKeyDown={(e) => e.key === 'Enter' && handleVideoClick(video)}
                     role="button"
                     tabIndex={0}
@@ -183,25 +183,18 @@ const SquashVideos = () => {
           </>
         )}
 
-        {showModal && selectedVideo && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={closeModal} role="dialog" aria-modal="true">
-            <div className="bg-white rounded-lg p-6 max-w-4xl w-full m-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-2xl font-bold">{pickItemField(selectedVideo, isAr, 'title_en', 'title_ar')}</h3>
-                <button type="button" onClick={closeModal} className="text-gray-600 hover:text-gray-800" aria-label="Close">
-                  <i className="fas fa-times text-2xl" />
-                </button>
-              </div>
-              {isYouTube(playUrl) ? (
-                <iframe src={playUrl} className="w-full h-96" title="video" allow="autoplay; encrypted-media" allowFullScreen />
-              ) : (
-                <video key={playUrl} className="w-full h-96" controls autoPlay playsInline>
-                  <source src={playUrl} />
-                </video>
-              )}
-            </div>
-          </div>
-        )}
+        <VideoPlayerModal
+          isOpen={showModal && !!selectedVideo}
+          onClose={closeModal}
+          title={selectedVideo ? pickItemField(selectedVideo, isAr, 'title_en', 'title_ar') : ''}
+          playUrl={playUrl}
+          isYouTube={isYouTubeUrl(playUrl)}
+          description={
+            selectedVideo ? pickItemField(selectedVideo, isAr, 'description_en', 'description_ar') : ''
+          }
+          isRTL={isRTL}
+          t={videoT}
+        />
       </div>
     </section>
   );

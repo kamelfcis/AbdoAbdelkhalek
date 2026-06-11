@@ -98,6 +98,10 @@ export const squashAr = {
   'videos.empty': 'الفيديوهات قريباً.',
   'videos.play': 'شاهد الدرس',
   'videos.loadMore': 'تحميل المزيد',
+  'videos.fullscreen': 'ملء الشاشة',
+  'videos.exitFullscreen': 'الخروج من ملء الشاشة',
+  'videos.loading': 'جاري تحميل الفيديو...',
+  'videos.unavailable': 'محتوى الفيديو غير متاح',
 
   'stories.title': 'قصص النجاح',
   'stories.subtitle': 'رياضيون غيّروا لعبتهم معنا.',

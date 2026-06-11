@@ -251,4 +251,48 @@ REACT_APP_USE_CDN=true
 
 ```
 
+## Video playback performance
+
+Use this checklist when trainee videos feel slow to start or repeat views miss the edge cache:
+
+| Check | Action |
+|-------|--------|
+| Frontend CDN env | `REACT_APP_USE_CDN=true` and `REACT_APP_CDN_URL=https://cdn.abdelrhmanabdelkhalek.com` on Vercel |
+| Backend CDN env | `USE_CDN=true` on the API host |
+| Custom domain proxied | `cdn.abdelrhmanabdelkhalek.com` orange-cloud (proxied) in Cloudflare DNS |
+| Cache rule for MP4 | Caching → Cache Rules: `*.mp4` → Edge TTL **7+ days** |
+| Upload metadata | New uploads set `Cache-Control: public, max-age=604800, immutable` (videos) and `max-age=2592000` (thumbnails) via backend R2 client |
+| CORS for prefetch | Bucket CORS allows `GET` + `HEAD` from app origins (see §3) |
+| Browser warmup | Landing video cards prefetch the first 64 KB on hover; `MediaPreconnect` runs on all routes |
+
+After deploy, open DevTools → Network, hover a video card, then play: the MP4 request should hit Cloudflare (`cf-cache-status: HIT` on repeat views).
+
+```
+
+
+
+## Video playback performance
+
+
+
+Checklist for fast trainee MP4 playback on fitness/squash landing pages:
+
+
+
+- [ ] **Vercel env:** `REACT_APP_USE_CDN=true`, `REACT_APP_CDN_URL=https://cdn.abdelrhmanabdelkhalek.com`; backend `USE_CDN=true`
+
+- [ ] **Cloudflare DNS:** `cdn.abdelrhmanabdelkhalek.com` proxied (orange cloud)
+
+- [ ] **Cache rule:** `*.mp4` → Edge TTL ≥ 7 days (matches R2 `Cache-Control: max-age=604800`)
+
+- [ ] **R2 uploads:** New videos/thumbnails get `Cache-Control` metadata on upload (videos 7d, thumbnails 30d)
+
+- [ ] **CORS:** R2 bucket allows GET/HEAD from app origin (required for hover Range prefetch)
+
+- [ ] **App:** Global `MediaPreconnect` + hover prefetch warm CDN before click; player uses `preload="auto"`
+
+
+
+Repeat views should hit Cloudflare edge (`cf-cache-status: HIT`), not R2 origin.
+
 

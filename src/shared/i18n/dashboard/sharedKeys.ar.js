@@ -130,6 +130,8 @@ export const sharedDashboardAr = {
   'aria-close-sidebar': 'إغلاق القائمة',
   'aria-toggle-sidebar': 'فتح القائمة',
   'video-loading': 'جاري تحميل الفيديو...',
+  'video-fullscreen': 'ملء الشاشة',
+  'video-exit-fullscreen': 'الخروج من ملء الشاشة',
   'video-unavailable': 'ملف الفيديو غير متاح.',
   'package-name-required': 'يرجى إدخال اسم الباقة',
   'package-duration-required': 'أدخل مدة الباقة بالأيام',

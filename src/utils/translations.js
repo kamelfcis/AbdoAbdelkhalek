@@ -106,6 +106,9 @@ export const translations = {
     "no-videos-available": "No training videos available in this category",
     "loading-videos": "Loading training videos...",
     "video-not-available": "Video content not available",
+    "video-loading": "Loading video...",
+    "video-fullscreen": "Enter fullscreen",
+    "video-exit-fullscreen": "Exit fullscreen",
     "back-to-all-videos": "Click the arrow to view all training videos",
     // Other
     "load-more-text": "Load More Training Videos",
@@ -227,6 +230,9 @@ export const translations = {
     "no-videos-available": "لا توجد فيديوهات تدريبية متاحة في هذه الفئة",
     "loading-videos": "جاري تحميل فيديوهات التدريب...",
     "video-not-available": "محتوى الفيديو غير متاح",
+    "video-loading": "جاري تحميل الفيديو...",
+    "video-fullscreen": "ملء الشاشة",
+    "video-exit-fullscreen": "الخروج من ملء الشاشة",
     "back-to-all-videos": "انقر على السهم لعرض جميع فيديوهات التدريب",
     // Other
     "load-more-text": "تحميل المزيد من فيديوهات التدريب",
