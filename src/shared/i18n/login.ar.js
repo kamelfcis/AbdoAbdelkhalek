@@ -72,6 +72,7 @@ export const loginAr = {
   // —— Validation & errors ——
   'error-text': 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
   'success-text': 'تم تسجيل الدخول بنجاح! جاري التوجيه...',
+  'logout-success': 'تم تسجيل الخروج بنجاح',
   'validation.required': 'هذا الحقل مطلوب',
   'validation.email-required': 'البريد الإلكتروني مطلوب',
   'validation.password-required': 'كلمة المرور مطلوبة',

@@ -72,6 +72,7 @@ export const loginEn = {
   // —— Validation & errors ——
   'error-text': 'Invalid email or password',
   'success-text': 'Login successful! Redirecting...',
+  'logout-success': 'Logged out successfully',
   'validation.required': 'This field is required',
   'validation.email-required': 'Email is required',
   'validation.password-required': 'Password is required',

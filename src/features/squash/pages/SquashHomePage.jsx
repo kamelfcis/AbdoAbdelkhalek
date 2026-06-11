@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { themeIds } from '../../../design-system/themes';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useAuth } from '../../../contexts/AuthContext';
-import { getSquashTranslation } from '../../../shared/i18n';
 import RouteGuardLoader from '../../../components/RouteGuardLoader';
 import TraineeProfileModal from '../../../shared/components/TraineeProfileModal';
 import { ErrorBoundary } from '../../../app/ErrorBoundary';
@@ -78,15 +77,8 @@ export default function SquashHomePage() {
   }, []);
 
   const handleLogout = useCallback(async () => {
-    try {
-      await logout();
-      setShowProfileModal(false);
-      showAlert(getSquashTranslation(currentLanguage, 'profile.logoutSuccess'));
-    } catch (error) {
-      console.error('Error during logout:', error);
-      setShowProfileModal(false);
-    }
-  }, [logout, currentLanguage, showAlert]);
+    await logout();
+  }, [logout]);
 
   if (isLoading) {
     return <RouteGuardLoader message="Loading..." />;

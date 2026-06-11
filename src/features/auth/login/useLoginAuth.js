@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { authService } from '../../../services/authService';
@@ -12,6 +12,7 @@ const REMEMBER_EMAIL_KEY = 'loginRememberEmail';
 
 export function useLoginAuth() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const signupDomain = parseSignupDomain(searchParams.get('domain'));
   const { currentLanguage } = useLanguage();
@@ -36,6 +37,17 @@ export function useLoginAuth() {
       setRememberMe(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (location.state?.logoutSuccess) {
+      setSuccess(t('logout-success'));
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname + window.location.search
+      );
+    }
+  }, [location.state, t]);
 
   useEffect(() => {
     if (isLoading || !isAuthenticated) return;

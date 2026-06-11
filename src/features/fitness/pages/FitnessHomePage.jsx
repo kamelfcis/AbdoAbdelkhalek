@@ -2,7 +2,6 @@ import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useAuth } from '../../../contexts/AuthContext';
-import { getTranslation } from '../../../utils/translations';
 import RouteGuardLoader from '../../../components/RouteGuardLoader';
 import TraineeProfileModal from '../../../shared/components/TraineeProfileModal';
 import Navbar from '../sections/Navbar';
@@ -63,14 +62,7 @@ export default function FitnessHomePage() {
   }, [location.state, currentLanguage]);
 
   const handleLogout = async () => {
-    try {
-      await logout();
-      setShowProfileModal(false);
-      showAlert(getTranslation('profile.logoutSuccess', currentLanguage));
-    } catch (error) {
-      console.error('Error during logout:', error);
-      setShowProfileModal(false);
-    }
+    await logout();
   };
 
   if (isLoading) {

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getContentService } from '../lib/getContentService';
 import { getTranslation } from '../../utils/translations';
 import { getSquashTranslation } from '../i18n';
+import { loginPath } from '../lib/authRoutes';
 
 export default function TraineeProfileModal({
   isOpen,
@@ -13,6 +15,7 @@ export default function TraineeProfileModal({
   onError,
   currentLanguage = 'en',
 }) {
+  const navigate = useNavigate();
   const isRTL = currentLanguage === 'ar';
   const [profileDetails, setProfileDetails] = useState({
     loading: false,
@@ -76,8 +79,11 @@ export default function TraineeProfileModal({
   };
 
   const handleLogout = async () => {
-    if (onLogout) {
-      await onLogout();
+    try {
+      if (onLogout) await onLogout();
+    } finally {
+      onClose?.();
+      navigate(loginPath(domain), { replace: true, state: { logoutSuccess: true } });
     }
   };
 

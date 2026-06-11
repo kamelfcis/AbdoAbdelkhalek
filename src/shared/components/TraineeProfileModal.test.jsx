@@ -1,13 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import TraineeProfileModal from './TraineeProfileModal';
 
 const getProfileDetails = vi.fn();
+const mockNavigate = vi.fn();
 
 vi.mock('../lib/getContentService', () => ({
   getContentService: () => ({
     getProfileDetails,
   }),
+}));
+
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => mockNavigate,
 }));
 
 describe('TraineeProfileModal', () => {
@@ -18,6 +24,7 @@ describe('TraineeProfileModal', () => {
   beforeEach(() => {
     onClose.mockClear();
     onLogout.mockClear();
+    mockNavigate.mockClear();
     getProfileDetails.mockReset();
     getProfileDetails.mockResolvedValue({
       userData: {
@@ -81,6 +88,62 @@ describe('TraineeProfileModal', () => {
 
     await waitFor(() => {
       expect(getProfileDetails).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('redirects to fitness login after logout', async () => {
+    render(
+      <TraineeProfileModal
+        isOpen
+        onClose={onClose}
+        session={session}
+        domain="fitness"
+        onLogout={onLogout}
+        currentLanguage="en"
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Test Trainee' })).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Logout' }));
+
+    await waitFor(() => {
+      expect(onLogout).toHaveBeenCalledTimes(1);
+    });
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledWith('/login?domain=fitness', {
+      replace: true,
+      state: { logoutSuccess: true },
+    });
+  });
+
+  it('redirects to squash login after logout', async () => {
+    render(
+      <TraineeProfileModal
+        isOpen
+        onClose={onClose}
+        session={session}
+        domain="squash"
+        onLogout={onLogout}
+        currentLanguage="en"
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Test Trainee' })).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Logout' }));
+
+    await waitFor(() => {
+      expect(onLogout).toHaveBeenCalledTimes(1);
+    });
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledWith('/login?domain=squash', {
+      replace: true,
+      state: { logoutSuccess: true },
     });
   });
 });
