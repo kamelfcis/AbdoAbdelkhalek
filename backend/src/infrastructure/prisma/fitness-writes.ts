@@ -136,8 +136,9 @@ export async function createPackage(data: Record<string, unknown>) {
 
 export async function updatePackage(id: string, data: Record<string, unknown>) {
   const camel = packageData(data, 'update');
-  camel.updatedAt = new Date();
-  const restPayload = { ...packageToRest(data, 'update'), updated_at: camel.updatedAt.toISOString() };
+  const updatedAt = new Date();
+  camel.updatedAt = updatedAt;
+  const restPayload = { ...packageToRest(data, 'update'), updated_at: updatedAt.toISOString() };
   return withWriteFallback(
     () => prisma.package.update({ where: { id }, data: camel as never }),
     () => assertPackageWriteResult(rest.restPatch('packages', id, restPayload), id, 'update')
