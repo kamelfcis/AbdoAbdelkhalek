@@ -63,7 +63,7 @@ describe('getVideoThumbSrc', () => {
     expect(src).toContain('video-thumbnails/hero.jpg');
   });
 
-  it('uses direct R2 URL when CDN is on but media base is r2.dev (no CF resize)', async () => {
+  it('rewrites storage path to CDN host when CDN is on (even if R2 URL is configured)', async () => {
     process.env.REACT_APP_USE_CDN = 'true';
     process.env.REACT_APP_CF_IMAGE_RESIZING = 'true';
     const getVideoThumbSrc = await loadGetVideoThumbSrc();
@@ -74,9 +74,9 @@ describe('getVideoThumbSrc', () => {
       'card'
     );
 
-    expect(src).not.toContain('/cdn-cgi/image/');
-    expect(src).toBe('https://pub.example.r2.dev/video-thumbnails/hero.jpg');
-    expect(fallbackSrc).toBe('https://pub.example.r2.dev/video-thumbnails/hero.jpg');
+    expect(src).toContain('/cdn-cgi/image/');
+    expect(src).toContain('https://cdn.example.com/');
+    expect(fallbackSrc).toBe('https://cdn.example.com/video-thumbnails/hero.jpg');
   });
 
   it('uses smaller fetch width for table variant on proxied CDN host', async () => {

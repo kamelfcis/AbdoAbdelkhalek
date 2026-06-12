@@ -43,10 +43,10 @@ export const env = {
   useCdn: process.env.USE_CDN === 'true',
   r2PublicUrl: (process.env.R2_PUBLIC_URL || '').replace(/\/$/, ''),
   mediaBaseUrl: (() => {
+    const cdn = (process.env.CDN_BASE_URL || 'https://cdn.abdelrhmanabdelkhalek.com').replace(/\/$/, '');
     const r2 = (process.env.R2_PUBLIC_URL || process.env.MEDIA_BASE_URL || '').replace(/\/$/, '');
     if (process.env.USE_CDN === 'true') {
-      if (r2) return r2;
-      return (process.env.CDN_BASE_URL || 'https://cdn.abdelrhmanabdelkhalek.com').replace(/\/$/, '');
+      return cdn || r2;
     }
     return r2;
   })(),

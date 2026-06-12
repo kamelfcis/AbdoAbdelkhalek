@@ -9,6 +9,8 @@ const CDN_HOST = (
 const SUPABASE_STORAGE_PREFIX =
   /https?:\/\/[^/]+\.supabase\.co\/storage\/v1\/object\/public\//;
 
+const R2_PUBLIC_PREFIX = /https?:\/\/pub-[^/]+\.r2\.dev\//;
+
 /** Serve media from Cloudflare (R2 public URL or custom CDN), not Supabase. */
 export function isCdnEnabled() {
   return process.env.REACT_APP_USE_CDN === 'true';
@@ -24,12 +26,11 @@ function r2PublicBase() {
   );
 }
 
-/** Cloudflare media origin: r2.dev (or MEDIA_BASE) first, then custom CDN host. */
+/** Cloudflare media origin: custom CDN host when enabled, else r2.dev (or MEDIA_BASE). */
 export function getMediaBase() {
   const r2 = r2PublicBase();
   if (isCdnEnabled()) {
-    if (r2) return r2;
-    return CDN_HOST;
+    return CDN_HOST || r2;
   }
   return r2 || null;
 }
@@ -64,6 +65,13 @@ export function toMediaUrl(url) {
     const base = getMediaBase();
     if (SUPABASE_STORAGE_PREFIX.test(url)) {
       return url.replace(SUPABASE_STORAGE_PREFIX, `${base}/`);
+    }
+    if (R2_PUBLIC_PREFIX.test(url)) {
+      return url.replace(R2_PUBLIC_PREFIX, `${base}/`);
+    }
+    const r2 = r2PublicBase();
+    if (r2 && url.startsWith(`${r2}/`)) {
+      return `${base}/${url.slice(r2.length + 1)}`;
     }
     if (base && url.startsWith(`${CDN_HOST}/`)) {
       return `${base}/${url.slice(CDN_HOST.length + 1)}`;

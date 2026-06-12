@@ -3,6 +3,8 @@ import { env } from '../../config/env.js';
 const SUPABASE_STORAGE_PREFIX =
   /https?:\/\/[^/]+\.supabase\.co\/storage\/v1\/object\/public\//;
 
+const R2_PUBLIC_PREFIX = /https?:\/\/pub-[^/]+\.r2\.dev\//;
+
 function cdnUrlToSupabase(url: string): string {
   const prefix = `${env.cdnBaseUrl}/`;
   if (!url.startsWith(prefix)) return url;
@@ -36,16 +38,24 @@ export function rewriteStorageUrl(url: string | null | undefined): string | null
   if (!url || typeof url !== 'string') return url;
 
   if (env.useCdn) {
-    if (!SUPABASE_STORAGE_PREFIX.test(url)) return url;
     const base = env.mediaBaseUrl || env.cdnBaseUrl;
-    return url.replace(SUPABASE_STORAGE_PREFIX, `${base}/`);
+    if (SUPABASE_STORAGE_PREFIX.test(url)) {
+      return url.replace(SUPABASE_STORAGE_PREFIX, `${base}/`);
+    }
+    if (R2_PUBLIC_PREFIX.test(url)) {
+      return url.replace(R2_PUBLIC_PREFIX, `${base}/`);
+    }
+    if (env.r2PublicUrl && url.startsWith(`${env.r2PublicUrl}/`)) {
+      return `${base}/${url.slice(env.r2PublicUrl.length + 1)}`;
+    }
+    if (env.mediaBaseUrl && url.startsWith(`${env.cdnBaseUrl}/`)) {
+      return `${env.mediaBaseUrl}/${url.slice(env.cdnBaseUrl.length + 1)}`;
+    }
+    return url;
   }
 
   if (!env.useCdn && url.startsWith(`${env.cdnBaseUrl}/`)) {
     return cdnUrlToSupabase(url);
-  }
-  if (env.useCdn && env.mediaBaseUrl && url.startsWith(`${env.cdnBaseUrl}/`)) {
-    return `${env.mediaBaseUrl}/${url.slice(env.cdnBaseUrl.length + 1)}`;
   }
   return url;
 }

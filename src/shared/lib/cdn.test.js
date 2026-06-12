@@ -1,8 +1,10 @@
 import {
   deriveThumbStoragePath,
+  getMediaBase,
   isCloudflareImageResizingEnabled,
   mediaThumbUrl,
   resolveMediaUrl,
+  toMediaUrl,
 } from './cdn';
 
 describe('deriveThumbStoragePath', () => {
@@ -49,15 +51,14 @@ describe('mediaThumbUrl', () => {
     expect(url).toBe('http://example.com/foo.jpg');
   });
 
-  it('does not add /cdn-cgi/image/ when media base is r2.dev', () => {
+  it('uses CDN host for full image when CDN is enabled', () => {
     process.env.REACT_APP_USE_CDN = 'true';
-    process.env.REACT_APP_CF_IMAGE_RESIZING = 'true';
+    process.env.REACT_APP_CF_IMAGE_RESIZING = 'false';
     const url = mediaThumbUrl(null, 'categories/foo.jpg', 'categories', {
       width: 480,
       skipDerivedThumb: true,
     });
-    expect(url).not.toContain('/cdn-cgi/image/');
-    expect(url).toBe('https://pub.example.r2.dev/categories/foo.jpg');
+    expect(url).toBe('https://cdn.abdelrhmanabdelkhalek.com/categories/foo.jpg');
   });
 });
 
@@ -73,11 +74,11 @@ describe('isCloudflareImageResizingEnabled', () => {
     process.env = originalEnv;
   });
 
-  it('returns false when media base is pub *.r2.dev even if CDN is on', () => {
+  it('returns true when CDN is on and custom domain is the media base', () => {
     process.env.REACT_APP_USE_CDN = 'true';
     process.env.REACT_APP_CF_IMAGE_RESIZING = 'true';
     process.env.REACT_APP_R2_PUBLIC_URL = 'https://pub.example.r2.dev';
-    expect(isCloudflareImageResizingEnabled()).toBe(false);
+    expect(isCloudflareImageResizingEnabled()).toBe(true);
   });
 
   it('returns true when CDN uses proxied custom domain without r2 override', () => {
@@ -120,5 +121,36 @@ describe('resolveMediaUrl', () => {
   it('prefers relative image_path over legacy filename in image_url', () => {
     const url = resolveMediaUrl('strength.jpg', 'categories/categories/uuid.jpg', 'categories');
     expect(url).toBe('https://pub.example.r2.dev/categories/categories/uuid.jpg');
+  });
+});
+
+describe('toMediaUrl r2.dev rewrite', () => {
+  const originalEnv = process.env;
+  const CDN_HOST = 'https://cdn.abdelrhmanabdelkhalek.com';
+
+  beforeEach(() => {
+    process.env = { ...originalEnv };
+    process.env.REACT_APP_USE_CDN = 'true';
+    process.env.REACT_APP_R2_PUBLIC_URL = 'https://pub-abc123.r2.dev';
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
+  it('rewrites pub-*.r2.dev URLs to CDN host', () => {
+    expect(toMediaUrl('https://pub-abc123.r2.dev/videos/foo.mp4')).toBe(
+      `${CDN_HOST}/videos/foo.mp4`
+    );
+  });
+
+  it('rewrites configured r2 public URL prefix to CDN host', () => {
+    expect(toMediaUrl('https://pub-abc123.r2.dev/categories/bar.jpg')).toBe(
+      `${CDN_HOST}/categories/bar.jpg`
+    );
+  });
+
+  it('prefers CDN host over r2 when CDN is enabled', () => {
+    expect(getMediaBase()).toBe(CDN_HOST);
   });
 });
