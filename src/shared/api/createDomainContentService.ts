@@ -50,14 +50,31 @@ function mapReview(r: Record<string, unknown>) {
 
 function coercePrice(value: unknown): number | string | null | undefined {
   if (value == null) return value as null | undefined;
-  if (typeof value === 'number' || typeof value === 'string') return value;
-  if (typeof value === 'object' && value !== null && 'd' in value) {
-    const dec = value as { e?: number; d?: number[] };
-    if (Array.isArray(dec.d) && dec.d.length === 1 && typeof dec.e === 'number') {
-      return dec.d[0] * 10 ** dec.e;
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
+    const n = parseFloat(value);
+    return Number.isFinite(n) ? n : value;
+  }
+  if (typeof value === 'object' && value !== null) {
+    // Decimal instance that wasn't converted by jsonReplacer (defensive)
+    if (typeof (value as Record<string, unknown>).toNumber === 'function') {
+      return (value as { toNumber(): number }).toNumber();
+    }
+    // Plain {s, e, d} object — decimal.js internal representation.
+    // Each element of d stores 7 significant digits, so:
+    //   value = d[0] * 10^(e - 6) + d[1] * 10^(e - 13) + ...
+    if ('d' in value) {
+      const dec = value as { s?: number; e?: number; d?: number[] };
+      if (Array.isArray(dec.d) && dec.d.length > 0 && typeof dec.e === 'number') {
+        let result = 0;
+        for (let i = 0; i < dec.d.length; i++) {
+          result += (dec.d[i] ?? 0) * 10 ** (dec.e - 6 - i * 7);
+        }
+        return (dec.s ?? 1) * result;
+      }
     }
   }
-  return String(value);
+  return undefined;
 }
 
 export function mapPackage(row: Record<string, unknown>) {

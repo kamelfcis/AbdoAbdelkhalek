@@ -66,6 +66,10 @@ export function rewriteMediaUrls<T>(data: T): T {
   if (data instanceof Date) return data;
   if (Array.isArray(data)) return data.map((item) => rewriteMediaUrls(item)) as T;
   if (typeof data === 'object') {
+    // Preserve Decimal-like objects (e.g. Prisma.Decimal) so jsonReplacer can
+    // convert them to numbers later. Destructuring them would turn Decimal
+    // instances into plain {s,e,d} objects, breaking downstream serialisation.
+    if (typeof (data as Record<string, unknown>).toNumber === 'function') return data;
     const out: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
       out[key] = rewriteMediaUrls(value);

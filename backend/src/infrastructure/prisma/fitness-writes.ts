@@ -12,6 +12,7 @@ async function withWriteFallback<T>(
     return await prismaFn();
   } catch (e) {
     if (!isPoolerError(e)) throw e;
+    console.error('[withWriteFallback] Prisma pooler error, falling back to REST:', e);
     return restFn();
   }
 }
@@ -141,7 +142,7 @@ export async function updatePackage(id: string, data: Record<string, unknown>) {
   const restPayload = { ...packageToRest(data, 'update'), updated_at: updatedAt.toISOString() };
   return withWriteFallback(
     () => prisma.package.update({ where: { id }, data: camel as never }),
-    () => assertPackageWriteResult(rest.restPatch('packages', id, restPayload), id, 'update')
+    async () => assertPackageWriteResult(await rest.restPatch('packages', id, restPayload), id, 'update')
   );
 }
 
