@@ -176,8 +176,8 @@ const FAQ = ({ onAlert }) => {
     try {
       setLoading(true);
       const data = await contentService.getFaqs();
-      const filtered = (data || []).filter((f) => f.is_public !== false && f.is_active !== false);
-      setFaqs(filtered.sort((a, b) => (a.display_order || 0) - (b.display_order || 0)));
+      const filtered = (data || []).filter((f) => f.is_active !== false);
+      setFaqs(filtered.sort((a, b) => (a.order_index || 0) - (b.order_index || 0)));
       setTimeout(() => {
         const heights = answerRefs.current.map((el) => el?.scrollHeight || 0);
         setAnswerHeights(heights);
@@ -294,7 +294,9 @@ const FAQ = ({ onAlert }) => {
                         isRTL ? 'leading-relaxed' : ''
                       }`}
                     >
-                      {currentLanguage === 'ar' ? faq.question_ar : faq.question_en}
+                      {currentLanguage === 'ar'
+                        ? (faq.question_ar || faq.question_en)
+                        : (faq.question_en || faq.question_ar)}
                     </span>
                   </div>
                   <div
@@ -339,7 +341,9 @@ const FAQ = ({ onAlert }) => {
                               isRTL ? 'text-right' : 'text-left'
                             }`}
                           >
-                            {currentLanguage === 'ar' ? faq.answer_ar : faq.answer_en}
+                            {currentLanguage === 'ar'
+                              ? (faq.answer_ar || faq.answer_en)
+                              : (faq.answer_en || faq.answer_ar)}
                           </p>
                       </div>
                     </div>

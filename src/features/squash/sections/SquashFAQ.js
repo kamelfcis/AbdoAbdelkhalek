@@ -22,8 +22,8 @@ const SquashFAQ = () => {
   const faqs = useMemo(
     () =>
       [...faqsRaw]
-        .filter((f) => f.is_public !== false && f.is_active !== false)
-        .sort((a, b) => (a.display_order || 0) - (b.display_order || 0)),
+        .filter((f) => f.is_active !== false)
+        .sort((a, b) => (a.order_index || 0) - (b.order_index || 0)),
     [faqsRaw]
   );
 

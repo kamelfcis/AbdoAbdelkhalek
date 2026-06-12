@@ -1,7 +1,10 @@
 import { apiFetch } from './apiClient';
 import { rewriteMediaUrls } from '../lib/cdn';
 import { fetchList } from './fetchList';
+import { mapFaq } from './mapFaq';
 import type { Category, Video } from '../../types';
+
+export { mapFaq } from './mapFaq';
 
 function mapVideo(v: Record<string, unknown> | null | undefined): Video | null {
   if (!v) return null;
@@ -121,7 +124,8 @@ export function createDomainContentService(apiPrefix: string) {
       fetchList(p('/reviews'), params, mapReview as (row: Record<string, unknown>) => unknown),
     getSuccessStories: (params?: Record<string, unknown>) =>
       fetchList(p('/success-stories'), params, mapSuccessStory as (row: Record<string, unknown>) => unknown),
-    getFaqs: (params?: Record<string, unknown>) => fetchList(p('/faqs'), params),
+    getFaqs: (params?: Record<string, unknown>) =>
+      fetchList(p('/faqs'), params, mapFaq as (row: Record<string, unknown>) => unknown),
     getSubscriptions: (params?: Record<string, unknown>) => fetchList(p('/subscriptions'), params),
     createSubscription: (data: unknown) =>
       apiFetch(p('/subscriptions'), { method: 'POST', body: JSON.stringify(data) }),
