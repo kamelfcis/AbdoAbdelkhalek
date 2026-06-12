@@ -94,6 +94,19 @@ describe('isCloudflareImageResizingEnabled', () => {
     delete process.env.REACT_APP_R2_PUBLIC_URL;
     expect(isCloudflareImageResizingEnabled()).toBe(false);
   });
+
+  it('returns false by default (opt-in) even on a proxied custom domain', () => {
+    process.env.REACT_APP_USE_CDN = 'true';
+    delete process.env.REACT_APP_CF_IMAGE_RESIZING;
+    delete process.env.REACT_APP_R2_PUBLIC_URL;
+    expect(isCloudflareImageResizingEnabled()).toBe(false);
+  });
+
+  it('returns false when opted in but CDN is disabled', () => {
+    process.env.REACT_APP_USE_CDN = 'false';
+    process.env.REACT_APP_CF_IMAGE_RESIZING = 'true';
+    expect(isCloudflareImageResizingEnabled()).toBe(false);
+  });
 });
 
 describe('resolveMediaUrl', () => {

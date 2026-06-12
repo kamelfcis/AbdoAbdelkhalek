@@ -151,15 +151,14 @@ function isCloudflareProxiedMediaHost(host) {
 
 /**
  * Cloudflare Image Resizing via /cdn-cgi/image/ (custom domain only).
- * Defaults ON when CDN uses a proxied custom domain; off for *.r2.dev public URLs.
- * Set REACT_APP_CF_IMAGE_RESIZING=false to opt out entirely.
+ * Opt-in: requires REACT_APP_CF_IMAGE_RESIZING=true AND Cloudflare Image
+ * Transformations enabled for the zone — otherwise /cdn-cgi/image/ URLs 404.
+ * Never active for *.r2.dev public URLs.
  */
 export function isCloudflareImageResizingEnabled() {
-  if (process.env.REACT_APP_CF_IMAGE_RESIZING === 'false') return false;
+  if (process.env.REACT_APP_CF_IMAGE_RESIZING !== 'true') return false;
   if (!isCdnEnabled()) return false;
-  if (!isCloudflareProxiedMediaHost(getActiveMediaHost())) return false;
-  if (process.env.REACT_APP_CF_IMAGE_RESIZING === 'true') return true;
-  return true;
+  return isCloudflareProxiedMediaHost(getActiveMediaHost());
 }
 
 /**

@@ -1,4 +1,5 @@
 import { isYouTubeUrl } from './resolveVideoPlayUrl';
+import { toMediaUrl } from './cdn';
 
 const warmed = new Set();
 const timers = new Map();
@@ -7,8 +8,12 @@ const DEBOUNCE_MS = 250;
 /** First 256 KB — enough for moov/faststart on most trainee MP4s without heavy hover cost. */
 const WARMUP_RANGE_END = 262143;
 
-function warmup(url) {
-  if (!url || isYouTubeUrl(url) || warmed.has(url)) return;
+function warmup(rawUrl) {
+  if (!rawUrl || isYouTubeUrl(rawUrl)) return;
+  // Always warm the CDN-rewritten URL: stale caches can hand callers raw
+  // r2.dev URLs, which lack CORS headers and 404 the warmup fetch.
+  const url = toMediaUrl(rawUrl);
+  if (!url || warmed.has(url)) return;
   warmed.add(url);
 
   fetch(url, {
