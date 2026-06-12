@@ -138,15 +138,16 @@ export function renderCell(col, row, { isAr, t, domain = 'fitness', rowIndex = 0
     case 'packageName': {
       const { primary, secondary } = getBilingualName(row, col, isAr);
       const descKey = isAr ? 'description_ar' : 'description_en';
-      const desc = row[descKey] || row.description_ar || row.description_en;
+      const rawDesc = row[descKey] || row.description_ar || row.description_en;
+      const desc = rawDesc && rawDesc.length > 80 ? rawDesc.slice(0, 80) + '…' : rawDesc;
       return (
         <div className="max-w-[220px] space-y-0.5 text-start" dir={isAr ? 'rtl' : 'ltr'}>
           <p className="font-semibold leading-tight">{primary || '—'}</p>
           {secondary && (
-            <p className="text-xs text-muted-foreground">{secondary}</p>
+            <p className="truncate text-xs text-muted-foreground">{secondary}</p>
           )}
           {desc && (
-            <p className="line-clamp-2 text-xs text-muted-foreground/70 mt-1">{desc}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
           )}
         </div>
       );
@@ -194,21 +195,26 @@ export function renderCell(col, row, { isAr, t, domain = 'fitness', rowIndex = 0
       }
       const allTags = [...featLines, ...extraTags];
 
+      const MAX_VISIBLE = 2;
+      const visibleTags = allTags.slice(0, MAX_VISIBLE);
+      const extraCount = allTags.length - MAX_VISIBLE;
+
       return (
-        <div className="flex flex-col items-center gap-1 max-w-[180px] mx-auto" dir={isAr ? 'rtl' : 'ltr'}>
+        <div className="flex flex-wrap items-center justify-center gap-1 max-w-[180px] mx-auto" dir={isAr ? 'rtl' : 'ltr'}>
           {type && (
             <Badge variant={typeVariant} className="capitalize shrink-0">
               {typeLabel}
             </Badge>
           )}
-          {allTags.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-1 mt-1">
-              {allTags.map((tag, i) => (
-                <Badge key={i} variant="outline" className="text-[10px] px-1.5 py-0">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
+          {visibleTags.map((tag, i) => (
+            <Badge key={i} variant="outline" className="text-[10px] px-1.5 py-0">
+              {tag}
+            </Badge>
+          ))}
+          {extraCount > 0 && (
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+              +{extraCount}
+            </Badge>
           )}
         </div>
       );

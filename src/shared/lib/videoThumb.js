@@ -10,6 +10,22 @@ function sanitizeVideoStorageValue(value) {
 }
 
 /**
+ * When thumbnail_path was stored with a `.webp` extension but the actual source
+ * file in R2 is a `.png` or `.jpeg`, CF Image Resizing will 404 trying to fetch
+ * the non-existent `.webp` source. Recover the real extension from thumbnail_url
+ * (which may carry the original extension), or default to `.png`.
+ */
+function normalizeThumbPath(path, url) {
+  if (!path || typeof path !== 'string') return path;
+  if (!path.endsWith('.webp')) return path;
+  if (url && typeof url === 'string') {
+    const m = url.match(/\.(png|jpe?g)(?:\?|$)/i);
+    if (m) return path.slice(0, -5) + '.' + m[1].toLowerCase();
+  }
+  return path.slice(0, -5) + '.png';
+}
+
+/**
  * Resolve CDN-optimized video card/table thumbnail URLs (CF resize when enabled).
  * @param {object} video
  * @param {'fitness'|'squash'|string} domain
@@ -19,7 +35,8 @@ export function getVideoThumbSrc(video, domain, variant = 'card') {
   if (!video) return { src: null, fallbackSrc: null };
 
   const url = sanitizeVideoStorageValue(video.thumbnail_url || video.thumbnailUrl);
-  const path = sanitizeVideoStorageValue(video.thumbnail_path || video.thumbnailPath);
+  const rawPath = sanitizeVideoStorageValue(video.thumbnail_path || video.thumbnailPath);
+  const path = normalizeThumbPath(rawPath, url);
   if (url === 'pending') return { src: null, fallbackSrc: null };
 
   const bucket = getMediaBuckets(domain).videoThumbnails;
