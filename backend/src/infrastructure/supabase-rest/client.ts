@@ -85,7 +85,11 @@ export async function restPatch<T>(
   id: string,
   body: Record<string, unknown>
 ): Promise<T> {
-  return restMutate<T>('PATCH', table, `?id=eq.${encodeURIComponent(id)}`, body);
+  const row = await restMutate<T>('PATCH', table, `?id=eq.${encodeURIComponent(id)}`, body);
+  if (row == null) {
+    throw new Error(`Supabase REST PATCH ${table} returned no rows for id ${id}`);
+  }
+  return row;
 }
 
 export async function restDelete(table: string, id: string): Promise<void> {

@@ -9,6 +9,7 @@ import {
   removePaginatedListItem,
 } from '../../../shared/lib/queryKeys';
 import { showSuccess, showError, showConfirm } from '../../../shared/lib/notifications';
+import { mapPackage } from '../../../shared/api/createDomainContentService';
 import { getEntityConfig } from './entityConfigs';
 import { getDashboardTranslation } from '../../../shared/i18n/dashboard';
 import {
@@ -18,24 +19,46 @@ import {
 import { useDebounceValue } from '../../../shared/lib/debounce';
 import { selectRangeIds } from './selectRangeIds';
 
+function isPackageLikeRow(row) {
+  return (
+    row.price_egp != null ||
+    row.priceEgp != null ||
+    row.price_usd != null ||
+    row.priceUsd != null ||
+    row.duration_days != null ||
+    row.durationDays != null ||
+    row.packageType != null
+  );
+}
+
 function normalizeCrudRow(row) {
   if (!row || typeof row !== 'object') return row;
+  const base = isPackageLikeRow(row) ? mapPackage(row) : row;
   return {
-    ...row,
-    name_en: row.name_en ?? row.nameEn,
-    name_ar: row.name_ar ?? row.nameAr,
-    description_en: row.description_en ?? row.descriptionEn,
-    description_ar: row.description_ar ?? row.descriptionAr,
-    is_public: row.is_public ?? row.isPublic,
-    is_active: row.is_active ?? row.isActive,
-    is_featured: row.is_featured ?? row.isFeatured,
-    image_url: row.image_url ?? row.imageUrl,
-    image_path: row.image_path ?? row.imagePath,
-    question_en: row.question_en ?? row.questionEn,
-    question_ar: row.question_ar ?? row.questionAr,
-    answer_en: row.answer_en ?? row.answerEn,
-    answer_ar: row.answer_ar ?? row.answerAr,
-    order_index: row.order_index ?? row.orderIndex,
+    ...base,
+    name_en: base.name_en ?? base.nameEn,
+    name_ar: base.name_ar ?? base.nameAr,
+    description_en: base.description_en ?? base.descriptionEn,
+    description_ar: base.description_ar ?? base.descriptionAr,
+    price_egp: base.price_egp ?? base.priceEgp,
+    price_usd: base.price_usd ?? base.priceUsd,
+    duration_days: base.duration_days ?? base.durationDays,
+    features_en: base.features_en ?? base.featuresEn,
+    features_ar: base.features_ar ?? base.featuresAr,
+    includes_video_feedback: base.includes_video_feedback ?? base.includesVideoFeedback,
+    daily_support: base.daily_support ?? base.dailySupport,
+    level: base.level ?? base.packageLevel,
+    type: base.type ?? base.packageType,
+    is_public: base.is_public ?? base.isPublic,
+    is_active: base.is_active ?? base.isActive,
+    is_featured: base.is_featured ?? base.isFeatured,
+    image_url: base.image_url ?? base.imageUrl,
+    image_path: base.image_path ?? base.imagePath,
+    question_en: base.question_en ?? base.questionEn,
+    question_ar: base.question_ar ?? base.questionAr,
+    answer_en: base.answer_en ?? base.answerEn,
+    answer_ar: base.answer_ar ?? base.answerAr,
+    order_index: base.order_index ?? base.orderIndex,
   };
 }
 
@@ -145,7 +168,7 @@ export function useEntityCrud(entityKey, { currentLanguage = 'en' } = {}) {
   }, []);
 
   const onSaved = useCallback(
-    (savedRecord, { isCreate } = {}) => {
+    async (savedRecord, { isCreate } = {}) => {
       closeForm();
 
       if (listQueryKey && savedRecord?.id != null) {
@@ -160,9 +183,7 @@ export function useEntityCrud(entityKey, { currentLanguage = 'en' } = {}) {
       }
 
       if (config?.invalidateKey) {
-        void invalidateContentCrud(queryClient, config.invalidateKey, adminDomain, {
-          deferSecondary: true,
-        });
+        await invalidateContentCrud(queryClient, config.invalidateKey, adminDomain);
       }
     },
     [queryClient, config, adminDomain, closeForm, listQueryKey, page, pageSize]

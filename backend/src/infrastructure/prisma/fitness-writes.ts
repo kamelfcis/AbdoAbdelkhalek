@@ -20,24 +20,33 @@ function normalize(data: Record<string, unknown>) {
   return toCamelKeys(data);
 }
 
-function packageData(data: Record<string, unknown>) {
+function packageData(data: Record<string, unknown>, mode: 'create' | 'update' = 'create') {
   const camel = normalize(data);
   if (camel.type !== undefined && camel.packageType === undefined) {
     camel.packageType = camel.type;
     delete camel.type;
   }
-  if (camel.priceEgp == null) camel.priceEgp = 0;
-  if (camel.priceUsd == null) camel.priceUsd = 0;
+  if (mode === 'create') {
+    if (camel.priceEgp == null) camel.priceEgp = 0;
+    if (camel.priceUsd == null) camel.priceUsd = 0;
+  }
   return camel;
 }
 
-function packageToRest(data: Record<string, unknown>) {
-  const snake = toSnakeKeys(packageData(data));
+function packageToRest(data: Record<string, unknown>, mode: 'create' | 'update' = 'update') {
+  const snake = toSnakeKeys(packageData(data, mode));
   if (snake.package_type !== undefined) {
     snake.type = snake.package_type;
     delete snake.package_type;
   }
   return snake;
+}
+
+function assertPackageWriteResult<T>(row: T | null | undefined, id: string, action: string): T {
+  if (row == null) {
+    throw new Error(`Package ${action} returned no row for id ${id}`);
+  }
+  return row;
 }
 
 function toRest(data: Record<string, unknown>) {
@@ -115,18 +124,23 @@ export async function deleteVideo(id: string) {
 }
 
 export async function createPackage(data: Record<string, unknown>) {
-  const camel = packageData(data);
+  const camel = packageData(data, 'create');
   return withWriteFallback(
     () => prisma.package.create({ data: camel as never }),
-    () => rest.restCreate('packages', packageToRest(data))
+    async () => {
+      const row = await rest.restCreate<Record<string, unknown>>('packages', packageToRest(data, 'create'));
+      return assertPackageWriteResult(row, 'new', 'create');
+    }
   );
 }
 
 export async function updatePackage(id: string, data: Record<string, unknown>) {
-  const camel = packageData(data);
+  const camel = packageData(data, 'update');
+  camel.updatedAt = new Date();
+  const restPayload = { ...packageToRest(data, 'update'), updated_at: camel.updatedAt.toISOString() };
   return withWriteFallback(
     () => prisma.package.update({ where: { id }, data: camel as never }),
-    () => rest.restPatch('packages', id, packageToRest(data))
+    () => assertPackageWriteResult(rest.restPatch('packages', id, restPayload), id, 'update')
   );
 }
 

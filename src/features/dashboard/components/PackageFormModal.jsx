@@ -103,14 +103,15 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
 
     setIsSubmitting(true);
     try {
+      let saved;
       if (pack) {
-        await contentService.updatePackage(pack.id, payload);
+        saved = await contentService.updatePackage(pack.id, payload);
         toastSuccess(tr('package-updated'));
       } else {
-        await contentService.createPackage(payload);
+        saved = await contentService.createPackage(payload);
         toastSuccess(tr('package-added'));
       }
-      onSaved?.();
+      onSaved?.(saved ?? { ...payload, id: pack?.id });
       onClose?.();
     } catch (error) {
       toastError(error.message || 'Error');

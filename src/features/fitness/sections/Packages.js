@@ -387,85 +387,99 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                 return (
                   <div
                     key={pkg.id}
-                    className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all hover:-translate-y-2"
+                    className="flex flex-col bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all hover:-translate-y-2"
+                    dir={isRTL ? 'rtl' : 'ltr'}
                   >
-                    <div 
-                      className={`${packageColor.text} p-6 text-center`}
+                    <div
+                      className={`${packageColor.text} px-6 py-8 text-center`}
                       style={{
-                        background: `linear-gradient(to right, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`
+                        background: `linear-gradient(135deg, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`,
                       }}
                     >
-                      <h3 className="text-2xl font-bold mb-2">
+                      <h3 className="text-2xl font-bold mb-4">
                         {currentLanguage === 'ar' ? pkg.name_ar : pkg.name_en}
                       </h3>
-                      <p className="text-xl font-semibold">
-                        <span 
-                          className="text-2xl" 
-                          style={{ color: isPlatinum ? 'white' : 'inherit' }}
-                          dangerouslySetInnerHTML={{ __html: formatPrice(pkg.price_egp, pkg.price_usd) }}
-                        ></span>
-                      </p>
-                      <p className="text-sm opacity-80">
+                      <div
+                        className={`mb-3 ${isPlatinum ? 'text-white' : ''}`}
+                        dangerouslySetInnerHTML={{ __html: formatPrice(pkg.price_egp, pkg.price_usd) }}
+                      />
+                      <p className="text-sm font-medium opacity-90">
                         {pkg.duration_days} {getTranslation('days', currentLanguage)}
                       </p>
                     </div>
-                    <div className="p-6">
-                      <p className="text-gray-600 mb-4">
-                        {currentLanguage === 'ar' ? pkg.description_ar : pkg.description_en}
-                      </p>
+
+                    <div className="flex flex-col flex-1 p-6 pb-4">
                       {featuresList.length > 0 && (
-                        <div className="mb-6">
+                        <div className="flex-1">
                           <ul className="space-y-3">
                             {(expandedFeatures[pkg.id] ? featuresList : featuresList.slice(0, 4)).map((feature, idx) => (
-                              <li key={idx} className="flex items-start group">
-                                <div 
-                                  className={`flex-shrink-0 mt-1 ${isRTL ? 'ml-3' : 'mr-3'}`}
-                                  style={{ color: packageColor.solid }}
-                                >
-                                  <i className="fas fa-check-circle text-lg"></i>
-                                </div>
-                                <span className="text-gray-700 text-sm leading-relaxed flex-1 group-hover:text-gray-900 transition-colors">
+                              <li
+                                key={idx}
+                                className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse text-right' : ''}`}
+                              >
+                                <span className="text-gray-700 text-sm leading-relaxed flex-1">
                                   {feature}
                                 </span>
+                                <div
+                                  className="flex-shrink-0 mt-0.5"
+                                  style={{ color: 'var(--color-primary)' }}
+                                >
+                                  <i className="fas fa-check-circle text-lg" aria-hidden="true"></i>
+                                </div>
                               </li>
                             ))}
                           </ul>
                           {featuresList.length > 4 && (
                             <button
-                              onClick={() => setExpandedFeatures(prev => ({
-                                ...prev,
-                                [pkg.id]: !prev[pkg.id]
-                              }))}
-                              className="mt-4 text-sm font-medium transition-colors hover:opacity-80"
-                              style={{ color: packageColor.solid }}
+                              type="button"
+                              onClick={() =>
+                                setExpandedFeatures((prev) => ({
+                                  ...prev,
+                                  [pkg.id]: !prev[pkg.id],
+                                }))
+                              }
+                              className="mt-4 inline-flex items-center text-sm font-semibold text-[var(--color-primary)] transition-colors hover:opacity-80"
                               aria-expanded={!!expandedFeatures[pkg.id]}
-                              aria-label={expandedFeatures[pkg.id] 
-                                ? (currentLanguage === 'ar' ? 'عرض أقل' : 'See Less')
-                                : (currentLanguage === 'ar' ? 'عرض المزيد' : 'See More')
+                              aria-label={
+                                expandedFeatures[pkg.id]
+                                  ? currentLanguage === 'ar'
+                                    ? 'عرض أقل'
+                                    : 'See Less'
+                                  : currentLanguage === 'ar'
+                                    ? 'عرض المزيد'
+                                    : 'See More'
                               }
                             >
-                              {expandedFeatures[pkg.id] 
-                                ? (currentLanguage === 'ar' ? 'عرض أقل' : 'See Less')
-                                : (currentLanguage === 'ar' ? 'عرض المزيد' : 'See More')
-                              }
-                              <i className={`fas fa-chevron-${expandedFeatures[pkg.id] ? 'up' : 'down'} ${isRTL ? 'mr-2' : 'ml-2'}`}></i>
+                              {expandedFeatures[pkg.id]
+                                ? currentLanguage === 'ar'
+                                  ? 'عرض أقل'
+                                  : 'See Less'
+                                : currentLanguage === 'ar'
+                                  ? 'عرض المزيد'
+                                  : 'See More'}
+                              <i
+                                className={`fas fa-chevron-${expandedFeatures[pkg.id] ? 'up' : 'down'} ${isRTL ? 'mr-2' : 'ml-2'}`}
+                                aria-hidden="true"
+                              />
                             </button>
                           )}
                         </div>
                       )}
-                      <button
-                        onClick={() => isSubscribed ? handleViewDetails(pkg) : handleSubscribe(pkg)}
-                        className={`w-full ${packageColor.text} py-2 px-4 rounded-lg font-semibold hover:shadow-lg transition-all ${
-                          isSubscribed ? 'opacity-75' : ''
-                        }`}
-                        style={{
-                          background: `linear-gradient(to right, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`
-                        }}
-                        data-package-id={pkg.id}
-                      >
-                        {getSubscribeButtonText(pkg)}
-                      </button>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() => (isSubscribed ? handleViewDetails(pkg) : handleSubscribe(pkg))}
+                      className={`w-full ${packageColor.text} py-3 px-4 font-bold text-lg hover:brightness-105 transition-all ${
+                        isSubscribed ? 'opacity-75' : ''
+                      }`}
+                      style={{
+                        background: `linear-gradient(135deg, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`,
+                      }}
+                      data-package-id={pkg.id}
+                    >
+                      {getSubscribeButtonText(pkg)}
+                    </button>
                   </div>
                 );
               })}

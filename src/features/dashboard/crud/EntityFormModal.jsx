@@ -24,6 +24,11 @@ function pickField(record, fieldName) {
 
   if (!record) return undefined;
 
+  if (fieldName === 'type') {
+    const typeVal = record.type ?? record.packageType ?? record.package_type;
+    if (typeVal != null && typeVal !== '') return typeVal;
+  }
+
   const direct = record[fieldName];
 
   if (direct != null && direct !== '') return direct;

@@ -60,8 +60,9 @@ function coercePrice(value: unknown): number | string | null | undefined {
   return String(value);
 }
 
-function mapPackage(row: Record<string, unknown>) {
+export function mapPackage(row: Record<string, unknown>) {
   const pkg = rewriteMediaUrls(row) as Record<string, unknown>;
+  const packageType = pkg.type ?? pkg.packageType ?? pkg.package_type;
   return {
     ...pkg,
     name_en: pkg.name_en ?? pkg.nameEn,
@@ -78,7 +79,8 @@ function mapPackage(row: Record<string, unknown>) {
     created_at: pkg.created_at ?? pkg.createdAt,
     updated_at: pkg.updated_at ?? pkg.updatedAt,
     level: pkg.level ?? pkg.packageLevel,
-    type: pkg.type ?? pkg.packageType,
+    type: packageType,
+    packageType,
   };
 }
 
@@ -153,10 +155,20 @@ export function createDomainContentService(apiPrefix: string) {
       apiFetch(p(`/videos/${id}`), { method: 'PATCH', body: JSON.stringify(data) }),
     deleteVideo: (id: string | number) => apiFetch(p(`/videos/${id}`), { method: 'DELETE' }),
 
-    createPackage: (data: unknown) =>
-      apiFetch(p('/packages'), { method: 'POST', body: JSON.stringify(data) }),
-    updatePackage: (id: string | number, data: unknown) =>
-      apiFetch(p(`/packages/${id}`), { method: 'PATCH', body: JSON.stringify(data) }),
+    createPackage: async (data: unknown) => {
+      const row = await apiFetch<Record<string, unknown>>(p('/packages'), {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      return mapPackage(row);
+    },
+    updatePackage: async (id: string | number, data: unknown) => {
+      const row = await apiFetch<Record<string, unknown>>(p(`/packages/${id}`), {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      });
+      return mapPackage(row);
+    },
     deletePackage: (id: string | number) => apiFetch(p(`/packages/${id}`), { method: 'DELETE' }),
 
     createReview: (data: unknown) =>
