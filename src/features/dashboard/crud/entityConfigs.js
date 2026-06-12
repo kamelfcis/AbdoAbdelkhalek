@@ -179,9 +179,12 @@ const packageConfigFitness = {
     { name: 'daily_support', type: 'checkbox', labelEn: 'Daily support', labelAr: 'دعم يومي' },
   ],
   columns: [
-    { key: 'name', type: 'bilingualName' },
-    { key: 'duration_days', type: 'text', headerEn: 'Days', headerAr: 'أيام' },
-    { key: 'price_egp', type: 'text', headerEn: 'EGP', headerAr: 'جنيه' },
+    { key: 'name', type: 'packageName', headerEn: 'Name', headerAr: 'الاسم' },
+    { key: 'price_egp', type: 'text', headerEn: 'Price (EGP)', headerAr: 'السعر (جنيه)' },
+    { key: 'price_usd', type: 'text', headerEn: 'Price (USD)', headerAr: 'السعر (دولار)' },
+    { key: 'duration_days', type: 'durationBadge', headerEn: 'Duration', headerAr: 'المدة' },
+    { key: 'level', type: 'levelBadge', headerEn: 'Level', headerAr: 'المستوى' },
+    { key: 'type', type: 'packageTypeFeatures', headerEn: 'Type / Features', headerAr: 'النوع / المزايا' },
   ],
 };
 

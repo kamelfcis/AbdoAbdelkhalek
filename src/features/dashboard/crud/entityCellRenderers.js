@@ -14,6 +14,40 @@ export function getBilingualName(row, col, isAr) {
   };
 }
 
+const LEVEL_VARIANT = {
+  beginner: 'success',
+  intermediate: 'default',
+  advanced: 'warning',
+  elite: 'destructive',
+};
+
+const LEVEL_LABEL_AR = {
+  beginner: 'مبتدئ',
+  intermediate: 'متوسط',
+  advanced: 'متقدم',
+  elite: 'نخبة',
+};
+
+const TYPE_VARIANT = {
+  combined: 'default',
+  training: 'secondary',
+  nutrition: 'outline',
+};
+
+const TYPE_LABEL_AR = {
+  combined: 'متكامل',
+  training: 'تدريب',
+  nutrition: 'تغذية',
+};
+
+function splitFeatureLines(text) {
+  if (!text) return [];
+  return text
+    .split(/[\n,]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 export function getBilingualText(row, isAr, col) {
   const enKey = col?.fields?.[0] || 'description_en';
   const arKey = col?.fields?.[1] || 'description_ar';
@@ -97,6 +131,83 @@ export function renderCell(col, row, { isAr, t, domain = 'fitness', rowIndex = 0
           className="mx-auto shrink-0 rounded-md"
           priority={rowIndex < 5}
         />
+      );
+    }
+
+    case 'packageName': {
+      const { primary, secondary } = getBilingualName(row, col, isAr);
+      const descKey = isAr ? 'description_ar' : 'description_en';
+      const desc = row[descKey] || row.description_ar || row.description_en;
+      return (
+        <div className="max-w-[220px] space-y-0.5 text-start" dir={isAr ? 'rtl' : 'ltr'}>
+          <p className="font-semibold leading-tight">{primary || '—'}</p>
+          {secondary && (
+            <p className="text-xs text-muted-foreground">{secondary}</p>
+          )}
+          {desc && (
+            <p className="line-clamp-2 text-xs text-muted-foreground/70 mt-1">{desc}</p>
+          )}
+        </div>
+      );
+    }
+
+    case 'durationBadge': {
+      const days = row[col.key];
+      if (days == null || days === '') return <span className="block text-center">—</span>;
+      const label = isAr ? `${days} يوم` : `${days} days`;
+      return (
+        <div className="text-center">
+          <Badge variant="outline">{label}</Badge>
+        </div>
+      );
+    }
+
+    case 'levelBadge': {
+      const level = row[col.key];
+      if (!level) return <span className="block text-center">—</span>;
+      const variant = LEVEL_VARIANT[level] || 'secondary';
+      const label = isAr ? LEVEL_LABEL_AR[level] || level : level;
+      return (
+        <div className="text-center">
+          <Badge variant={variant} className="capitalize">
+            {label}
+          </Badge>
+        </div>
+      );
+    }
+
+    case 'packageTypeFeatures': {
+      const type = row.type;
+      const typeVariant = TYPE_VARIANT[type] || 'secondary';
+      const typeLabel = isAr ? TYPE_LABEL_AR[type] || type : type;
+
+      const featLines = splitFeatureLines(isAr ? row.features_ar : row.features_en);
+      const extraTags = [];
+      if (row.includes_video_feedback) {
+        extraTags.push(isAr ? 'يشمل تغذية بالفيديو' : 'Video feedback');
+      }
+      if (row.daily_support) {
+        extraTags.push(isAr ? 'دعم يومي' : 'Daily support');
+      }
+      const allTags = [...featLines, ...extraTags];
+
+      return (
+        <div className="flex flex-col items-center gap-1 max-w-[180px] mx-auto" dir={isAr ? 'rtl' : 'ltr'}>
+          {type && (
+            <Badge variant={typeVariant} className="capitalize shrink-0">
+              {typeLabel}
+            </Badge>
+          )}
+          {allTags.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-1 mt-1">
+              {allTags.map((tag, i) => (
+                <Badge key={i} variant="outline" className="text-[10px] px-1.5 py-0">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
       );
     }
 
