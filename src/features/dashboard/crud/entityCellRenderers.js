@@ -41,8 +41,9 @@ const TYPE_LABEL_AR = {
 };
 
 function splitFeatureLines(text) {
-  if (!text) return [];
-  return text
+  if (text == null || text === '') return [];
+  if (Array.isArray(text)) return text.map(String).filter(Boolean);
+  return String(text)
     .split(/[\n,]+/)
     .map((s) => s.trim())
     .filter(Boolean);
@@ -163,8 +164,9 @@ export function renderCell(col, row, { isAr, t, domain = 'fitness', rowIndex = 0
     }
 
     case 'levelBadge': {
-      const level = row[col.key];
-      if (!level) return <span className="block text-center">—</span>;
+      const rawLevel = row[col.key];
+      if (rawLevel == null || rawLevel === '') return <span className="block text-center">—</span>;
+      const level = String(rawLevel);
       const variant = LEVEL_VARIANT[level] || 'secondary';
       const label = isAr ? LEVEL_LABEL_AR[level] || level : level;
       return (
@@ -177,7 +179,8 @@ export function renderCell(col, row, { isAr, t, domain = 'fitness', rowIndex = 0
     }
 
     case 'packageTypeFeatures': {
-      const type = row.type;
+      const rawType = row.type;
+      const type = rawType != null ? String(rawType) : '';
       const typeVariant = TYPE_VARIANT[type] || 'secondary';
       const typeLabel = isAr ? TYPE_LABEL_AR[type] || type : type;
 

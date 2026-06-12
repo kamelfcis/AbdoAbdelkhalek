@@ -53,6 +53,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(root, 'src'),
+      components: path.resolve(root, 'src/components'),
+      shared: path.resolve(root, 'src/shared'),
+      contexts: path.resolve(root, 'src/contexts'),
+      features: path.resolve(root, 'src/features'),
     },
   },
 });
