@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { getTranslation } from '../../../utils/translations';
 import { useVideos } from '../../../shared/hooks/useVideos';
+import { useCategories } from '../../../shared/hooks/useCategories';
 import { VideoSkeletonGrid } from '../components/Skeletons';
 import OptimizedImage from './OptimizedImage';
 import { loginPath } from '../../../shared/lib/authRoutes';
@@ -25,21 +26,15 @@ const Videos = ({ onAlert, userSession }) => {
   const [accessFilter, setAccessFilter] = useState('all');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
-  const categoryOptions = useMemo(() => {
-    const map = new Map();
-    allVideos.forEach((video) => {
-      if (!video?.category_id) return;
-      if (map.has(String(video.category_id))) return;
-      const nameEn = video.categories?.name_en || video.category_name_en || video.title_en || 'General';
-      const nameAr = video.categories?.name_ar || video.category_name_ar || video.title_ar || 'عام';
-      map.set(String(video.category_id), {
-        id: String(video.category_id),
-        name_en: nameEn,
-        name_ar: nameAr
-      });
-    });
-    return Array.from(map.values());
-  }, [allVideos]);
+  const { data: categoriesData = [], isLoading: categoriesLoading } = useCategories();
+  const categoryOptions = useMemo(
+    () => (categoriesData || []).map((cat) => ({
+      id: String(cat.id),
+      name_en: cat.name_en || 'General',
+      name_ar: cat.name_ar || 'عام',
+    })),
+    [categoriesData]
+  );
 
   const applyVideosView = (view) => {
     if (!view) return;
@@ -291,6 +286,7 @@ const Videos = ({ onAlert, userSession }) => {
                 </div>
                 <select
                   value={categorySelectValue}
+                  disabled={categoriesLoading}
                   onChange={(event) => {
                     const value = event.target.value;
                     setCategoryFilter(value);
@@ -305,14 +301,20 @@ const Videos = ({ onAlert, userSession }) => {
                       }
                     }
                   }}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)] focus:border-transparent"
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)] focus:border-transparent disabled:opacity-60"
                 >
-                  <option value="all">{getTranslation('videos-filter-category-all', currentLanguage)}</option>
-                  {categoryOptions.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {currentLanguage === 'ar' ? option.name_ar : option.name_en}
-                    </option>
-                  ))}
+                  {categoriesLoading ? (
+                    <option value="all">{currentLanguage === 'ar' ? 'جارٍ التحميل…' : 'Loading…'}</option>
+                  ) : (
+                    <>
+                      <option value="all">{getTranslation('videos-filter-category-all', currentLanguage)}</option>
+                      {categoryOptions.map((option) => (
+                        <option key={option.id} value={option.id}>
+                          {currentLanguage === 'ar' ? option.name_ar : option.name_en}
+                        </option>
+                      ))}
+                    </>
+                  )}
                 </select>
                 <select
                   value={accessFilter}

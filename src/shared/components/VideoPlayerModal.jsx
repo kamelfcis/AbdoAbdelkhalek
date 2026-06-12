@@ -17,6 +17,7 @@ export default function VideoPlayerModal({
   const videoRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [needsUserPlay, setNeedsUserPlay] = useState(false);
 
   const isYouTube = isYouTubeUrl(playUrl);
 
@@ -28,6 +29,21 @@ export default function VideoPlayerModal({
       document.body.style.overflow = '';
     };
   }, [isOpen, playUrl, posterUrl]);
+
+  useEffect(() => {
+    setNeedsUserPlay(false);
+    const v = videoRef.current;
+    if (!v || isYouTube || !playUrl) return undefined;
+    const p = v.play();
+    if (p !== undefined) {
+      p.catch(() => setNeedsUserPlay(true));
+    }
+    return undefined;
+  }, [playUrl, isYouTube]);
+
+  useEffect(() => {
+    if (!isOpen) setNeedsUserPlay(false);
+  }, [isOpen]);
 
   const toggleFullscreen = useCallback(() => {
     const el = containerRef.current;
@@ -158,7 +174,7 @@ export default function VideoPlayerModal({
                 poster={posterUrl || undefined}
                 onCanPlay={() => setIsLoading(false)}
                 onLoadedData={() => setIsLoading(false)}
-                onPlaying={() => setIsLoading(false)}
+                onPlaying={() => { setIsLoading(false); setNeedsUserPlay(false); }}
                 onContextMenu={(e) => e.preventDefault()}
                 onDragStart={(e) => e.preventDefault()}
                 style={{ userSelect: 'none', WebkitUserSelect: 'none', pointerEvents: 'auto' }}
@@ -166,6 +182,22 @@ export default function VideoPlayerModal({
                 <source src={playUrl} />
                 Your browser does not support the video tag.
               </video>
+              {needsUserPlay && (
+                <button
+                  type="button"
+                  aria-label="Tap to play"
+                  onClick={() => {
+                    const v = videoRef.current;
+                    if (v) v.play().then(() => setNeedsUserPlay(false)).catch(() => {});
+                  }}
+                  className="absolute inset-0 flex items-center justify-center bg-black/40 z-10"
+                  style={{ cursor: 'pointer' }}
+                >
+                  <span className="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+                    <i className="fas fa-play text-3xl text-gray-800" aria-hidden="true" style={{ marginLeft: '4px' }} />
+                  </span>
+                </button>
+              )}
             </>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center text-gray-400">
