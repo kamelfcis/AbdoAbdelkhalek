@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { cdnUrl, toCdnUrl } from '../../../shared/lib/cdn';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { getTranslation } from '../../../utils/translations';
 import { useVideos } from '../../../shared/hooks/useVideos';
@@ -8,7 +7,9 @@ import OptimizedImage from './OptimizedImage';
 import { loginPath } from '../../../shared/lib/authRoutes';
 import VideoPlayerModal from '../../../shared/components/VideoPlayerModal';
 import { resolveVideoPlayUrl } from '../../../shared/lib/resolveVideoPlayUrl';
-import { prefetchVideoUrl } from '../../../shared/lib/prefetchVideo';
+import { prefetchVideoUrl, warmVideoUrl } from '../../../shared/lib/prefetchVideo';
+import { prefetchImageUrls } from '../../../shared/lib/prefetchImages';
+import { getVideoThumbSrc } from '../../../shared/lib/videoThumb';
 
 const Videos = ({ onAlert, userSession }) => {
   const { currentLanguage } = useLanguage();
@@ -118,9 +119,11 @@ const Videos = ({ onAlert, userSession }) => {
     }
   }, [error, onAlert]);
 
-  const handleVideoWarmup = useCallback((video) => {
+  const handleVideoWarmup = useCallback((video, immediate = false) => {
     const url = resolveVideoPlayUrl(video, 'fitness');
-    if (url) prefetchVideoUrl(url);
+    if (!url) return;
+    if (immediate) warmVideoUrl(url);
+    else prefetchVideoUrl(url);
   }, []);
 
   const handleVideoClick = (video) => {
@@ -136,6 +139,7 @@ const Videos = ({ onAlert, userSession }) => {
       return;
     }
 
+    warmVideoUrl(url);
     setPlayUrl(url);
     setSelectedVideo(video);
     setShowModal(true);
@@ -188,6 +192,20 @@ const Videos = ({ onAlert, userSession }) => {
   const visibleVideos = useMemo(() => {
     return filteredVideos.slice(0, visibleCount);
   }, [filteredVideos, visibleCount]);
+
+  useEffect(() => {
+    if (loading || !visibleVideos.length) return undefined;
+    const urls = visibleVideos
+      .map((video) => getVideoThumbSrc(video, 'fitness', 'card').src)
+      .filter(Boolean);
+    prefetchImageUrls(urls).catch(() => {});
+    return undefined;
+  }, [visibleVideos, loading]);
+
+  const selectedPosterUrl = useMemo(() => {
+    if (!selectedVideo) return '';
+    return getVideoThumbSrc(selectedVideo, 'fitness', 'card').src || '';
+  }, [selectedVideo]);
 
   const showAllVideos = () => {
     setSelectedCategory(null);
@@ -317,10 +335,15 @@ const Videos = ({ onAlert, userSession }) => {
 
             {visibleVideos.length ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {visibleVideos.map((video) => (
+                {visibleVideos.map((video, index) => {
+                  const thumbnailUrl = getVideoThumbSrc(video, 'fitness', 'card').src;
+                  const isAboveFold = index < 3;
+
+                  return (
                   <div
                     key={video.id}
                     onClick={() => handleVideoClick(video)}
+                    onPointerDown={() => handleVideoWarmup(video, true)}
                     onMouseEnter={() => handleVideoWarmup(video)}
                     onFocus={() => handleVideoWarmup(video)}
                     tabIndex={0}
@@ -329,15 +352,7 @@ const Videos = ({ onAlert, userSession }) => {
                     className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all video-card"
                   >
                     <div className="relative bg-gray-200">
-                      {(() => {
-                        // Get thumbnail URL - prefer thumbnail_url, fallback to thumbnail_path
-                        let thumbnailUrl = toCdnUrl(video.thumbnail_url || video.thumbnail_path);
-                        
-                        if (video.thumbnail_path && !thumbnailUrl?.startsWith('http')) {
-                          thumbnailUrl = cdnUrl('video-thumbnails', video.thumbnail_path) || cdnUrl('videos', video.thumbnail_path);
-                        }
-                        
-                        return thumbnailUrl ? (
+                      {thumbnailUrl ? (
                           <>
                             <OptimizedImage
                             src={thumbnailUrl} 
@@ -345,8 +360,8 @@ const Videos = ({ onAlert, userSession }) => {
                               className="w-full h-auto object-cover"
                               width={800}
                               height={450}
-                            loading="lazy"
-                              priority={false}
+                            loading={isAboveFold ? 'eager' : 'lazy'}
+                              priority={isAboveFold}
                               onError={() => {}}
                             />
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -359,8 +374,7 @@ const Videos = ({ onAlert, userSession }) => {
                           <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
                             <i className="fas fa-video text-gray-400 text-2xl"></i>
                           </div>
-                        );
-                      })()}
+                        )}
                       {!userSession && !video.is_public && (
                         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                           <div className="text-white text-center">
@@ -386,7 +400,8 @@ const Videos = ({ onAlert, userSession }) => {
                       </p>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="bg-white rounded-xl border border-dashed border-gray-200 text-center py-16 text-gray-500">
@@ -410,6 +425,7 @@ const Videos = ({ onAlert, userSession }) => {
               onClose={closeModal}
               title={selectedVideo ? (currentLanguage === 'ar' ? selectedVideo.title_ar : selectedVideo.title_en) : ''}
               playUrl={playUrl}
+              posterUrl={selectedPosterUrl}
               categoryLabel={
                 selectedVideo
                   ? currentLanguage === 'ar'

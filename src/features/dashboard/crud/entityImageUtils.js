@@ -5,9 +5,9 @@ import {
   deriveCardThumbStoragePath,
 } from '../../../shared/lib/cdn';
 import { resolveDomainMediaUrl, getMediaBuckets } from '../../../shared/lib/mediaBuckets';
+import { getVideoThumbSrc, TABLE_THUMB, CARD_THUMB } from '../../../shared/lib/videoThumb';
 
-const TABLE_THUMB = { width: 40, height: 40, fetchWidth: 80 };
-const CARD_THUMB = { width: 480, height: 270, fetchWidth: 480 };
+export { getVideoThumbSrc, TABLE_THUMB, CARD_THUMB };
 
 function resolveMediaKind(col) {
   if (col?.mediaKind) return col.mediaKind;
@@ -76,35 +76,3 @@ export function getSuccessStoryThumbSrc(row, side, domain, variant = 'table') {
   return { src: src || fallbackSrc, fallbackSrc };
 }
 
-function sanitizeVideoStorageValue(value) {
-  if (typeof value !== 'string') return null;
-  return value.trim().replace(/^['"]|['"]$/g, '') || null;
-}
-
-export function getVideoThumbSrc(video, domain, variant = 'card') {
-  if (!video) return { src: null, fallbackSrc: null };
-
-  const url = sanitizeVideoStorageValue(video.thumbnail_url || video.thumbnailUrl);
-  const path = sanitizeVideoStorageValue(video.thumbnail_path || video.thumbnailPath);
-  if (url === 'pending') return { src: null, fallbackSrc: null };
-
-  const bucket = getMediaBuckets(domain).videoThumbnails;
-  const full = resolveDomainMediaUrl(url, path, domain, 'videoThumbnails');
-  if (!full && !path && !url) return { src: null, fallbackSrc: null };
-
-  const size = variant === 'card' ? CARD_THUMB : TABLE_THUMB;
-  const fallbackSrc = full || resolveMediaUrl(url, path, bucket);
-  // thumbnail_path is the thumb file itself; passing the absolute URL as
-  // thumbPath skips the thumbs/ convention derivation inside mediaThumbUrl so
-  // the resolved URL is CF-resized directly.
-  const src = mediaThumbUrl(url, path, bucket, {
-    width: size.fetchWidth || size.width,
-    quality: 75,
-    format: variant === 'card' ? 'webp' : 'auto',
-    thumbPath: fallbackSrc,
-  });
-
-  return { src: src || fallbackSrc, fallbackSrc };
-}
-
-export { TABLE_THUMB, CARD_THUMB };

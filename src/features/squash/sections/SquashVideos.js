@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { toCdnUrl } from '../../../shared/lib/cdn';
-import { resolveDomainMediaUrl } from '../../../shared/lib/mediaBuckets';
 import OptimizedImage from '../../fitness/sections/OptimizedImage';
 import { useSquashContent } from '../../../shared/hooks/useSquashContent';
 import { useSquashI18n } from '../hooks/useSquashI18n';
 import { pickItemField } from '../utils/localize';
 import VideoPlayerModal from '../../../shared/components/VideoPlayerModal';
 import { resolveVideoPlayUrl } from '../../../shared/lib/resolveVideoPlayUrl';
-import { prefetchVideoUrl } from '../../../shared/lib/prefetchVideo';
+import { prefetchVideoUrl, warmVideoUrl } from '../../../shared/lib/prefetchVideo';
+import { prefetchImageUrls } from '../../../shared/lib/prefetchImages';
+import { getVideoThumbSrc } from '../../../shared/lib/videoThumb';
 
 const SquashVideos = () => {
   const { t, isAr, isRTL } = useSquashI18n();
@@ -51,9 +51,11 @@ const SquashVideos = () => {
     [t]
   );
 
-  const handleVideoWarmup = useCallback((video) => {
+  const handleVideoWarmup = useCallback((video, immediate = false) => {
     const url = resolveVideoPlayUrl(video, 'squash');
-    if (url) prefetchVideoUrl(url);
+    if (!url) return;
+    if (immediate) warmVideoUrl(url);
+    else prefetchVideoUrl(url);
   }, []);
 
   const filteredVideos = useMemo(() => {
@@ -63,9 +65,24 @@ const SquashVideos = () => {
 
   const visibleVideos = useMemo(() => filteredVideos.slice(0, visibleCount), [filteredVideos, visibleCount]);
 
+  useEffect(() => {
+    if (isLoading || !visibleVideos.length) return undefined;
+    const urls = visibleVideos
+      .map((video) => getVideoThumbSrc(video, 'squash', 'card').src)
+      .filter(Boolean);
+    prefetchImageUrls(urls).catch(() => {});
+    return undefined;
+  }, [visibleVideos, isLoading]);
+
+  const selectedPosterUrl = useMemo(() => {
+    if (!selectedVideo) return '';
+    return getVideoThumbSrc(selectedVideo, 'squash', 'card').src || '';
+  }, [selectedVideo]);
+
   const handleVideoClick = (video) => {
     const url = resolveVideoPlayUrl(video, 'squash');
     if (!url) return;
+    warmVideoUrl(url);
     setPlayUrl(url);
     setSelectedVideo(video);
     setShowModal(true);
@@ -118,17 +135,15 @@ const SquashVideos = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {visibleVideos.map((video) => {
-                let thumbnailUrl = toCdnUrl(video.thumbnail_url || '');
-                if (!thumbnailUrl && video.thumbnail_path) {
-                  thumbnailUrl =
-                    resolveDomainMediaUrl(video.thumbnail_url, video.thumbnail_path, 'squash', 'videoThumbnails') ||
-                    resolveDomainMediaUrl(video.thumbnail_url, video.thumbnail_path, 'squash', 'videos');
-                }
+              {visibleVideos.map((video, index) => {
+                const thumbnailUrl = getVideoThumbSrc(video, 'squash', 'card').src;
+                const isAboveFold = index < 3;
+
                 return (
                   <div
                     key={video.id}
                     onClick={() => handleVideoClick(video)}
+                    onPointerDown={() => handleVideoWarmup(video, true)}
                     onMouseEnter={() => handleVideoWarmup(video)}
                     onFocus={() => handleVideoWarmup(video)}
                     onKeyDown={(e) => e.key === 'Enter' && handleVideoClick(video)}
@@ -145,7 +160,8 @@ const SquashVideos = () => {
                             className="w-full h-48 object-cover"
                             width={800}
                             height={450}
-                            loading="lazy"
+                            loading={isAboveFold ? 'eager' : 'lazy'}
+                            priority={isAboveFold}
                           />
                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="w-14 h-14 bg-white/80 rounded-full flex items-center justify-center">
@@ -188,6 +204,7 @@ const SquashVideos = () => {
           onClose={closeModal}
           title={selectedVideo ? pickItemField(selectedVideo, isAr, 'title_en', 'title_ar') : ''}
           playUrl={playUrl}
+          posterUrl={selectedPosterUrl}
           description={
             selectedVideo ? pickItemField(selectedVideo, isAr, 'description_en', 'description_ar') : ''
           }

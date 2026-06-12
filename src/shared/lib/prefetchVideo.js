@@ -4,6 +4,8 @@ const warmed = new Set();
 const timers = new Map();
 
 const DEBOUNCE_MS = 250;
+/** First 256 KB — enough for moov/faststart on most trainee MP4s without heavy hover cost. */
+const WARMUP_RANGE_END = 262143;
 
 function warmup(url) {
   if (!url || isYouTubeUrl(url) || warmed.has(url)) return;
@@ -11,7 +13,7 @@ function warmup(url) {
 
   fetch(url, {
     method: 'GET',
-    headers: { Range: 'bytes=0-65535' },
+    headers: { Range: `bytes=0-${WARMUP_RANGE_END}` },
     mode: 'cors',
     cache: 'force-cache',
   }).catch(() => {

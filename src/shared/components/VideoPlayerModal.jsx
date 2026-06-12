@@ -6,6 +6,7 @@ export default function VideoPlayerModal({
   onClose,
   title,
   playUrl,
+  posterUrl,
   description,
   categoryLabel,
   isRTL = false,
@@ -21,12 +22,12 @@ export default function VideoPlayerModal({
 
   useEffect(() => {
     if (!isOpen) return undefined;
-    setIsLoading(true);
+    setIsLoading(!posterUrl);
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = '';
     };
-  }, [isOpen, playUrl]);
+  }, [isOpen, playUrl, posterUrl]);
 
   const toggleFullscreen = useCallback(() => {
     const el = containerRef.current;
@@ -137,7 +138,7 @@ export default function VideoPlayerModal({
             />
           ) : playUrl ? (
             <>
-              {isLoading && (
+              {isLoading && !posterUrl && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 text-white z-10">
                   <div className="w-10 h-10 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                   <p className="mt-3 text-sm">{getLabel('video-loading')}</p>
@@ -154,8 +155,10 @@ export default function VideoPlayerModal({
                 playsInline
                 preload="auto"
                 fetchPriority="high"
+                poster={posterUrl || undefined}
                 onCanPlay={() => setIsLoading(false)}
                 onLoadedData={() => setIsLoading(false)}
+                onPlaying={() => setIsLoading(false)}
                 onContextMenu={(e) => e.preventDefault()}
                 onDragStart={(e) => e.preventDefault()}
                 style={{ userSelect: 'none', WebkitUserSelect: 'none', pointerEvents: 'auto' }}
