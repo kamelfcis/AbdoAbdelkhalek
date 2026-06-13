@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDashboardCoach } from '../context/DashboardCoachContext';
 import { SectionHeader } from '../../../shared/layout';
-import { Button, Input, Select, Table, Badge, EmptyState } from '../../../shared/ui';
+import { Button, Input, Select, Table, Badge, EmptyState, Dialog } from '../../../shared/ui';
 import { TableSkeleton } from '../../fitness/components/Skeletons';
 import { queryKeys } from '../../../shared/lib/queryKeys';
 import { EntityPaginationBar } from '../crud/EntityPaginationBar';
@@ -26,6 +26,14 @@ export function SubscriptionsSection() {
   const c = useDashboardCoach();
   const showSkeleton = c.subscriptionsLoading && c.subscriptions.length === 0;
   const showFetchingOverlay = c.subscriptionsFetching && c.subscriptions.length > 0;
+
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    c.handleDeleteSubscription(deleteTarget.id);
+    setDeleteTarget(null);
+  };
 
   const statusLabel = (value) => {
     const map = {
@@ -340,7 +348,7 @@ export function SubscriptionsSection() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => c.handleDeleteSubscription(sub.id)}
+                      onClick={() => setDeleteTarget(sub)}
                       aria-label={c.t('aria-delete-subscription')}
                     >
                       <i className="fas fa-trash text-[var(--color-danger)]" aria-hidden="true" />
@@ -362,6 +370,61 @@ export function SubscriptionsSection() {
         pageSize={c.subscriptionsPageSize}
         onPageChange={c.setSubscriptionPage}
       />
+
+      <Dialog
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        size="sm"
+        closeOnOverlay
+        title={
+          <span className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-danger)]/10">
+              <i className="fas fa-exclamation-triangle text-[var(--color-danger)] text-base" aria-hidden="true" />
+            </span>
+            <span className="text-lg font-bold text-[var(--color-text)]">
+              {c.t('confirm-delete-subscription-title')}
+            </span>
+          </span>
+        }
+        footer={
+          <div className="flex items-center justify-end gap-3">
+            <Button variant="secondary" onClick={() => setDeleteTarget(null)}>
+              {c.t('btn-cancel')}
+            </Button>
+            <Button
+              variant="danger"
+              leftIcon={<i className="fas fa-trash" aria-hidden="true" />}
+              onClick={handleConfirmDelete}
+            >
+              {c.t('confirm-delete-subscription-yes')}
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-3">
+          <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
+            {c.t('confirm-delete-subscription-body')}
+          </p>
+          {deleteTarget && (
+            <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-muted)] px-4 py-3">
+              {deleteTarget.users?.full_name && (
+                <div className="flex items-center gap-2 text-sm">
+                  <i className="fas fa-user text-[var(--color-text-muted)] w-4 shrink-0" aria-hidden="true" />
+                  <span className="font-medium text-[var(--color-text)]">
+                    {deleteTarget.users.full_name}
+                  </span>
+                </div>
+              )}
+              {deleteTarget.users?.email && (
+                <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)] mt-1">
+                  <i className="fas fa-envelope w-4 shrink-0" aria-hidden="true" />
+                  <span>{deleteTarget.users.email}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </Dialog>
     </div>
   );
 }
