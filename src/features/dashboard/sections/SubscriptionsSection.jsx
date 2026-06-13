@@ -216,7 +216,7 @@ export function SubscriptionsSection() {
       </div>
 
       {showSkeleton ? (
-        <TableSkeleton rows={5} columns={6} />
+        <TableSkeleton rows={5} columns={7} />
       ) : (
         <div
           className={`relative transition-opacity ${showFetchingOverlay ? 'opacity-60' : ''}`}
@@ -268,12 +268,31 @@ export function SubscriptionsSection() {
                 },
               },
               {
+                key: 'duration_months',
+                align: 'center',
+                header: c.t('page-duration'),
+                render: (sub) => {
+                  const months = sub.duration_months;
+                  if (!months) return <span className="text-sm text-[var(--color-text-muted)]">{c.t('na')}</span>;
+                  const label = c.isRTL
+                    ? `${months} ${months === 1 ? 'شهر' : 'أشهر'}`
+                    : `${months} ${months === 1 ? 'Month' : 'Months'}`;
+                  return <span className="text-sm font-medium text-[var(--color-text)]">{label}</span>;
+                },
+              },
+              {
                 key: 'start_date',
                 align: 'center',
                 header: c.t('page-start-date'),
                 render: (sub) => (
                   <span className="text-sm text-[var(--color-text-muted)]">
-                    {sub.start_date ? new Date(sub.start_date).toLocaleDateString() : c.t('na')}
+                    {sub.start_date
+                      ? new Date(sub.start_date).toLocaleDateString(c.isRTL ? 'ar-EG' : 'en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })
+                      : c.t('na')}
                   </span>
                 ),
               },
@@ -283,7 +302,13 @@ export function SubscriptionsSection() {
                 header: c.t('page-end-date'),
                 render: (sub) => (
                   <span className="text-sm text-[var(--color-text-muted)]">
-                    {sub.end_date ? new Date(sub.end_date).toLocaleDateString() : c.t('na')}
+                    {sub.end_date
+                      ? new Date(sub.end_date).toLocaleDateString(c.isRTL ? 'ar-EG' : 'en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })
+                      : c.t('na')}
                   </span>
                 ),
               },

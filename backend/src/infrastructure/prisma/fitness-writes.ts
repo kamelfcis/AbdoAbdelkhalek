@@ -153,11 +153,34 @@ export async function deletePackage(id: string) {
   );
 }
 
+function addMonths(date: Date, months: number): Date {
+  const result = new Date(date);
+  result.setMonth(result.getMonth() + months);
+  return result;
+}
+
 export async function createSubscription(data: Record<string, unknown>) {
   const camel = normalize(data);
+
+  const durationMonths =
+    typeof camel.durationMonths === 'number' ? camel.durationMonths : 1;
+  camel.durationMonths = durationMonths;
+
+  const startDate =
+    camel.startDate instanceof Date
+      ? camel.startDate
+      : new Date(String(camel.startDate ?? new Date().toISOString()));
+
+  if (camel.endDate == null) {
+    camel.endDate = addMonths(startDate, durationMonths);
+  }
+
+  const snake = toRest(camel);
+  delete snake.duration_months;
+
   return withWriteFallback(
     () => prisma.subscription.create({ data: camel as never }),
-    () => rest.restCreate('subscriptions', toRest(data))
+    () => rest.restCreate('subscriptions', snake)
   );
 }
 

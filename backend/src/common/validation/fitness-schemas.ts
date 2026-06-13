@@ -198,7 +198,8 @@ export const subscriptionCreateSchema = bodyWithAliases({
   packageId: z.string().uuid().optional().nullable(),
   status: z.enum(subscriptionStatusValues).optional(),
   startDate: z.coerce.date(),
-  endDate: z.coerce.date(),
+  endDate: z.coerce.date().optional(),
+  durationMonths: z.number().int().min(1).max(12).optional(),
   paymentReference: optionalString,
 });
 
@@ -208,6 +209,7 @@ export const subscriptionUpdateSchema = bodyWithAliases({
   status: z.enum(subscriptionStatusValues).optional(),
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
+  durationMonths: z.number().int().min(1).max(12).optional(),
   paymentReference: optionalString,
 }).refine((data) => Object.keys(data).length > 0, { message: 'At least one field required' });
 

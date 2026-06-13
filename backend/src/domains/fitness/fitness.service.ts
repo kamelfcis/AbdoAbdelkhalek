@@ -154,7 +154,14 @@ export async function getProfile(userId: string) {
 
     categoryCount: accessibleCategories.length,
 
-    subscriptions: subscriptions.map((s) => ({
+    subscriptions: subscriptions.map((s) => {
+      const start = s.startDate instanceof Date ? s.startDate : new Date(String(s.startDate));
+      const end = s.endDate instanceof Date ? s.endDate : new Date(String(s.endDate));
+      const durMonths =
+        typeof (s as Record<string, unknown>).durationMonths === 'number' && (s as Record<string, unknown>).durationMonths as number > 0
+          ? (s as Record<string, unknown>).durationMonths as number
+          : Math.max(1, (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth());
+      return {
 
       id: s.id,
 
@@ -163,6 +170,8 @@ export async function getProfile(userId: string) {
       start_date: s.startDate,
 
       end_date: s.endDate,
+
+      duration_months: durMonths,
 
       created_at: s.createdAt,
 
@@ -194,7 +203,8 @@ export async function getProfile(userId: string) {
 
         : null,
 
-    })),
+    };
+    }),
 
   };
 

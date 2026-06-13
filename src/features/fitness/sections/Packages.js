@@ -22,6 +22,7 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
   const [subscribing, setSubscribing] = useState(false);
   const [subscriptionStates, setSubscriptionStates] = useState({});
   const [expandedFeatures, setExpandedFeatures] = useState({});
+  const [selectedDurationMonths, setSelectedDurationMonths] = useState(1);
   const canvasRef = useRef(null);
 
   // Sort packages by price using useMemo for better performance
@@ -217,6 +218,7 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
   const closeModal = useCallback(() => {
     setShowModal(false);
     setConfirmingSubscription(false);
+    setSelectedDurationMonths(1);
   }, []);
 
   const handleConfirmSubscription = useCallback(async () => {
@@ -224,14 +226,17 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
 
     setSubscribing(true);
     try {
+      const startDate = new Date();
+      const endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + selectedDurationMonths);
+
       await contentService.createSubscription({
         userId: userSession.user.id,
         packageId: selectedPackage.id,
         status: 'active',
-        startDate: new Date().toISOString(),
-        endDate: new Date(
-          Date.now() + (selectedPackage.duration_days || selectedPackage.durationDays) * 24 * 60 * 60 * 1000
-        ).toISOString(),
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        durationMonths: selectedDurationMonths,
       });
       onAlert?.(currentLanguage === 'ar' ? 'تم الاشتراك بنجاح!' : 'Subscription successful!');
       closeModal();
@@ -246,6 +251,7 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
   }, [
     selectedPackage,
     userSession,
+    selectedDurationMonths,
     currentLanguage,
     onAlert,
     closeModal,
@@ -260,6 +266,7 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
     }
 
     setSelectedPackage(pkg);
+    setSelectedDurationMonths(1);
     setConfirmingSubscription(true);
     setShowModal(true);
   }, [userSession]);
@@ -518,6 +525,8 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
               confirmingSubscription={confirmingSubscription}
               subscribing={subscribing}
               onConfirm={handleConfirmSubscription}
+              selectedDurationMonths={selectedDurationMonths}
+              onDurationChange={setSelectedDurationMonths}
             />
           </>
         )}

@@ -404,6 +404,100 @@
   }
 }
 
+/* Duration picker */
+.package-details-modal__duration-picker {
+  margin-bottom: 1.25rem;
+}
+
+.package-details-modal__duration-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pdm-text-subtle);
+  margin-bottom: 0.625rem;
+}
+
+.package-details-modal__duration-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.625rem;
+}
+
+.package-details-modal__duration-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.75rem 0.5rem;
+  border-radius: 0.875rem;
+  border: 1.5px solid var(--pdm-border);
+  background: var(--pdm-surface-elevated);
+  color: var(--pdm-text-muted);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s;
+  text-align: center;
+}
+
+.package-details-modal__duration-card:hover:not(:disabled) {
+  border-color: var(--pdm-accent);
+  background: rgba(59, 130, 246, 0.06);
+  color: var(--pdm-text);
+}
+
+.package-details-modal__duration-card--selected {
+  border-color: var(--pdm-accent);
+  background: var(--pdm-accent-glow);
+  color: var(--pdm-text);
+  box-shadow: 0 0 0 3px var(--pdm-accent-glow);
+}
+
+.package-details-modal__duration-card:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.package-details-modal__duration-card-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.package-details-modal__duration-card-price {
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.package-details-modal__duration-card-price .simple-currency-display {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.package-details-modal__duration-card-price .currency-separator-simple {
+  display: none;
+}
+
+.package-details-modal__duration-card-price .currency-item-simple {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.7rem;
+}
+
+.package-details-modal__duration-card-price .currency-flag-simple {
+  width: 14px;
+  height: auto;
+}
+
+.package-details-modal__duration-card-rate {
+  font-size: 0.65rem;
+  color: var(--pdm-text-subtle);
+  font-style: italic;
+}
+
 @media (max-width: 480px) {
   .package-details-modal__meta-grid,
   .package-details-modal__perks {
@@ -416,5 +510,9 @@
 
   .package-details-modal__btn {
     width: 100%;
+  }
+
+  .package-details-modal__duration-options {
+    grid-template-columns: 1fr;
   }
 }

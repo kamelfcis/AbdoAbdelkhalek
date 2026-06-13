@@ -647,6 +647,7 @@ type FitnessSubRow = {
   status: string;
   startDate: Date;
   endDate: Date;
+  durationMonths?: number | null;
   createdAt: Date | null;
   user?: { fullName: string | null; email: string } | null;
   package?: {
@@ -657,7 +658,17 @@ type FitnessSubRow = {
   } | null;
 };
 
+function computeDurationMonths(startDate: Date, endDate: Date): number {
+  const years = endDate.getFullYear() - startDate.getFullYear();
+  const months = endDate.getMonth() - startDate.getMonth();
+  return Math.max(1, years * 12 + months);
+}
+
 export function mapFitnessSubscriptionRow(sub: FitnessSubRow) {
+  const durationMonths =
+    typeof sub.durationMonths === 'number' && sub.durationMonths > 0
+      ? sub.durationMonths
+      : computeDurationMonths(sub.startDate, sub.endDate);
   return {
     id: sub.id,
     user_id: sub.userId,
@@ -665,6 +676,7 @@ export function mapFitnessSubscriptionRow(sub: FitnessSubRow) {
     status: sub.status,
     start_date: sub.startDate,
     end_date: sub.endDate,
+    duration_months: durationMonths,
     created_at: sub.createdAt,
     users: sub.user ? { full_name: sub.user.fullName, email: sub.user.email } : undefined,
     packages: sub.package

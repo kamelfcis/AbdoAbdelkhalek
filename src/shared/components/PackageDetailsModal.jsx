@@ -5,6 +5,13 @@ import { formatPrice } from '../lib/currency';
 import { getTranslation } from '../../utils/translations';
 import './package-details-modal.css';
 
+function formatAmount(value) {
+  if (value == null || value === '') return '';
+  const num = Number(value);
+  if (!Number.isNaN(num)) return num.toLocaleString(undefined, { maximumFractionDigits: 0 });
+  return String(value);
+}
+
 const LEVEL_KEYS = {
   beginner: 'level-beginner',
   intermediate: 'level-intermediate',
@@ -28,6 +35,12 @@ function formatPackageMetaValue(rawValue, keyMap, lang) {
   return String(rawValue).trim();
 }
 
+const DURATION_OPTIONS = [
+  { months: 1, labelEn: '1 Month', labelAr: 'شهر واحد' },
+  { months: 3, labelEn: '3 Months', labelAr: '3 أشهر' },
+  { months: 6, labelEn: '6 Months', labelAr: '6 أشهر' },
+];
+
 const PackageDetailsModal = ({
   isOpen,
   onClose,
@@ -42,6 +55,8 @@ const PackageDetailsModal = ({
   confirmingSubscription = false,
   subscribing = false,
   onConfirm,
+  selectedDurationMonths = 1,
+  onDurationChange,
 }) => {
   const isAr = language === 'ar';
   const lang = isAr ? 'ar' : 'en';
@@ -140,6 +155,47 @@ const PackageDetailsModal = ({
           </div>
 
           <div className="package-details-modal__body">
+            {confirmingSubscription && (
+              <div className="package-details-modal__duration-picker">
+                <p className="package-details-modal__duration-label">
+                  {isAr ? 'اختر مدة الاشتراك' : 'Choose subscription duration'}
+                </p>
+                <div className="package-details-modal__duration-options">
+                  {DURATION_OPTIONS.map(({ months, labelEn, labelAr }) => {
+                    const multiplier = months;
+                    const totalEgp = pkg.price_egp != null ? Number(pkg.price_egp) * multiplier : null;
+                    const totalUsd = pkg.price_usd != null ? Number(pkg.price_usd) * multiplier : null;
+                    const isSelected = selectedDurationMonths === months;
+                    return (
+                      <button
+                        key={months}
+                        type="button"
+                        className={`package-details-modal__duration-card${isSelected ? ' package-details-modal__duration-card--selected' : ''}`}
+                        onClick={() => onDurationChange?.(months)}
+                        disabled={subscribing}
+                        aria-pressed={isSelected}
+                      >
+                        <span className="package-details-modal__duration-card-title">
+                          {isAr ? labelAr : labelEn}
+                        </span>
+                        <span
+                          className="package-details-modal__duration-card-price"
+                          dangerouslySetInnerHTML={{ __html: formatPrice(totalEgp, totalUsd) }}
+                        />
+                        {months > 1 && (
+                          <span className="package-details-modal__duration-card-rate">
+                            {isAr
+                              ? `${formatAmount(pkg.price_egp)} EGP / شهر`
+                              : `${formatAmount(pkg.price_egp)} EGP / mo`}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {showMetaGrid && (
               <div className="package-details-modal__meta-grid">
                 {levelValue && (
@@ -277,6 +333,8 @@ PackageDetailsModal.propTypes = {
   confirmingSubscription: PropTypes.bool,
   subscribing: PropTypes.bool,
   onConfirm: PropTypes.func,
+  selectedDurationMonths: PropTypes.oneOf([1, 3, 6]),
+  onDurationChange: PropTypes.func,
 };
 
 export default PackageDetailsModal;
