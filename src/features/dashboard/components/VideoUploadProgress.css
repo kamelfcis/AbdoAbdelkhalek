@@ -1,0 +1,115 @@
+.video-upload-progress {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(8, 12, 24, 0.72);
+  backdrop-filter: blur(10px);
+  border-radius: 0.75rem;
+}
+
+.video-upload-progress__panel {
+  width: 100%;
+  max-width: 22rem;
+  text-align: center;
+}
+
+.video-upload-progress__ring-wrap {
+  position: relative;
+  width: 9rem;
+  height: 9rem;
+  margin: 0 auto 1.25rem;
+}
+
+.video-upload-progress__ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.video-upload-progress__ring-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 8;
+}
+
+.video-upload-progress__ring-progress {
+  fill: none;
+  stroke: url(#videoUploadGradient);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.35s ease-out;
+}
+
+.video-upload-progress__percent {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  transition: opacity 0.2s ease;
+}
+
+.video-upload-progress__phase {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.video-upload-progress__bar {
+  position: relative;
+  height: 0.45rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.video-upload-progress__bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary-light, #3b9fd9),
+    var(--color-primary, #0074b7),
+    #7c3aed
+  );
+  transition: width 0.35s ease-out;
+}
+
+.video-upload-progress__bar-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 100%
+  );
+  animation: video-upload-shimmer 1.6s ease-in-out infinite;
+}
+
+.video-upload-progress__meta {
+  margin: 0.85rem 0 0;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@keyframes video-upload-shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}

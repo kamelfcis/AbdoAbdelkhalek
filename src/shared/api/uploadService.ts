@@ -9,6 +9,15 @@ import {
 export { PROXY_MAX_BYTES, resolveUploadMethod };
 export type UploadMethod = 'proxy' | 'presign';
 
+type UploadProgressHandler = (pct: number) => void;
+
+type UploadFileOptions = {
+  bucket: string;
+  path: string;
+  file: File;
+  onProgress?: UploadProgressHandler;
+};
+
 function shouldUploadViaApi(): boolean {
   if (process.env.REACT_APP_UPLOAD_VIA_API === 'true') return true;
   if (process.env.REACT_APP_UPLOAD_VIA_API === 'false') return false;
@@ -19,15 +28,57 @@ function shouldUploadViaApi(): boolean {
   return false;
 }
 
-async function uploadViaProxy({
-  bucket,
-  path,
-  file,
-}: {
-  bucket: string;
-  path: string;
-  file: File;
-}) {
+function xhrPut(url: string, file: File, onProgress?: UploadProgressHandler): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', url);
+    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+    if (onProgress) {
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          onProgress(Math.round((event.loaded / event.total) * 100));
+        }
+      };
+    }
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve();
+        return;
+      }
+      reject(new Error(`Upload failed: ${xhr.status}`));
+    };
+    xhr.onerror = () => reject(new Error('Network error'));
+    xhr.send(file);
+  });
+}
+
+function xhrPost(
+  url: string,
+  formData: FormData,
+  headers: Record<string, string>,
+  onProgress?: UploadProgressHandler
+): Promise<{ status: number; body: string }> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+    xhr.withCredentials = true;
+    Object.entries(headers).forEach(([key, value]) => {
+      xhr.setRequestHeader(key, value);
+    });
+    if (onProgress) {
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          onProgress(Math.round((event.loaded / event.total) * 100));
+        }
+      };
+    }
+    xhr.onload = () => resolve({ status: xhr.status, body: xhr.responseText });
+    xhr.onerror = () => reject(new Error('Network error'));
+    xhr.send(formData);
+  });
+}
+
+async function uploadViaProxy({ bucket, path, file, onProgress }: UploadFileOptions) {
   if (file.size > PROXY_MAX_BYTES) {
     throw new Error(proxySizeErrorMessage(file.size));
   }
@@ -42,16 +93,16 @@ async function uploadViaProxy({
     const headers: Record<string, string> = {};
     if (token) headers.Authorization = `Bearer ${token}`;
 
-    const res = await fetch(`${API_BASE}/uploads/proxy`, {
-      method: 'POST',
-      headers,
-      body: formData,
-      credentials: 'include',
-    });
+    const { status, body } = await xhrPost(`${API_BASE}/uploads/proxy`, formData, headers, onProgress);
 
-    const data = await res.json().catch(() => ({}));
+    let data: { error?: string } = {};
+    try {
+      data = JSON.parse(body);
+    } catch {
+      data = {};
+    }
 
-    if (res.status === 401 && !retry) {
+    if (status === 401 && !retry) {
       try {
         const newToken = await refreshAccessToken();
         setAccessToken(newToken);
@@ -61,27 +112,20 @@ async function uploadViaProxy({
       }
     }
 
-    if (!res.ok) {
-      if (res.status === 413) {
+    if (!status || status < 200 || status >= 300) {
+      if (status === 413) {
         throw new Error(proxySizeErrorMessage(file.size));
       }
-      throw new Error((data as { error?: string }).error || `Upload failed: ${res.status}`);
+      throw new Error(data.error || `Upload failed: ${status}`);
     }
+
     return data;
   };
 
   return doRequest();
 }
 
-async function uploadViaPresign({
-  bucket,
-  path,
-  file,
-}: {
-  bucket: string;
-  path: string;
-  file: File;
-}) {
+async function uploadViaPresign({ bucket, path, file, onProgress }: UploadFileOptions) {
   const contentType = file.type || 'application/octet-stream';
   const { uploadUrl, publicUrl, key } = await apiFetch<{
     uploadUrl: string;
@@ -92,12 +136,7 @@ async function uploadViaPresign({
     body: JSON.stringify({ bucket, path, contentType }),
   });
 
-  const putRes = await fetch(uploadUrl, {
-    method: 'PUT',
-    body: file,
-    headers: { 'Content-Type': contentType },
-  });
-  if (!putRes.ok) throw new Error(`Upload failed: ${putRes.status}`);
+  await xhrPut(uploadUrl, file, onProgress);
 
   return {
     publicUrl,
@@ -107,12 +146,12 @@ async function uploadViaPresign({
 }
 
 export const uploadService = {
-  async uploadFile({ bucket, path, file }: { bucket: string; path: string; file: File }) {
+  async uploadFile({ bucket, path, file, onProgress }: UploadFileOptions) {
     const method = resolveUploadMethod(file.size, shouldUploadViaApi());
     if (method === 'proxy') {
-      return uploadViaProxy({ bucket, path, file });
+      return uploadViaProxy({ bucket, path, file, onProgress });
     }
-    return uploadViaPresign({ bucket, path, file });
+    return uploadViaPresign({ bucket, path, file, onProgress });
   },
 
   getPublicUrl(bucket: string, filePath: string) {
