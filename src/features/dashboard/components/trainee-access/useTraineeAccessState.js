@@ -40,6 +40,8 @@ export const useTraineeAccessState = ({
   const [visibilityFilter, setVisibilityFilter] = useState(VISIBILITY_ALL);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [grantProgress, setGrantProgress] = useState(0);
+  const [grantPhase, setGrantPhase] = useState('');
 
   useEffect(() => {
     if (!isOpen) {
@@ -52,6 +54,8 @@ export const useTraineeAccessState = ({
       setCategorySearch('');
       setVideoSearch('');
       setVisibilityFilter(VISIBILITY_ALL);
+      setGrantProgress(0);
+      setGrantPhase('');
     }
   }, [isOpen]);
 
@@ -166,15 +170,36 @@ export const useTraineeAccessState = ({
 
   const handleSave = useCallback(async () => {
     setIsSubmitting(true);
+    setGrantProgress(0);
+    setGrantPhase(tr('grant-progress-preparing') || 'Preparing…');
     try {
+      setGrantProgress(20);
+      setGrantPhase(tr('grant-progress-validating') || 'Validating…');
+
+      setGrantProgress(50);
+      setGrantPhase(tr('grant-progress-granting') || 'Granting access…');
+
       await contentService.setTraineeAccess(trainee.id, {
         categoryIds: Array.from(selectedCategories),
         videoIds: Array.from(selectedVideos),
       });
+
+      setGrantProgress(80);
+      setGrantPhase(tr('grant-progress-updating') || 'Updating subscription…');
+
+      await new Promise((resolve) => setTimeout(resolve, 350));
+
+      setGrantProgress(100);
+      setGrantPhase(tr('grant-progress-done') || 'Done!');
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       toastSuccess(tr('trainee-access-saved'));
       onSaved?.();
       onClose?.();
     } catch (e) {
+      setGrantProgress(0);
+      setGrantPhase('');
       toastError(e.message);
     } finally {
       setIsSubmitting(false);
@@ -227,5 +252,7 @@ export const useTraineeAccessState = ({
     handleClose,
     categoryFilterOptions,
     isFilteringVideos,
+    grantProgress,
+    grantPhase,
   };
 };

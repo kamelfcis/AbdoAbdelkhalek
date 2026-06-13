@@ -11,6 +11,7 @@ import AccessHelpCallout from './AccessHelpCallout';
 import CategoryAccessPanel from './CategoryAccessPanel';
 import VideoAccessPanel from './VideoAccessPanel';
 import TraineeAccessLayout from './TraineeAccessLayout';
+import VideoUploadProgress from '../VideoUploadProgress';
 
 const EMPTY_LIST = [];
 
@@ -68,6 +69,8 @@ const TraineeAccessModal = ({
     handleClose,
     categoryFilterOptions,
     isFilteringVideos,
+    grantProgress,
+    grantPhase,
   } = state;
 
   const submitLabel = isDirty
@@ -156,7 +159,10 @@ const TraineeAccessModal = ({
           <Spinner size="lg" />
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="relative min-h-[12rem] space-y-4">
+          {isSubmitting && (
+            <VideoUploadProgress progress={grantProgress} phase={grantPhase} />
+          )}
           <AccessSummaryBar
             categoryCount={selectedCategories.size}
             videoCount={selectedVideos.size}

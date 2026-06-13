@@ -71,9 +71,8 @@ const Dialog = ({
                   <DialogPrimitive.Title
                     id="modal-title"
                     className="min-w-0 flex-1 text-[var(--color-text)]"
-                    asChild
                   >
-                    <div>{title}</div>
+                    {title}
                   </DialogPrimitive.Title>
                 ))}
               {onClose && (

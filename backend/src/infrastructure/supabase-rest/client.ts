@@ -100,13 +100,30 @@ export async function restDeleteWhere(table: string, query: string): Promise<voi
   await restMutate<void>('DELETE', table, query.startsWith('?') ? query : `?${query}`);
 }
 
+export async function restBulkCreate(
+  table: string,
+  rows: Record<string, unknown>[]
+): Promise<void> {
+  if (rows.length === 0) return;
+  const url = `${env.supabaseUrl}/rest/v1/${table}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify(rows),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Supabase REST bulk POST ${table}: ${res.status} ${text}`);
+  }
+}
+
 export async function restReplaceRows(
   table: string,
   deleteQuery: string,
   rows: Record<string, unknown>[]
 ): Promise<void> {
   await restDeleteWhere(table, deleteQuery);
-  for (const row of rows) {
-    await restCreate(table, row);
+  if (rows.length > 0) {
+    await restBulkCreate(table, rows);
   }
 }

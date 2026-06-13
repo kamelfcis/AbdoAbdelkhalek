@@ -305,18 +305,20 @@ export async function setVideoAccessUserIds(videoId: string, userIds: string[]) 
     async () => {
       await prisma.$transaction([
         prisma.userVideoAccess.deleteMany({ where: { videoId } }),
-        ...userIds.map((userId) =>
-          prisma.userVideoAccess.create({ data: { userId, videoId } })
-        ),
+        ...(userIds.length > 0
+          ? [prisma.userVideoAccess.createMany({ data: userIds.map((userId) => ({ userId, videoId })) })]
+          : []),
       ]);
       return { ok: true };
     },
     async () => {
-      await rest.restReplaceRows(
-        'user_video_access',
-        `video_id=eq.${encodeURIComponent(videoId)}`,
-        userIds.map((userId) => ({ user_id: userId, video_id: videoId }))
-      );
+      await rest.restDeleteWhere('user_video_access', `video_id=eq.${encodeURIComponent(videoId)}`);
+      if (userIds.length > 0) {
+        await rest.restBulkCreate(
+          'user_video_access',
+          userIds.map((userId) => ({ user_id: userId, video_id: videoId }))
+        );
+      }
       return { ok: true };
     }
   );
@@ -351,24 +353,34 @@ export async function setTraineeAccess(
       await prisma.$transaction([
         prisma.userCategoryAccess.deleteMany({ where: { userId } }),
         prisma.userVideoAccess.deleteMany({ where: { userId } }),
-        ...categoryIds.map((categoryId) =>
-          prisma.userCategoryAccess.create({ data: { userId, categoryId } })
-        ),
-        ...videoIds.map((videoId) =>
-          prisma.userVideoAccess.create({ data: { userId, videoId } })
-        ),
+        ...(categoryIds.length > 0
+          ? [prisma.userCategoryAccess.createMany({ data: categoryIds.map((categoryId) => ({ userId, categoryId })) })]
+          : []),
+        ...(videoIds.length > 0
+          ? [prisma.userVideoAccess.createMany({ data: videoIds.map((videoId) => ({ userId, videoId })) })]
+          : []),
       ]);
       return { ok: true };
     },
     async () => {
-      await rest.restDeleteWhere('user_category_access', `user_id=eq.${encodeURIComponent(userId)}`);
-      await rest.restDeleteWhere('user_video_access', `user_id=eq.${encodeURIComponent(userId)}`);
-      for (const categoryId of categoryIds) {
-        await rest.restCreate('user_category_access', { user_id: userId, category_id: categoryId });
-      }
-      for (const videoId of videoIds) {
-        await rest.restCreate('user_video_access', { user_id: userId, video_id: videoId });
-      }
+      await Promise.all([
+        rest.restDeleteWhere('user_category_access', `user_id=eq.${encodeURIComponent(userId)}`),
+        rest.restDeleteWhere('user_video_access', `user_id=eq.${encodeURIComponent(userId)}`),
+      ]);
+      await Promise.all([
+        categoryIds.length > 0
+          ? rest.restBulkCreate(
+              'user_category_access',
+              categoryIds.map((categoryId) => ({ user_id: userId, category_id: categoryId }))
+            )
+          : Promise.resolve(),
+        videoIds.length > 0
+          ? rest.restBulkCreate(
+              'user_video_access',
+              videoIds.map((videoId) => ({ user_id: userId, video_id: videoId }))
+            )
+          : Promise.resolve(),
+      ]);
       return { ok: true };
     }
   );
