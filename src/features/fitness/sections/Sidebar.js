@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { getTranslation } from '../../../utils/translations';
-import { buildDashboardPath } from '../../dashboard/config/dashboardRoutes';
+import { buildDashboardPath, buildTraineeDashboardPath } from '../../dashboard/config/dashboardRoutes';
 import { loginPath } from '../../../shared/lib/authRoutes';
 import { useLandingSectionsOptional } from '../../../shared/contexts/LandingSectionsContext';
 
@@ -47,9 +47,9 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
 
   const openTraineeVideos = (e, view) => {
     e.preventDefault();
-    sessionStorage.setItem('videosView', view);
-    window.dispatchEvent(new CustomEvent('fitnessVideosNav', { detail: { view } }));
-    onNavClick('videos');
+    navigate(
+      buildTraineeDashboardPath('fitness', view === 'favorites' ? 'favorites' : 'my-videos')
+    );
     onClose();
   };
 

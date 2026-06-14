@@ -2,6 +2,8 @@ import { entityRegistry } from './entityRegistry';
 
 export const VALID_DOMAINS = ['fitness', 'squash'];
 export const DEFAULT_SECTION = 'overview';
+export const TRAINEE_SECTIONS = ['my-videos', 'favorites'];
+export const DEFAULT_TRAINEE_SECTION = 'my-videos';
 
 function sectionsForDomain(domain) {
   const registry = entityRegistry[domain] || entityRegistry.fitness;
@@ -30,10 +32,28 @@ export function isValidDashboardRoute(domain, section) {
   return isValidSection(domain, section);
 }
 
+export function isTraineeSection(section) {
+  return TRAINEE_SECTIONS.includes(section);
+}
+
 export function buildDashboardPath(domain, section = DEFAULT_SECTION) {
   const d = parseDomain(domain);
   const s = isValidSection(d, section) ? section : DEFAULT_SECTION;
   return `/dashboard/${d}/${s}`;
+}
+
+export function buildTraineeDashboardPath(domain, section = DEFAULT_TRAINEE_SECTION) {
+  const d = parseDomain(domain);
+  const s = isTraineeSection(section) ? section : DEFAULT_TRAINEE_SECTION;
+  return `/dashboard/${d}/${s}`;
+}
+
+export function traineeNavKeyToSection(navKey) {
+  return navKey === 'favorites' ? 'favorites' : DEFAULT_TRAINEE_SECTION;
+}
+
+export function traineeSectionToNavKey(section) {
+  return section === 'favorites' ? 'favorites' : 'videos';
 }
 
 export function getDefaultDashboardDomain() {

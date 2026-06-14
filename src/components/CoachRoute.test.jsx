@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import CoachRoute from './CoachRoute';
+import DashboardRoute from './CoachRoute';
 
 vi.mock('../contexts/AuthContext', () => ({
   useAuth: vi.fn(),
@@ -19,9 +19,9 @@ function renderRoute(authState) {
         <Route
           path="/dashboard"
           element={
-            <CoachRoute>
-              <div>Coach dashboard</div>
-            </CoachRoute>
+            <DashboardRoute>
+              <div>Dashboard content</div>
+            </DashboardRoute>
           }
         />
       </Routes>
@@ -29,12 +29,12 @@ function renderRoute(authState) {
   );
 }
 
-describe('CoachRoute', () => {
+describe('DashboardRoute', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('redirects trainees to home', () => {
+  it('renders dashboard for authenticated trainees', () => {
     renderRoute({ isAuthenticated: true, isCoach: false, isLoading: false });
-    expect(screen.getByText('Home page')).toBeInTheDocument();
+    expect(screen.getByText('Dashboard content')).toBeInTheDocument();
   });
 
   it('redirects unauthenticated users to login', () => {
@@ -44,6 +44,6 @@ describe('CoachRoute', () => {
 
   it('renders dashboard for coaches', () => {
     renderRoute({ isAuthenticated: true, isCoach: true, isLoading: false });
-    expect(screen.getByText('Coach dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Dashboard content')).toBeInTheDocument();
   });
 });

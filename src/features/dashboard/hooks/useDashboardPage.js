@@ -36,7 +36,9 @@ export function useDashboardPage() {
   const trainee = useDashboardTraineeExperience(
     core.userData,
     core.currentLanguage,
-    core.adminDomain
+    core.adminDomain,
+    core.currentSection,
+    core.setCurrentSection
   );
   const access = useDashboardAccessModals({
     adminDomain: core.adminDomain,

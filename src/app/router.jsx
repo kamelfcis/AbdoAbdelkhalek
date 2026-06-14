@@ -2,7 +2,7 @@ import React, { Suspense, lazy } from 'react';
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-import CoachRoute from '../components/CoachRoute';
+import DashboardRoute from '../components/CoachRoute';
 
 import { ErrorBoundary } from './ErrorBoundary';
 
@@ -146,7 +146,7 @@ export function AppRouter() {
         <Route
           path="/dashboard/:domain/:section"
           element={
-            <CoachRoute>
+            <DashboardRoute>
               <ErrorBoundary
                 fallbackTitle="Dashboard"
                 fallbackMessage="Unable to load dashboard. Please refresh the page."
@@ -155,7 +155,7 @@ export function AppRouter() {
                   <Dashboard />
                 </Suspense>
               </ErrorBoundary>
-            </CoachRoute>
+            </DashboardRoute>
           }
         />
 

@@ -9,8 +9,12 @@ import { prefetchDashboardData, prefetchDashboardSection } from '../../../shared
 import { getDashboardTranslation } from '../../../shared/i18n/dashboard';
 import {
   buildDashboardPath,
+  buildTraineeDashboardPath,
   isValidSection,
+  isTraineeSection,
+  traineeNavKeyToSection,
   DEFAULT_SECTION,
+  DEFAULT_TRAINEE_SECTION,
 } from '../config/dashboardRoutes';
 
 export function useDashboardCore() {
@@ -24,18 +28,31 @@ export function useDashboardCore() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
 
+  const isTrainee = Boolean(userData && !userData.is_coach);
+
   const currentSection = useMemo(() => {
+    if (isTrainee) {
+      if (sectionParam && isTraineeSection(sectionParam)) return sectionParam;
+      return DEFAULT_TRAINEE_SECTION;
+    }
     if (sectionParam && isValidSection(adminDomain, sectionParam)) {
       return sectionParam;
     }
     return DEFAULT_SECTION;
-  }, [sectionParam, adminDomain]);
+  }, [sectionParam, adminDomain, isTrainee]);
 
   useEffect(() => {
+    if (!userData) return;
+    if (isTrainee) {
+      if (sectionParam && !isTraineeSection(sectionParam)) {
+        navigate(buildTraineeDashboardPath(adminDomain, DEFAULT_TRAINEE_SECTION), { replace: true });
+      }
+      return;
+    }
     if (sectionParam && !isValidSection(adminDomain, sectionParam)) {
       navigate(buildDashboardPath(adminDomain, DEFAULT_SECTION), { replace: true });
     }
-  }, [sectionParam, adminDomain, navigate]);
+  }, [sectionParam, adminDomain, navigate, isTrainee, userData]);
 
   const t = useCallback(
     (key) => getDashboardTranslation(adminDomain, currentLanguage, key),
@@ -55,12 +72,14 @@ export function useDashboardCore() {
   }, []);
 
   useEffect(() => {
-    if (!userData?.is_coach) return;
-    prefetchDashboardData(adminDomain);
-    import(/* webpackChunkName: "dashboard" */ '../DashboardPage');
+    if (!userData) return;
     const savedLang = localStorage.getItem('websiteLanguage') || 'en';
     setCurrentLanguage(savedLang);
     updateDirection(savedLang);
+    if (userData.is_coach) {
+      prefetchDashboardData(adminDomain);
+      import(/* webpackChunkName: "dashboard" */ '../DashboardPage');
+    }
   }, [userData, updateDirection, adminDomain]);
 
   useEffect(() => {
@@ -70,10 +89,15 @@ export function useDashboardCore() {
 
   const setCurrentSection = useCallback(
     (key) => {
+      if (isTrainee) {
+        const section = isTraineeSection(key) ? key : traineeNavKeyToSection(key);
+        navigate(buildTraineeDashboardPath(adminDomain, section));
+        return;
+      }
       const section = isValidSection(adminDomain, key) ? key : DEFAULT_SECTION;
       navigate(buildDashboardPath(adminDomain, section));
     },
-    [adminDomain, navigate]
+    [adminDomain, navigate, isTrainee]
   );
 
   const handleLogout = async () => {
@@ -103,7 +127,6 @@ export function useDashboardCore() {
   };
 
   const isRTL = currentLanguage === 'ar';
-  const isTrainee = userData && !userData.is_coach;
 
   const coachNavItems = useMemo(
     () =>
@@ -116,7 +139,18 @@ export function useDashboardCore() {
     [currentLanguage, registry.navItems, t]
   );
 
-  const getPageTitle = () => t(`page-${currentSection}`) || t('dashboard-title');
+  const getPageTitle = () => {
+    if (isTrainee) {
+      return currentSection === 'favorites'
+        ? currentLanguage === 'ar'
+          ? 'مفضلاتي'
+          : 'My Favorites'
+        : currentLanguage === 'ar'
+          ? 'فيديوهاتي'
+          : 'My Videos';
+    }
+    return t(`page-${currentSection}`) || t('dashboard-title');
+  };
 
   return {
     navigate,

@@ -1,8 +1,16 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useDebounceValue } from '../../../shared/lib/debounce';
 import { useTraineeVideos } from '../../../shared/hooks/useTraineeVideos';
+import { resolveVideoPlayUrl } from '../../../shared/lib/resolveVideoPlayUrl';
+import { getDashboardTranslation } from '../../../shared/i18n/dashboard';
 
-export function useDashboardTraineeExperience(userData, currentLanguage, adminDomain = 'fitness') {
+export function useDashboardTraineeExperience(
+  userData,
+  currentLanguage,
+  adminDomain = 'fitness',
+  urlSection,
+  setCurrentSection
+) {
   const isTrainee = userData && !userData.is_coach;
   const traineeUserId = isTrainee ? userData?.id : null;
   const { data: traineeVideos = [], isLoading: traineeVideosLoading, error: traineeVideosError } =
@@ -11,11 +19,17 @@ export function useDashboardTraineeExperience(userData, currentLanguage, adminDo
   const [traineeVideoSearch, setTraineeVideoSearch] = useState('');
   const debouncedTraineeVideoSearch = useDebounceValue(traineeVideoSearch, 300);
   const [traineeVideoCategoryFilter, setTraineeVideoCategoryFilter] = useState('all');
-  const [traineeCurrentSection, setTraineeCurrentSection] = useState('videos');
+  const [traineeCurrentSection, setTraineeCurrentSectionInternal] = useState('videos');
   const [filtersExpanded, setFiltersExpanded] = useState(true);
   const [traineeVideosPage, setTraineeVideosPage] = useState(1);
   const [favoriteVideosPage, setFavoriteVideosPage] = useState(1);
   const videosPerPage = 9;
+
+  const [previewVideo, setPreviewVideo] = useState(null);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [previewVideoUrl, setPreviewVideoUrl] = useState('');
+  const [previewVideoLoading, setPreviewVideoLoading] = useState(false);
+  const [previewVideoError, setPreviewVideoError] = useState('');
 
   const [favoriteVideoIds, setFavoriteVideoIds] = useState(() => {
     try {
@@ -41,6 +55,22 @@ export function useDashboardTraineeExperience(userData, currentLanguage, adminDo
     }, 500);
     return () => clearTimeout(timeoutId);
   }, [favoriteVideoIds]);
+
+  useEffect(() => {
+    if (!isTrainee) return;
+    const mapped = urlSection === 'favorites' ? 'favorites' : 'videos';
+    setTraineeCurrentSectionInternal(mapped);
+  }, [urlSection, isTrainee]);
+
+  const setTraineeCurrentSection = useCallback(
+    (key) => {
+      setTraineeCurrentSectionInternal(key);
+      if (setCurrentSection) {
+        setCurrentSection(key);
+      }
+    },
+    [setCurrentSection]
+  );
 
   const toggleFavorite = useCallback((videoId) => {
     setFavoriteVideoIds((prev) => {
@@ -162,6 +192,34 @@ export function useDashboardTraineeExperience(userData, currentLanguage, adminDo
     return currentLanguage === 'ar' ? `منذ ${days} يوم` : `${days} day${days > 1 ? 's' : ''} ago`;
   };
 
+  const handlePreviewVideo = useCallback(
+    (video) => {
+      if (!video) return;
+      setPreviewVideo(video);
+      setPreviewVideoError('');
+      setPreviewVideoLoading(false);
+      setShowVideoModal(true);
+      const url = resolveVideoPlayUrl(video, adminDomain);
+      if (url) {
+        setPreviewVideoUrl(url);
+      } else {
+        setPreviewVideoUrl('');
+        setPreviewVideoError(
+          getDashboardTranslation(adminDomain, currentLanguage, 'video-preview-error-load')
+        );
+      }
+    },
+    [adminDomain, currentLanguage]
+  );
+
+  const closeVideoPreview = useCallback(() => {
+    setPreviewVideo(null);
+    setPreviewVideoUrl('');
+    setPreviewVideoError('');
+    setPreviewVideoLoading(false);
+    setShowVideoModal(false);
+  }, []);
+
   return {
     traineeVideos,
     traineeVideosLoading,
@@ -180,6 +238,8 @@ export function useDashboardTraineeExperience(userData, currentLanguage, adminDo
     favoriteVideosPage,
     setFavoriteVideosPage,
     favoriteVideoIds,
+    favoriteVideos,
+    filteredFavoriteVideos,
     toggleFavorite,
     isFavorite,
     filteredTraineeVideos,
@@ -191,5 +251,12 @@ export function useDashboardTraineeExperience(userData, currentLanguage, adminDo
     traineeNavItems,
     viewAllLabel,
     getTimeAgo,
+    previewVideo,
+    previewVideoUrl,
+    previewVideoLoading,
+    previewVideoError,
+    showVideoModal,
+    handlePreviewVideo,
+    closeVideoPreview,
   };
 }
