@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { getTranslation } from '../../../utils/translations';
@@ -17,12 +17,20 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
     userSession?.user?.user_metadata?.full_name ||
     userSession?.user?.email ||
     '';
+  const [scrolled, setScrolled] = useState(false);
 
   // Professional Font Awesome deferred loading
   useEffect(() => {
     loadFontAwesome({ priority: 'high' }).catch((error) => {
       console.warn('Font Awesome loading failed:', error);
     });
+  }, []);
+
+  // Shrink navbar on scroll for better mobile UX
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   const handleNavClick = (e, section) => {
@@ -41,8 +49,28 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
   };
 
   return (
-    <nav className="bg-white shadow-lg sticky top-0 w-full z-40" role="navigation" aria-label="Main navigation" style={{ position: 'sticky', top: 0 }}>
-      <div className="container mx-auto px-4 md:px-6 py-6 md:py-7 flex justify-between items-center min-h-[100px] md:min-h-[110px]">
+    <nav
+      className="bg-white sticky top-0 w-full z-40"
+      role="navigation"
+      aria-label="Main navigation"
+      style={{
+        boxShadow: scrolled
+          ? '0 2px 12px rgba(0,0,0,0.12)'
+          : '0 1px 4px rgba(0,0,0,0.08)',
+        transition: 'box-shadow 0.3s ease, background 0.3s ease',
+        backdropFilter: scrolled ? 'blur(8px)' : 'none',
+        backgroundColor: scrolled ? 'rgba(255,255,255,0.95)' : '#fff',
+      }}
+    >
+      <div
+        className="container mx-auto px-4 md:px-6 flex justify-between items-center"
+        style={{
+          paddingTop: scrolled ? '0.5rem' : '1.25rem',
+          paddingBottom: scrolled ? '0.5rem' : '1.25rem',
+          minHeight: scrolled ? '56px' : '80px',
+          transition: 'padding 0.3s ease, min-height 0.3s ease',
+        }}
+      >
         <a 
           href="#home" 
           onClick={(e) => handleNavClick(e, 'home')} 
@@ -50,7 +78,14 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
           aria-label="Home"
         >
           <div className="flex items-center space-x-2 md:space-x-3">
-            <div className="w-12 h-12 md:w-14 md:h-14 overflow-hidden border-2 border-[var(--color-primary)] rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
+            <div
+              className="overflow-hidden border-2 border-[var(--color-primary)] rounded-lg flex items-center justify-center flex-shrink-0 shadow-md"
+              style={{
+                width: scrolled ? '36px' : '48px',
+                height: scrolled ? '36px' : '48px',
+                transition: 'width 0.3s ease, height 0.3s ease',
+              }}
+            >
               <img
                 src="/logo.png"
                 alt="Abdelrahman Abdelkhalek Logo"
@@ -61,10 +96,22 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
               />
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-lg md:text-xl lg:text-2xl font-bold gradient-text leading-tight text-center">
+              <span
+                className="font-bold gradient-text leading-tight text-center"
+                style={{
+                  fontSize: scrolled ? '0.95rem' : '1.1rem',
+                  transition: 'font-size 0.3s ease',
+                }}
+              >
                 Abdelrahman
               </span>
-              <span className="text-base md:text-lg lg:text-xl font-semibold text-[var(--color-primary)] leading-tight text-center">
+              <span
+                className="font-semibold text-[var(--color-primary)] leading-tight text-center"
+                style={{
+                  fontSize: scrolled ? '0.8rem' : '1rem',
+                  transition: 'font-size 0.3s ease',
+                }}
+              >
                 Abdelkhalek
               </span>
             </div>
