@@ -21,6 +21,9 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
     features_ar: '',
     includes_video_feedback: false,
     daily_support: false,
+    allow_1_month: true,
+    allow_3_months: true,
+    allow_6_months: true,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,6 +43,9 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
         features_ar: Array.isArray(pack.features_ar) ? pack.features_ar.join('\n') : (pack.features_ar || ''),
         includes_video_feedback: Boolean(pack.includes_video_feedback),
         daily_support: Boolean(pack.daily_support),
+        allow_1_month: (pack.allow_1_month ?? pack.allow1Month) !== false,
+        allow_3_months: (pack.allow_3_months ?? pack.allow3Months) !== false,
+        allow_6_months: (pack.allow_6_months ?? pack.allow6Months) !== false,
       });
     } else {
       setFormData({
@@ -56,6 +62,9 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
         features_ar: '',
         includes_video_feedback: false,
         daily_support: false,
+        allow_1_month: true,
+        allow_3_months: true,
+        allow_6_months: true,
       });
     }
   }, [pack, isOpen]);
@@ -81,6 +90,11 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
       return;
     }
 
+    if (!formData.allow_1_month && !formData.allow_3_months && !formData.allow_6_months) {
+      toastWarning(currentLanguage === 'ar' ? 'يجب تفعيل مدة اشتراك واحدة على الأقل' : 'At least one subscription duration must be enabled');
+      return;
+    }
+
     const payload = {
       name_en: formData.name_en,
       name_ar: formData.name_ar,
@@ -99,6 +113,9 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
         : [],
       includes_video_feedback: formData.includes_video_feedback,
       daily_support: formData.daily_support,
+      allow1Month: formData.allow_1_month,
+      allow3Months: formData.allow_3_months,
+      allow6Months: formData.allow_6_months,
     };
 
     setIsSubmitting(true);
@@ -199,6 +216,31 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
             checked={formData.daily_support}
             onChange={handleInputChange}
           />
+        </div>
+        <div>
+          <p className="text-sm font-medium text-gray-700 mb-2">
+            {currentLanguage === 'ar' ? 'مدد الاشتراك المتاحة' : 'Available Subscription Durations'}
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <CheckboxField
+              label={currentLanguage === 'ar' ? 'شهر واحد' : '1 Month'}
+              name="allow_1_month"
+              checked={formData.allow_1_month}
+              onChange={handleInputChange}
+            />
+            <CheckboxField
+              label={currentLanguage === 'ar' ? '3 أشهر' : '3 Months'}
+              name="allow_3_months"
+              checked={formData.allow_3_months}
+              onChange={handleInputChange}
+            />
+            <CheckboxField
+              label={currentLanguage === 'ar' ? '6 أشهر' : '6 Months'}
+              name="allow_6_months"
+              checked={formData.allow_6_months}
+              onChange={handleInputChange}
+            />
+          </div>
         </div>
       </form>
     </Modal>

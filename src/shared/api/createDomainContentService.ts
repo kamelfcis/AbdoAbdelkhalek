@@ -80,6 +80,14 @@ function coercePrice(value: unknown): number | string | null | undefined {
 export function mapPackage(row: Record<string, unknown>) {
   const pkg = rewriteMediaUrls(row) as Record<string, unknown>;
   const packageType = pkg.type ?? pkg.packageType ?? pkg.package_type;
+  const allow1Month = (pkg.allow_1_month ?? pkg.allow1Month) !== false;
+  const allow3Months = (pkg.allow_3_months ?? pkg.allow3Months) !== false;
+  const allow6Months = (pkg.allow_6_months ?? pkg.allow6Months) !== false;
+  const available_durations: number[] = [
+    ...(allow1Month ? [1] : []),
+    ...(allow3Months ? [3] : []),
+    ...(allow6Months ? [6] : []),
+  ];
   return {
     ...pkg,
     name_en: pkg.name_en ?? pkg.nameEn,
@@ -93,6 +101,10 @@ export function mapPackage(row: Record<string, unknown>) {
     features_ar: pkg.features_ar ?? pkg.featuresAr,
     includes_video_feedback: pkg.includes_video_feedback ?? pkg.includesVideoFeedback,
     daily_support: pkg.daily_support ?? pkg.dailySupport,
+    allow_1_month: allow1Month,
+    allow_3_months: allow3Months,
+    allow_6_months: allow6Months,
+    available_durations: available_durations.length > 0 ? available_durations : [1],
     created_at: pkg.created_at ?? pkg.createdAt,
     updated_at: pkg.updated_at ?? pkg.updatedAt,
     level: pkg.level ?? pkg.packageLevel,

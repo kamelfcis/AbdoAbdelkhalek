@@ -96,6 +96,9 @@ model Package {
   featuresAr            Json?         @map("features_ar")
   includesVideoFeedback Boolean?      @map("includes_video_feedback")
   dailySupport          Boolean?      @map("daily_support")
+  allow1Month           Boolean       @default(true) @map("allow_1_month")
+  allow3Months          Boolean       @default(true) @map("allow_3_months")
+  allow6Months          Boolean       @default(true) @map("allow_6_months")
   createdAt             DateTime?     @map("created_at") @db.Timestamptz(6)
   updatedAt             DateTime?     @map("updated_at") @db.Timestamptz(6)
 

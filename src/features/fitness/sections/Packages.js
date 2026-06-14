@@ -41,6 +41,25 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
     });
   }, [packagesData]);
 
+  // Initialise selectedDurations to the first available duration per package
+  useEffect(() => {
+    if (packages.length === 0) return;
+    setSelectedDurations((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      packages.forEach((pkg) => {
+        if (next[pkg.id] == null) {
+          const avail = Array.isArray(pkg.available_durations) && pkg.available_durations.length > 0
+            ? [...pkg.available_durations].sort((a, b) => a - b)
+            : [1, 3, 6];
+          next[pkg.id] = avail[0];
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [packages]);
+
   // Handle errors from the query
   useEffect(() => {
     if (error) {
@@ -461,7 +480,21 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                     </div>
 
                     {!isSubscribed && (() => {
-                      const selectedMonths = selectedDurations[pkg.id] || 1;
+                      const availableDurations = [
+                        { months: 1, labelEn: '1 Mo', labelAr: 'شهر' },
+                        { months: 3, labelEn: '3 Mo', labelAr: '3 أشهر' },
+                        { months: 6, labelEn: '6 Mo', labelAr: '6 أشهر' },
+                      ].filter(({ months }) => {
+                        if (months === 1) return (pkg.allow_1_month ?? pkg.allow1Month) !== false;
+                        if (months === 3) return (pkg.allow_3_months ?? pkg.allow3Months) !== false;
+                        return (pkg.allow_6_months ?? pkg.allow6Months) !== false;
+                      });
+
+                      const defaultDuration = availableDurations[0]?.months ?? 1;
+                      const selectedMonths = availableDurations.some(d => d.months === (selectedDurations[pkg.id] || 1))
+                        ? (selectedDurations[pkg.id] || defaultDuration)
+                        : defaultDuration;
+
                       const totalEgp = pkg.price_egp ? Math.round(parseFloat(pkg.price_egp) * selectedMonths) : null;
                       const totalUsd = pkg.price_usd ? Math.round(parseFloat(pkg.price_usd) * selectedMonths) : null;
                       return (
@@ -469,47 +502,51 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                           <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
                             {currentLanguage === 'ar' ? 'مدة الاشتراك' : 'Duration'}
                           </p>
-                          <div className="grid grid-cols-3 gap-2 mb-3">
-                            {[
-                              { months: 1, labelEn: '1 Mo', labelAr: 'شهر' },
-                              { months: 3, labelEn: '3 Mo', labelAr: '3 أشهر' },
-                              { months: 6, labelEn: '6 Mo', labelAr: '6 أشهر' },
-                            ].map(({ months, labelEn, labelAr }) => {
-                              const isSelected = selectedMonths === months;
-                              return (
-                                <button
-                                  key={months}
-                                  type="button"
-                                  onClick={() =>
-                                    setSelectedDurations((prev) => ({ ...prev, [pkg.id]: months }))
-                                  }
-                                  disabled={subscribingPackageId === pkg.id}
-                                  aria-pressed={isSelected}
-                                  style={
-                                    isSelected
-                                      ? {
-                                          background: `linear-gradient(135deg, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`,
-                                          boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.15)',
-                                          transform: 'scale(1.04)',
-                                          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                                        }
-                                      : {
-                                          background: 'rgba(255,255,255,0.07)',
-                                          border: '1px solid rgba(0,0,0,0.12)',
-                                          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                                        }
-                                  }
-                                  className={`py-2.5 rounded-xl text-xs font-bold leading-none min-h-[44px] flex items-center justify-center ${
-                                    isSelected
-                                      ? packageColor.text
-                                      : 'text-gray-500 hover:text-[var(--color-primary)] hover:border-[var(--color-primary-light)]'
-                                  }`}
-                                >
-                                  {currentLanguage === 'ar' ? labelAr : labelEn}
-                                </button>
-                              );
-                            })}
-                          </div>
+                          {availableDurations.length > 1 ? (
+                            <div className={`grid gap-2 mb-3`} style={{ gridTemplateColumns: `repeat(${availableDurations.length}, minmax(0, 1fr))` }}>
+                              {availableDurations.map(({ months, labelEn, labelAr }) => {
+                                const isSelected = selectedMonths === months;
+                                return (
+                                  <button
+                                    key={months}
+                                    type="button"
+                                    onClick={() =>
+                                      setSelectedDurations((prev) => ({ ...prev, [pkg.id]: months }))
+                                    }
+                                    disabled={subscribingPackageId === pkg.id}
+                                    aria-pressed={isSelected}
+                                    style={
+                                      isSelected
+                                        ? {
+                                            background: `linear-gradient(135deg, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`,
+                                            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.15)',
+                                            transform: 'scale(1.04)',
+                                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                          }
+                                        : {
+                                            background: 'rgba(255,255,255,0.07)',
+                                            border: '1px solid rgba(0,0,0,0.12)',
+                                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                          }
+                                    }
+                                    className={`py-2.5 rounded-xl text-xs font-bold leading-none min-h-[44px] flex items-center justify-center ${
+                                      isSelected
+                                        ? packageColor.text
+                                        : 'text-gray-500 hover:text-[var(--color-primary)] hover:border-[var(--color-primary-light)]'
+                                    }`}
+                                  >
+                                    {currentLanguage === 'ar' ? labelAr : labelEn}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p className="text-sm font-semibold mb-3" style={{ color: packageColor.solid }}>
+                              {currentLanguage === 'ar'
+                                ? availableDurations[0]?.labelAr ?? 'شهر'
+                                : availableDurations[0]?.labelEn ?? '1 Mo'}
+                            </p>
+                          )}
                           {(totalEgp || totalUsd) && (
                             <p className="text-center text-xs font-semibold text-gray-500 transition-all duration-200">
                               {[

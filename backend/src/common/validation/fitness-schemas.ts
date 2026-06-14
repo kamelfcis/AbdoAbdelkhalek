@@ -95,6 +95,9 @@ export const packageCreateSchema = bodyWithAliases({
   featuresAr: optionalFeatures,
   includesVideoFeedback: optionalBool,
   dailySupport: optionalBool,
+  allow1Month: optionalBool,
+  allow3Months: optionalBool,
+  allow6Months: optionalBool,
 });
 
 export const packageUpdateSchema = bodyWithAliases({
@@ -111,6 +114,9 @@ export const packageUpdateSchema = bodyWithAliases({
   featuresAr: optionalFeatures,
   includesVideoFeedback: optionalBool,
   dailySupport: optionalBool,
+  allow1Month: optionalBool,
+  allow3Months: optionalBool,
+  allow6Months: optionalBool,
 }).refine((data) => Object.keys(data).length > 0, { message: 'At least one field required' });
 
 export const reviewCreateSchema = bodyWithAliases({
