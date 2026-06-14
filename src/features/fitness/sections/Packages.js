@@ -18,11 +18,10 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
   const { data: packagesData = [], isLoading: loading, error } = usePackages();
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [confirmingSubscription, setConfirmingSubscription] = useState(false);
-  const [subscribing, setSubscribing] = useState(false);
   const [subscriptionStates, setSubscriptionStates] = useState({});
   const [expandedFeatures, setExpandedFeatures] = useState({});
-  const [selectedDurationMonths, setSelectedDurationMonths] = useState(1);
+  const [selectedDurations, setSelectedDurations] = useState({});
+  const [subscribingPackageId, setSubscribingPackageId] = useState(null);
   const canvasRef = useRef(null);
 
   // Sort packages by price using useMemo for better performance
@@ -217,63 +216,42 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
 
   const closeModal = useCallback(() => {
     setShowModal(false);
-    setConfirmingSubscription(false);
-    setSelectedDurationMonths(1);
   }, []);
 
-  const handleConfirmSubscription = useCallback(async () => {
-    if (!selectedPackage || !userSession) return;
+  const handleSubscribe = useCallback(async (pkg) => {
+    if (!userSession) {
+      window.location.href = loginPath('fitness');
+      return;
+    }
 
-    setSubscribing(true);
+    const durationMonths = selectedDurations[pkg.id] || 1;
+    setSubscribingPackageId(pkg.id);
     try {
       const startDate = new Date();
       const endDate = new Date(startDate);
-      endDate.setMonth(endDate.getMonth() + selectedDurationMonths);
+      endDate.setMonth(endDate.getMonth() + durationMonths);
 
       await contentService.createSubscription({
         userId: userSession.user.id,
-        packageId: selectedPackage.id,
+        packageId: pkg.id,
         status: 'active',
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
-        durationMonths: selectedDurationMonths,
+        durationMonths,
       });
       onAlert?.(currentLanguage === 'ar' ? 'تم الاشتراك بنجاح!' : 'Subscription successful!');
-      closeModal();
       await updateSubscriptionButtonStates();
       queryClient.invalidateQueries({ queryKey: queryKeys.packages() });
     } catch (error) {
       console.error('Error subscribing:', error);
       onAlert?.(currentLanguage === 'ar' ? 'حدث خطأ أثناء الاشتراك' : 'Error subscribing to package');
     } finally {
-      setSubscribing(false);
+      setSubscribingPackageId(null);
     }
-  }, [
-    selectedPackage,
-    userSession,
-    selectedDurationMonths,
-    currentLanguage,
-    onAlert,
-    closeModal,
-    updateSubscriptionButtonStates,
-    queryClient,
-  ]);
-
-  const handleSubscribe = useCallback((pkg) => {
-    if (!userSession) {
-      window.location.href = loginPath('fitness');
-      return;
-    }
-
-    setSelectedPackage(pkg);
-    setSelectedDurationMonths(1);
-    setConfirmingSubscription(true);
-    setShowModal(true);
-  }, [userSession]);
+  }, [userSession, selectedDurations, currentLanguage, onAlert, updateSubscriptionButtonStates, queryClient]);
 
   const handleViewDetails = useCallback((pkg) => {
     setSelectedPackage(pkg);
-    setConfirmingSubscription(false);
     setShowModal(true);
   }, []);
 
@@ -474,18 +452,74 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                       )}
                     </div>
 
+                    {!isSubscribed && (
+                      <div className="px-6 pb-4">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
+                          {currentLanguage === 'ar' ? 'مدة الاشتراك' : 'Duration'}
+                        </p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { months: 1, labelEn: '1 Mo', labelAr: 'شهر' },
+                            { months: 3, labelEn: '3 Mo', labelAr: '3 أشهر' },
+                            { months: 6, labelEn: '6 Mo', labelAr: '6 أشهر' },
+                          ].map(({ months, labelEn, labelAr }) => {
+                            const isSelected = (selectedDurations[pkg.id] || 1) === months;
+                            return (
+                              <button
+                                key={months}
+                                type="button"
+                                onClick={() =>
+                                  setSelectedDurations((prev) => ({ ...prev, [pkg.id]: months }))
+                                }
+                                disabled={subscribingPackageId === pkg.id}
+                                className={`py-1.5 rounded-lg text-xs font-bold transition-all ${
+                                  isSelected
+                                    ? packageColor.text
+                                    : 'border border-gray-200 bg-white text-gray-500 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]'
+                                }`}
+                                style={
+                                  isSelected
+                                    ? {
+                                        background: `linear-gradient(135deg, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`,
+                                      }
+                                    : undefined
+                                }
+                                aria-pressed={isSelected}
+                              >
+                                {currentLanguage === 'ar' ? labelAr : labelEn}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
                     <button
                       type="button"
-                      onClick={() => (isSubscribed ? handleViewDetails(pkg) : handleSubscribe(pkg))}
+                      onClick={() => {
+                        if (isSubscribed) {
+                          handleViewDetails(pkg);
+                        } else if (subscribingPackageId !== pkg.id) {
+                          handleSubscribe(pkg);
+                        }
+                      }}
+                      disabled={subscribingPackageId === pkg.id}
                       className={`w-full ${packageColor.text} py-3 px-4 font-bold text-lg hover:brightness-105 transition-all ${
-                        isSubscribed ? 'opacity-75' : ''
+                        isSubscribed || subscribingPackageId === pkg.id ? 'opacity-75' : ''
                       }`}
                       style={{
                         background: `linear-gradient(135deg, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`,
                       }}
                       data-package-id={pkg.id}
                     >
-                      {getSubscribeButtonText(pkg)}
+                      {subscribingPackageId === pkg.id ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <i className="fas fa-spinner fa-spin" aria-hidden="true" />
+                          {currentLanguage === 'ar' ? 'جاري الاشتراك...' : 'Subscribing...'}
+                        </span>
+                      ) : (
+                        getSubscribeButtonText(pkg)
+                      )}
                     </button>
                   </div>
                 );
@@ -522,11 +556,6 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
               domain="fitness"
               language={currentLanguage}
               isRTL={isRTL}
-              confirmingSubscription={confirmingSubscription}
-              subscribing={subscribing}
-              onConfirm={handleConfirmSubscription}
-              selectedDurationMonths={selectedDurationMonths}
-              onDurationChange={setSelectedDurationMonths}
             />
           </>
         )}

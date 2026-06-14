@@ -5,13 +5,6 @@ import { formatPrice } from '../lib/currency';
 import { getTranslation } from '../../utils/translations';
 import './package-details-modal.css';
 
-function formatAmount(value) {
-  if (value == null || value === '') return '';
-  const num = Number(value);
-  if (!Number.isNaN(num)) return num.toLocaleString(undefined, { maximumFractionDigits: 0 });
-  return String(value);
-}
-
 const LEVEL_KEYS = {
   beginner: 'level-beginner',
   intermediate: 'level-intermediate',
@@ -35,12 +28,6 @@ function formatPackageMetaValue(rawValue, keyMap, lang) {
   return String(rawValue).trim();
 }
 
-const DURATION_OPTIONS = [
-  { months: 1, labelEn: '1 Month', labelAr: 'شهر واحد' },
-  { months: 3, labelEn: '3 Months', labelAr: '3 أشهر' },
-  { months: 6, labelEn: '6 Months', labelAr: '6 أشهر' },
-];
-
 const PackageDetailsModal = ({
   isOpen,
   onClose,
@@ -52,22 +39,17 @@ const PackageDetailsModal = ({
   domain = 'fitness',
   language = 'en',
   isRTL = false,
-  confirmingSubscription = false,
-  subscribing = false,
-  onConfirm,
-  selectedDurationMonths = 1,
-  onDurationChange,
 }) => {
   const isAr = language === 'ar';
   const lang = isAr ? 'ar' : 'en';
 
   const handleKeyDown = useCallback(
     (e) => {
-      if (e.key === 'Escape' && !subscribing) {
+      if (e.key === 'Escape') {
         onClose?.();
       }
     },
-    [onClose, subscribing]
+    [onClose]
   );
 
   useEffect(() => {
@@ -82,11 +64,7 @@ const PackageDetailsModal = ({
 
   if (!isOpen || !pkg) return null;
 
-  const modalTitle = confirmingSubscription
-    ? isAr
-      ? 'تأكيد الاشتراك'
-      : 'Confirm Subscription'
-    : getTranslation('package-details-title', lang);
+  const modalTitle = getTranslation('package-details-title', lang);
 
   const heroStyle = packageColor
     ? {
@@ -106,10 +84,10 @@ const PackageDetailsModal = ({
       dir={isRTL ? 'rtl' : 'ltr'}
       role="presentation"
     >
-      <div
-        className="package-details-modal__backdrop"
-        onClick={subscribing ? undefined : onClose}
-      >
+        <div
+          className="package-details-modal__backdrop"
+          onClick={onClose}
+        >
         <div
           className="package-details-modal__dialog"
           role="dialog"
@@ -131,7 +109,6 @@ const PackageDetailsModal = ({
               <button
                 type="button"
                 onClick={onClose}
-                disabled={subscribing}
                 className="package-details-modal__close"
                 aria-label={isAr ? 'إغلاق' : 'Close'}
               >
@@ -155,47 +132,6 @@ const PackageDetailsModal = ({
           </div>
 
           <div className="package-details-modal__body">
-            {confirmingSubscription && (
-              <div className="package-details-modal__duration-picker">
-                <p className="package-details-modal__duration-label">
-                  {isAr ? 'اختر مدة الاشتراك' : 'Choose subscription duration'}
-                </p>
-                <div className="package-details-modal__duration-options">
-                  {DURATION_OPTIONS.map(({ months, labelEn, labelAr }) => {
-                    const multiplier = months;
-                    const totalEgp = pkg.price_egp != null ? Number(pkg.price_egp) * multiplier : null;
-                    const totalUsd = pkg.price_usd != null ? Number(pkg.price_usd) * multiplier : null;
-                    const isSelected = selectedDurationMonths === months;
-                    return (
-                      <button
-                        key={months}
-                        type="button"
-                        className={`package-details-modal__duration-card${isSelected ? ' package-details-modal__duration-card--selected' : ''}`}
-                        onClick={() => onDurationChange?.(months)}
-                        disabled={subscribing}
-                        aria-pressed={isSelected}
-                      >
-                        <span className="package-details-modal__duration-card-title">
-                          {isAr ? labelAr : labelEn}
-                        </span>
-                        <span
-                          className="package-details-modal__duration-card-price"
-                          dangerouslySetInnerHTML={{ __html: formatPrice(totalEgp, totalUsd) }}
-                        />
-                        {months > 1 && (
-                          <span className="package-details-modal__duration-card-rate">
-                            {isAr
-                              ? `${formatAmount(pkg.price_egp)} EGP / شهر`
-                              : `${formatAmount(pkg.price_egp)} EGP / mo`}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
             {showMetaGrid && (
               <div className="package-details-modal__meta-grid">
                 {levelValue && (
@@ -268,44 +204,13 @@ const PackageDetailsModal = ({
           </div>
 
           <div className="package-details-modal__footer">
-            {confirmingSubscription ? (
-              <>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  disabled={subscribing}
-                  className="package-details-modal__btn package-details-modal__btn--cancel"
-                >
-                  {isAr ? 'إلغاء' : 'Cancel'}
-                </button>
-                <button
-                  type="button"
-                  onClick={onConfirm}
-                  disabled={subscribing}
-                  className="package-details-modal__btn package-details-modal__btn--confirm"
-                >
-                  {subscribing ? (
-                    <>
-                      <i className="fas fa-spinner fa-spin" aria-hidden="true" />
-                      {isAr ? 'جاري الاشتراك...' : 'Subscribing...'}
-                    </>
-                  ) : (
-                    <>
-                      <i className="fas fa-check" aria-hidden="true" />
-                      {isAr ? 'تأكيد الاشتراك' : 'Confirm Subscription'}
-                    </>
-                  )}
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={onClose}
-                className="package-details-modal__btn package-details-modal__btn--close-only"
-              >
-                {isAr ? 'إغلاق' : 'Close'}
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="package-details-modal__btn package-details-modal__btn--close-only"
+            >
+              {isAr ? 'إغلاق' : 'Close'}
+            </button>
           </div>
         </div>
       </div>
@@ -330,11 +235,6 @@ PackageDetailsModal.propTypes = {
   domain: PropTypes.oneOf(['fitness', 'squash']),
   language: PropTypes.oneOf(['en', 'ar']),
   isRTL: PropTypes.bool,
-  confirmingSubscription: PropTypes.bool,
-  subscribing: PropTypes.bool,
-  onConfirm: PropTypes.func,
-  selectedDurationMonths: PropTypes.oneOf([1, 3, 6]),
-  onDurationChange: PropTypes.func,
 };
 
 export default PackageDetailsModal;
