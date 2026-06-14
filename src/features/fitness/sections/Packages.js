@@ -10,6 +10,7 @@ import { PackageSkeletonGrid } from '../components/Skeletons';
 import { loadThreeJSOnIntersect, loadThreeJSOnInteraction } from '../../../shared/lib/threeLoader';
 import { loginPath } from '../../../shared/lib/authRoutes';
 import PackageDetailsModal from '../../../shared/components/PackageDetailsModal';
+import SubscriptionSuccessModal from '../components/SubscriptionSuccessModal';
 
 const Packages = ({ onAlert, userSession, userProfile }) => {
   const { currentLanguage } = useLanguage();
@@ -22,6 +23,7 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
   const [expandedFeatures, setExpandedFeatures] = useState({});
   const [selectedDurations, setSelectedDurations] = useState({});
   const [subscribingPackageId, setSubscribingPackageId] = useState(null);
+  const [successData, setSuccessData] = useState(null);
   const canvasRef = useRef(null);
 
   // Sort packages by price using useMemo for better performance
@@ -239,7 +241,10 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
         endDate: endDate.toISOString(),
         durationMonths,
       });
-      onAlert?.(currentLanguage === 'ar' ? 'تم الاشتراك بنجاح!' : 'Subscription successful!');
+      setSuccessData({
+        packageName: currentLanguage === 'ar' ? pkg.name_ar : pkg.name_en,
+        durationMonths,
+      });
       await updateSubscriptionButtonStates();
       queryClient.invalidateQueries({ queryKey: queryKeys.packages() });
     } catch (error) {
@@ -372,7 +377,10 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                 return (
                   <div
                     key={pkg.id}
-                    className="flex flex-col bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all hover:-translate-y-2"
+                    className="flex flex-col bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:-translate-y-3"
+                    style={{ '--pkg-shadow': '0 20px 40px rgba(0,0,0,0.12)' }}
+                    onMouseEnter={e => e.currentTarget.style.boxShadow = '0 24px 48px rgba(0,0,0,0.18)'}
+                    onMouseLeave={e => e.currentTarget.style.boxShadow = ''}
                     dir={isRTL ? 'rtl' : 'ltr'}
                   >
                     <div
@@ -452,75 +460,114 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                       )}
                     </div>
 
-                    {!isSubscribed && (
-                      <div className="px-6 pb-4">
-                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
-                          {currentLanguage === 'ar' ? 'مدة الاشتراك' : 'Duration'}
-                        </p>
-                        <div className="grid grid-cols-3 gap-2">
-                          {[
-                            { months: 1, labelEn: '1 Mo', labelAr: 'شهر' },
-                            { months: 3, labelEn: '3 Mo', labelAr: '3 أشهر' },
-                            { months: 6, labelEn: '6 Mo', labelAr: '6 أشهر' },
-                          ].map(({ months, labelEn, labelAr }) => {
-                            const isSelected = (selectedDurations[pkg.id] || 1) === months;
-                            return (
-                              <button
-                                key={months}
-                                type="button"
-                                onClick={() =>
-                                  setSelectedDurations((prev) => ({ ...prev, [pkg.id]: months }))
-                                }
-                                disabled={subscribingPackageId === pkg.id}
-                                className={`py-1.5 rounded-lg text-xs font-bold transition-all ${
-                                  isSelected
-                                    ? packageColor.text
-                                    : 'border border-gray-200 bg-white text-gray-500 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]'
-                                }`}
-                                style={
-                                  isSelected
-                                    ? {
-                                        background: `linear-gradient(135deg, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`,
-                                      }
-                                    : undefined
-                                }
-                                aria-pressed={isSelected}
-                              >
-                                {currentLanguage === 'ar' ? labelAr : labelEn}
-                              </button>
-                            );
-                          })}
+                    {!isSubscribed && (() => {
+                      const selectedMonths = selectedDurations[pkg.id] || 1;
+                      const totalEgp = pkg.price_egp ? Math.round(parseFloat(pkg.price_egp) * selectedMonths) : null;
+                      const totalUsd = pkg.price_usd ? Math.round(parseFloat(pkg.price_usd) * selectedMonths) : null;
+                      return (
+                        <div className="px-6 pb-5 border-t border-gray-100 pt-5">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
+                            {currentLanguage === 'ar' ? 'مدة الاشتراك' : 'Duration'}
+                          </p>
+                          <div className="grid grid-cols-3 gap-2 mb-3">
+                            {[
+                              { months: 1, labelEn: '1 Mo', labelAr: 'شهر' },
+                              { months: 3, labelEn: '3 Mo', labelAr: '3 أشهر' },
+                              { months: 6, labelEn: '6 Mo', labelAr: '6 أشهر' },
+                            ].map(({ months, labelEn, labelAr }) => {
+                              const isSelected = selectedMonths === months;
+                              return (
+                                <button
+                                  key={months}
+                                  type="button"
+                                  onClick={() =>
+                                    setSelectedDurations((prev) => ({ ...prev, [pkg.id]: months }))
+                                  }
+                                  disabled={subscribingPackageId === pkg.id}
+                                  aria-pressed={isSelected}
+                                  style={
+                                    isSelected
+                                      ? {
+                                          background: `linear-gradient(135deg, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`,
+                                          boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.15)',
+                                          transform: 'scale(1.04)',
+                                          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        }
+                                      : {
+                                          background: 'rgba(255,255,255,0.07)',
+                                          border: '1px solid rgba(0,0,0,0.12)',
+                                          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        }
+                                  }
+                                  className={`py-2.5 rounded-xl text-xs font-bold leading-none min-h-[44px] flex items-center justify-center ${
+                                    isSelected
+                                      ? packageColor.text
+                                      : 'text-gray-500 hover:text-[var(--color-primary)] hover:border-[var(--color-primary-light)]'
+                                  }`}
+                                >
+                                  {currentLanguage === 'ar' ? labelAr : labelEn}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          {(totalEgp || totalUsd) && (
+                            <p className="text-center text-xs font-semibold text-gray-500 transition-all duration-200">
+                              {[
+                                totalEgp ? `${totalEgp.toLocaleString()} EGP` : null,
+                                totalUsd ? `${totalUsd} USD` : null,
+                              ]
+                                .filter(Boolean)
+                                .join(' / ')}{' '}
+                              {currentLanguage === 'ar' ? 'إجمالي' : 'total'}
+                            </p>
+                          )}
                         </div>
-                      </div>
-                    )}
+                      );
+                    })()}
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (isSubscribed) {
-                          handleViewDetails(pkg);
-                        } else if (subscribingPackageId !== pkg.id) {
-                          handleSubscribe(pkg);
-                        }
-                      }}
-                      disabled={subscribingPackageId === pkg.id}
-                      className={`w-full ${packageColor.text} py-3 px-4 font-bold text-lg hover:brightness-105 transition-all ${
-                        isSubscribed || subscribingPackageId === pkg.id ? 'opacity-75' : ''
-                      }`}
-                      style={{
-                        background: `linear-gradient(135deg, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`,
-                      }}
-                      data-package-id={pkg.id}
-                    >
-                      {subscribingPackageId === pkg.id ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <i className="fas fa-spinner fa-spin" aria-hidden="true" />
-                          {currentLanguage === 'ar' ? 'جاري الاشتراك...' : 'Subscribing...'}
-                        </span>
-                      ) : (
-                        getSubscribeButtonText(pkg)
-                      )}
-                    </button>
+                    <div className="px-5 pb-5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (isSubscribed) {
+                            handleViewDetails(pkg);
+                          } else if (subscribingPackageId !== pkg.id) {
+                            handleSubscribe(pkg);
+                          }
+                        }}
+                        disabled={subscribingPackageId === pkg.id}
+                        className={`w-full ${packageColor.text} font-bold text-base transition-all duration-200 rounded-xl flex items-center justify-center gap-2 ${
+                          isSubscribed ? 'opacity-80' : ''
+                        }`}
+                        style={{
+                          minHeight: '48px',
+                          background: `linear-gradient(135deg, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`,
+                          boxShadow: subscribingPackageId === pkg.id ? 'none' : '0 4px 14px rgba(0,0,0,0.15)',
+                          transform: 'translateY(0)',
+                          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        }}
+                        onMouseEnter={e => {
+                          if (subscribingPackageId !== pkg.id) {
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                            e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.22)';
+                          }
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.15)';
+                        }}
+                        data-package-id={pkg.id}
+                      >
+                        {subscribingPackageId === pkg.id ? (
+                          <>
+                            <i className="fas fa-spinner fa-spin text-sm" aria-hidden="true" />
+                            {currentLanguage === 'ar' ? 'جاري الاشتراك...' : 'Subscribing…'}
+                          </>
+                        ) : (
+                          getSubscribeButtonText(pkg)
+                        )}
+                      </button>
+                    </div>
                   </div>
                 );
               })}
@@ -556,6 +603,14 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
               domain="fitness"
               language={currentLanguage}
               isRTL={isRTL}
+            />
+
+            <SubscriptionSuccessModal
+              isOpen={!!successData}
+              onClose={() => setSuccessData(null)}
+              packageName={successData?.packageName}
+              durationMonths={successData?.durationMonths}
+              currentLanguage={currentLanguage}
             />
           </>
         )}

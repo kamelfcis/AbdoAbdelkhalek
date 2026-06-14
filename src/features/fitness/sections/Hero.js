@@ -15,9 +15,9 @@ const Hero = () => {
     const width = isMobile ? 640 : 1024;
     const quality = isMobile ? 50 : 60;
     return [
-      `https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=${width}&q=${quality}`,
-      `https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=${width}&q=${quality}`,
-      `https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?ixlib=rb-4.0.3&auto=format&fit=crop&w=${width}&q=${quality}`,
+      `https://images.unsplash.com/photo-1574629810-1484038240bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=${width}&q=${quality}`,
+      `https://images.unsplash.com/photo-1517466922-ee96b6069be7?ixlib=rb-4.0.3&auto=format&fit=crop&w=${width}&q=${quality}`,
+      `https://images.unsplash.com/photo-1553778263-73a83bab9b0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=${width}&q=${quality}`,
     ];
   }, []);
 
