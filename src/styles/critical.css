@@ -52,24 +52,19 @@ body.loaded {
   padding: 0 1rem;
 }
 
-/* Navigation - Critical for above-the-fold */
-nav {
+/* Site header — Critical for above-the-fold (scoped; sidebar nav excluded) */
+.site-header {
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
+  top: env(safe-area-inset-top, 0);
   left: 0;
   right: 0;
-  z-index: 40;
-  padding: 0.5rem 1rem;
-  min-height: 100px;
-  transition: none; /* Disable transitions during load */
-}
-
-@media (min-width: 768px) {
-  nav {
-    min-height: 110px;
-  }
+  z-index: 1100;
+  width: 100%;
+  align-self: flex-start;
 }
 
 /* Hero Section - Critical for above-the-fold */
@@ -128,13 +123,8 @@ section {
 
 /* Mobile optimizations */
 @media (max-width: 767px) {
-  nav {
-    position: -webkit-sticky; /* Safari support */
-    position: sticky;
-  }
-  
   body {
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 }
 

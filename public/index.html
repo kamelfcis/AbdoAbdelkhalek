@@ -22,7 +22,7 @@
     <link rel="apple-touch-icon" sizes="57x57" href="%PUBLIC_URL%/logo.png" />
     
     <!-- Meta Tags -->
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0074b7" />
     
     <!-- Critical CSS Inline for faster initial render - optimized for mobile -->
@@ -35,8 +35,8 @@
       body.loaded{visibility:visible}
       #root{min-height:100vh;display:block}
       .container{width:100%;max-width:1280px;margin:0 auto;padding:0 1rem}
-      nav{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1);position:sticky;top:0;left:0;right:0;z-index:40;padding:.5rem 1rem;min-height:100px;transition:none}
-      @media (min-width:768px){nav{min-height:110px}}
+      nav{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+      .site-header{position:-webkit-sticky;position:sticky;top:0;top:env(safe-area-inset-top,0);left:0;right:0;z-index:1100;width:100%;align-self:flex-start}
       #home{min-height:100vh;width:100%;position:relative;overflow:hidden}
       h1,h2,h3,h4,h5,h6{font-weight:700;margin:0;line-height:1.2}
       img{max-width:100%;height:auto;display:block}
@@ -44,7 +44,7 @@
       section{position:relative;width:100%}
       .loading-spinner{width:40px;height:40px;border:3px solid #f3f3f3;border-top-color:#0074b7;border-radius:50%;animation:spin .8s linear infinite;margin:20px auto}
       @keyframes spin{to{transform:rotate(360deg)}}
-      @media (max-width:767px){nav{position:-webkit-sticky;position:sticky}body{overflow-x:hidden}}
+      @media (max-width:767px){body{overflow-x:clip}}
     </style>
     <meta
       name="description"

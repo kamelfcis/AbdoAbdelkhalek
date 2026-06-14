@@ -16,9 +16,10 @@ const Navbar = ({
     className={cn(
       'bg-[var(--color-surface)] shadow-sm border-b border-[var(--color-border)]',
       'px-4 sm:px-6 py-3 flex items-center justify-between gap-4',
-      sticky && 'sticky top-0 z-[1200]',
+      sticky && 'site-header',
       className
     )}
+    {...(sticky ? { 'data-site-header': true } : {})}
   >
     <div className="flex items-center gap-3 min-w-0">
       {leftActions}

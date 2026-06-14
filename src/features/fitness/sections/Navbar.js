@@ -50,7 +50,8 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
 
   return (
     <nav
-      className="bg-white sticky top-0 w-full z-40"
+      className="site-header bg-white w-full"
+      data-site-header
       role="navigation"
       aria-label="Main navigation"
       style={{
@@ -150,13 +151,6 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
             className="text-gray-800 hover:text-[var(--color-primary)] text-base md:text-lg py-3 px-2 flex items-center h-full"
           >
             {getTranslation('nav-about', currentLanguage)}
-          </a>
-          <a
-            href="#contact"
-            onClick={(e) => handleNavClick(e, 'contact')}
-            className="text-gray-800 hover:text-[var(--color-primary)] text-base md:text-lg py-3 px-2 flex items-center h-full"
-          >
-            {getTranslation('nav-contact', currentLanguage)}
           </a>
         </div>
         <div className="flex items-center space-x-2 md:space-x-4 rtl:space-x-reverse h-full">

@@ -38,10 +38,10 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
 
   return (
     <nav
-      className="bg-white shadow-lg sticky top-0 w-full z-40"
+      className="site-header bg-white shadow-lg w-full"
+      data-site-header
       role="navigation"
       aria-label="Main navigation"
-      style={{ position: 'sticky', top: 0 }}
     >
       <div className="container mx-auto px-4 md:px-6 py-6 md:py-7 flex justify-between items-center min-h-[100px] md:min-h-[110px]">
         <a
@@ -81,9 +81,6 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
           )}
           <a href="#about-me" onClick={(e) => handleNavClick(e, 'about-me')} className="nav-link">
             {t('nav.about')}
-          </a>
-          <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">
-            {t('nav.contact')}
           </a>
         </div>
 

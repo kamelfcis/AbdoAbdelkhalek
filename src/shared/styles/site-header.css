@@ -1,0 +1,40 @@
+/**
+ * Sticky site header — landing pages & dashboard shell.
+ * Scoped to .site-header so sidebar drawer <nav> menus are unaffected.
+ */
+.site-header {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  top: env(safe-area-inset-top, 0);
+  z-index: 1100;
+  width: 100%;
+  align-self: flex-start;
+  flex-shrink: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Sidebar drawer nav must not inherit sticky positioning */
+#sidebar nav,
+#app-sidebar nav,
+aside[aria-label='Sidebar navigation'] nav {
+  position: static;
+  top: auto;
+  z-index: auto;
+}
+
+@media (max-width: 768px) {
+  /*
+   * Clip horizontal overflow only. Never set overflow-y: auto on .App —
+   * that creates a scroll container while the viewport scrolls, which breaks sticky.
+   */
+  html,
+  body {
+    overflow-x: clip;
+  }
+
+  .App {
+    overflow-x: clip;
+  }
+}
