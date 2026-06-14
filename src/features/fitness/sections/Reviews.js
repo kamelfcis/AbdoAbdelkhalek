@@ -269,27 +269,6 @@ const Reviews = React.memo(({ onAlert }) => {
             </p>
           </div>
         )}
-
-        {/* Call to Action */}
-        <div className="text-center mt-16">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">
-              {getTranslation('reviews-cta-title', currentLanguage)}
-            </h3>
-            <p className="text-gray-600 mb-6 leading-relaxed">
-              {getTranslation('reviews-cta-desc', currentLanguage)}
-            </p>
-            <a
-              href="https://wa.me/201123903411"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center bg-gradient-to-r from-green-400 to-green-600 text-white px-8 py-4 rounded-full font-semibold hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
-            >
-              <i className={`fab fa-whatsapp ${currentLanguage === 'ar' ? 'ml-3' : 'mr-3'} text-xl`}></i>
-              <span>{getTranslation('reviews-cta-text', currentLanguage)}</span>
-            </a>
-          </div>
-        </div>
       </div>
     </section>
   );

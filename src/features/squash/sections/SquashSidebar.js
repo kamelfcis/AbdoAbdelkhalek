@@ -12,13 +12,11 @@ const NAV_ITEMS = [
   { section: 'packages', key: 'sidebar.packages' },
   { section: 'about-me', key: 'sidebar.about' },
   { section: 'why-choose', key: 'sidebar.why' },
-  { section: 'success-stories', key: 'sidebar.success' },
   { section: 'reviews', key: 'sidebar.reviews' },
   { section: 'videos', key: 'sidebar.videos' },
   { section: 'coaches', key: 'sidebar.coaches' },
   { section: 'programs', key: 'sidebar.programs' },
   { section: 'faq', key: 'sidebar.faq' },
-  { section: 'contact', key: 'sidebar.contact' },
 ];
 
 const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShowProfile }) => {

@@ -293,14 +293,14 @@ const Hero = () => {
                     Join our athletes who have achieved their goals
                   </p>
                   <a
-                    href="#success"
+                    href="#packages"
                     onClick={(e) => {
                       e.preventDefault();
-                      handleNavClick('success');
+                      handleNavClick('packages');
                     }}
                     className="inline-block bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] text-white px-8 py-3 rounded-full font-semibold hover:scale-105 transition-transform animate-pulse"
                   >
-                    Success Stories
+                    {currentLanguage === 'ar' ? 'الباقات' : 'View Packages'}
                   </a>
                 </div>
               </div>

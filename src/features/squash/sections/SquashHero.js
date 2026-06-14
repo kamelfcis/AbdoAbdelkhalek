@@ -75,7 +75,7 @@ const SquashHero = () => {
       title: t('hero.slide3.title'),
       subtitle: t('hero.slide3.subtitle'),
       cta: t('hero.slide3.cta'),
-      section: 'success-stories',
+      section: 'programs',
     },
   ];
 

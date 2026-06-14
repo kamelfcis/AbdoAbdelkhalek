@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   isSectionVisible,
   isSlugVisible,
-  resolveVisibilityKey,
   getLandingSectionsForDomain,
 } from '../config/landingSections';
 
@@ -19,9 +18,9 @@ describe('isSectionVisible', () => {
 });
 
 describe('isSlugVisible', () => {
-  it('maps fitness success anchor to success-stories key', () => {
-    expect(resolveVisibilityKey('success')).toBe('success-stories');
-    expect(isSlugVisible({ 'success-stories': false }, 'success')).toBe(false);
+  it('respects toggleable section visibility', () => {
+    expect(isSlugVisible({ reviews: false }, 'reviews')).toBe(false);
+    expect(isSlugVisible({ reviews: true }, 'reviews')).toBe(true);
   });
 
   it('always shows non-toggleable slugs', () => {
@@ -31,8 +30,8 @@ describe('isSlugVisible', () => {
 });
 
 describe('getLandingSectionsForDomain', () => {
-  it('returns 6 fitness sections and 8 squash sections', () => {
-    expect(getLandingSectionsForDomain('fitness')).toHaveLength(6);
-    expect(getLandingSectionsForDomain('squash')).toHaveLength(8);
+  it('returns 5 fitness sections and 7 squash sections', () => {
+    expect(getLandingSectionsForDomain('fitness')).toHaveLength(5);
+    expect(getLandingSectionsForDomain('squash')).toHaveLength(7);
   });
 });

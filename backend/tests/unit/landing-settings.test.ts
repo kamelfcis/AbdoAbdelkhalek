@@ -29,7 +29,6 @@ describe('landing-settings service', () => {
 
     expect(result.domain).toBe('fitness');
     expect(result.sections).toEqual({
-      'success-stories': true,
       reviews: true,
       categories: true,
       videos: true,
@@ -43,7 +42,7 @@ describe('landing-settings service', () => {
 
     const result = await getLandingSections('squash');
 
-    expect(Object.keys(result.sections)).toHaveLength(8);
+    expect(Object.keys(result.sections)).toHaveLength(7);
     expect(result.sections.coaches).toBe(true);
     expect(result.sections.programs).toBe(true);
   });

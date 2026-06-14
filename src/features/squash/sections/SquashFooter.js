@@ -9,7 +9,6 @@ const SquashFooter = React.memo(() => {
     { href: '#categories', label: t('nav.categories') },
     { href: '#packages', label: t('nav.packages') },
     { href: '#about-me', label: t('nav.about') },
-    { href: '#contact', label: t('nav.contact') },
   ];
 
   return (
@@ -34,11 +33,8 @@ const SquashFooter = React.memo(() => {
           </div>
           <div>
             <h3 className="text-xl font-bold mb-4">{t('footer.support')}</h3>
-            <a href="#faq" className="text-gray-400 hover:text-white transition block mb-2">
+            <a href="#faq" className="text-gray-400 hover:text-white transition block">
               {t('nav.faq')}
-            </a>
-            <a href="#contact" className="text-gray-400 hover:text-white transition block">
-              {t('nav.contact')}
             </a>
           </div>
         </div>

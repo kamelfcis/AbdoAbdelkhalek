@@ -20,7 +20,6 @@ test.describe('Squash Landing', () => {
     await expect(page.locator('#about-me')).toBeAttached();
     await expect(page.locator('#categories')).toBeAttached();
     await expect(page.locator('#programs')).toBeAttached();
-    await expect(page.locator('#contact')).toBeAttached();
     await expect
       .poll(async () => (await page.locator('main').innerText()).length)
       .toBeGreaterThan(50);

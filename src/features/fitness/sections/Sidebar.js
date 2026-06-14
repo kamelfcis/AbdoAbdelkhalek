@@ -219,36 +219,6 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
               {getTranslation('sidebar-about', currentLanguage)}
             </a>
           </li>
-          {isSlugVisible('success') && (
-            <li>
-              <a
-                href="#success"
-                onClick={(e) => handleNavClick(e, 'success')}
-                className={`block py-2 px-4 rounded-lg hover:text-white ${
-                  isRTL 
-                    ? 'hover:bg-gradient-to-l' 
-                    : 'hover:bg-gradient-to-r'
-                } from-[#bfd7ed] to-[#0074b7]`}
-                style={{ textAlign: isRTL ? 'right' : 'left' }}
-              >
-                {getTranslation('sidebar-success', currentLanguage)}
-              </a>
-            </li>
-          )}
-          <li>
-            <a
-              href="#contact"
-              onClick={(e) => handleNavClick(e, 'contact')}
-              className={`block py-2 px-4 rounded-lg hover:text-white ${
-                isRTL 
-                  ? 'hover:bg-gradient-to-l' 
-                  : 'hover:bg-gradient-to-r'
-              } from-[#bfd7ed] to-[#0074b7]`}
-              style={{ textAlign: isRTL ? 'right' : 'left' }}
-            >
-              {getTranslation('sidebar-contact', currentLanguage)}
-            </a>
-          </li>
           {userSession && !isCoach && isSlugVisible('videos') && (
             <>
               <li>

@@ -20,10 +20,8 @@ const Packages = lazy(() => import(/* webpackChunkName: "content-components" */ 
 const AboutMe = lazy(() => import(/* webpackChunkName: "about-components" */ '../sections/About'));
 const AboutCoach = lazy(() => import(/* webpackChunkName: "about-components" */ '../sections/AboutCoach'));
 const WhyChooseMe = lazy(() => import(/* webpackChunkName: "about-components" */ '../sections/WhyChooseMe'));
-const SuccessStories = lazy(() => import(/* webpackChunkName: "social-components" */ '../sections/SuccessStories'));
 const Reviews = lazy(() => import(/* webpackChunkName: "social-components" */ '../sections/Reviews'));
 const FAQ = lazy(() => import(/* webpackChunkName: "support-components" */ '../sections/FAQ'));
-const Contact = lazy(() => import(/* webpackChunkName: "support-components" */ '../sections/Contact'));
 
 const ComponentLoader = ({ message }) => (
   <div className="flex items-center justify-center section-py min-h-[200px]" role="status" aria-live="polite" aria-label={message || 'Loading content'}>
@@ -88,13 +86,6 @@ function FitnessHomeContent({
             <WhyChooseMe />
           </Suspense>
         </ErrorBoundary>
-        {isSectionVisible('success-stories') && (
-          <ErrorBoundary fallbackTitle="Success Stories Section" fallbackMessage="Unable to load success stories. Please refresh the page.">
-            <Suspense fallback={<ComponentLoader message="Loading success stories..." />}>
-              <SuccessStories onAlert={showAlert} />
-            </Suspense>
-          </ErrorBoundary>
-        )}
         {isSectionVisible('reviews') && (
           <ErrorBoundary fallbackTitle="Reviews Section" fallbackMessage="Unable to load reviews. Please refresh the page.">
             <Suspense fallback={<ComponentLoader message="Loading reviews..." />}>
@@ -135,11 +126,6 @@ function FitnessHomeContent({
             </Suspense>
           </ErrorBoundary>
         )}
-        <ErrorBoundary fallbackTitle="Contact Section" fallbackMessage="Unable to load contact section. Please refresh the page.">
-          <Suspense fallback={<ComponentLoader message="Loading contact section..." />}>
-            <Contact onAlert={showAlert} />
-          </Suspense>
-        </ErrorBoundary>
       </main>
 
       <Footer />

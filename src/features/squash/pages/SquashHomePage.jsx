@@ -19,9 +19,6 @@ const SquashAbout = lazy(() => import(/* webpackChunkName: "squash-about" */ '..
 const SquashWhyChooseMe = lazy(() =>
   import(/* webpackChunkName: "squash-why" */ '../sections/SquashWhyChooseMe')
 );
-const SquashSuccessStories = lazy(() =>
-  import(/* webpackChunkName: "squash-stories" */ '../sections/SquashSuccessStories')
-);
 const SquashReviews = lazy(() => import(/* webpackChunkName: "squash-reviews" */ '../sections/SquashReviews'));
 const SquashCategories = lazy(() =>
   import(/* webpackChunkName: "squash-categories" */ '../sections/SquashCategories')
@@ -35,9 +32,6 @@ const SquashPrograms = lazy(() =>
   import(/* webpackChunkName: "squash-programs" */ '../sections/SquashPrograms')
 );
 const SquashFAQ = lazy(() => import(/* webpackChunkName: "squash-faq" */ '../sections/SquashFAQ'));
-const SquashContact = lazy(() =>
-  import(/* webpackChunkName: "squash-contact" */ '../sections/SquashContact')
-);
 
 const ComponentLoader = ({ message }) => (
   <div className="flex items-center justify-center section-py min-h-[200px]" role="status" aria-live="polite">
@@ -107,13 +101,6 @@ function SquashHomeContent({
             <SquashWhyChooseMe />
           </Suspense>
         </ErrorBoundary>
-        {isSectionVisible('success-stories') && (
-          <ErrorBoundary fallbackTitle="Success Stories">
-            <Suspense fallback={<ComponentLoader />}>
-              <SquashSuccessStories />
-            </Suspense>
-          </ErrorBoundary>
-        )}
         {isSectionVisible('reviews') && (
           <ErrorBoundary fallbackTitle="Reviews">
             <Suspense fallback={<ComponentLoader />}>
@@ -163,11 +150,6 @@ function SquashHomeContent({
             </Suspense>
           </ErrorBoundary>
         )}
-        <ErrorBoundary fallbackTitle="Contact">
-          <Suspense fallback={<ComponentLoader />}>
-            <SquashContact />
-          </Suspense>
-        </ErrorBoundary>
       </main>
 
       <SquashFooter />
