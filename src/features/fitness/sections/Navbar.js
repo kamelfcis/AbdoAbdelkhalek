@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useSiteHeaderLayout } from '../../../shared/hooks/useSiteHeaderLayout';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { getTranslation } from '../../../utils/translations';
@@ -18,6 +19,8 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
     userSession?.user?.email ||
     '';
   const [scrolled, setScrolled] = useState(false);
+  const headerRef = useRef(null);
+  useSiteHeaderLayout(headerRef);
 
   // Professional Font Awesome deferred loading
   useEffect(() => {
@@ -50,6 +53,7 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
 
   return (
     <nav
+      ref={headerRef}
       className="site-header bg-white w-full"
       data-site-header
       role="navigation"

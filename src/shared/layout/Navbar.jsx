@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { cn } from '../lib/cn';
+import { useSiteHeaderLayout } from '../hooks/useSiteHeaderLayout';
 
 const Navbar = ({
   title,
@@ -11,8 +12,13 @@ const Navbar = ({
   isRTL = false,
   className,
   sticky = true,
-}) => (
+}) => {
+  const headerRef = useRef(null);
+  useSiteHeaderLayout(sticky ? headerRef : null);
+
+  return (
   <header
+    ref={headerRef}
     className={cn(
       'bg-[var(--color-surface)] shadow-sm border-b border-[var(--color-border)]',
       'px-4 sm:px-6 py-3 flex items-center justify-between gap-4',
@@ -42,7 +48,8 @@ const Navbar = ({
       </div>
     )}
   </header>
-);
+  );
+};
 
 Navbar.propTypes = {
   title: PropTypes.node,

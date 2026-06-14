@@ -1,12 +1,15 @@
 /**
  * Sticky site header — landing pages & dashboard shell.
  * Scoped to .site-header so sidebar drawer <nav> menus are unaffected.
+ *
+ * Desktop: position sticky (document scroll).
+ * Mobile: position fixed + .site-header-spacer (see useSiteHeaderLayout) because
+ * overflow-x on html/body/.App and async templatemo CSS break sticky on iOS Safari.
  */
 .site-header {
   position: -webkit-sticky;
   position: sticky;
   top: 0;
-  top: env(safe-area-inset-top, 0);
   z-index: 1100;
   width: 100%;
   align-self: flex-start;
@@ -15,7 +18,18 @@
   backface-visibility: hidden;
 }
 
-/* Sidebar drawer nav must not inherit sticky positioning */
+.site-header-spacer {
+  display: none;
+  width: 100%;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.site-header-spacer:not([hidden]) {
+  display: block;
+}
+
+/* Sidebar drawer nav must not inherit sticky/fixed positioning */
 #sidebar nav,
 #app-sidebar nav,
 aside[aria-label='Sidebar navigation'] nav {
@@ -25,9 +39,21 @@ aside[aria-label='Sidebar navigation'] nav {
 }
 
 @media (max-width: 768px) {
+  .site-header,
+  .site-header[data-layout='fixed'] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    padding-top: env(safe-area-inset-top, 0);
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
   /*
-   * Clip horizontal overflow only. Never set overflow-y: auto on .App —
-   * that creates a scroll container while the viewport scrolls, which breaks sticky.
+   * Horizontal overflow: clip on content wrappers only — never on ancestors
+   * that would trap a sticky header. Fixed header ignores these anyway.
    */
   html,
   body {
@@ -36,5 +62,18 @@ aside[aria-label='Sidebar navigation'] nav {
 
   .App {
     overflow-x: clip;
+  }
+
+  /* Neutralize async templatemo-space-dynamic.css (overflow-x: hidden @991px) */
+  html,
+  body {
+    overflow-y: visible;
+  }
+}
+
+@media (max-width: 991px) {
+  html,
+  body {
+    overflow-y: visible;
   }
 }

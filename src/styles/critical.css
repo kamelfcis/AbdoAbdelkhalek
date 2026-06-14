@@ -59,12 +59,17 @@ body.loaded {
   position: -webkit-sticky;
   position: sticky;
   top: 0;
-  top: env(safe-area-inset-top, 0);
   left: 0;
   right: 0;
   z-index: 1100;
   width: 100%;
   align-self: flex-start;
+}
+
+.site-header-spacer {
+  display: none;
+  width: 100%;
+  flex-shrink: 0;
 }
 
 /* Hero Section - Critical for above-the-fold */
@@ -122,9 +127,24 @@ section {
 }
 
 /* Mobile optimizations */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   body {
     overflow-x: clip;
+  }
+
+  .site-header,
+  .site-header[data-layout='fixed'] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding-top: env(safe-area-inset-top, 0);
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  .site-header-spacer:not([hidden]) {
+    display: block;
   }
 }
 

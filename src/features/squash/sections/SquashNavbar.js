@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useSiteHeaderLayout } from '../../../shared/hooks/useSiteHeaderLayout';
 import { useNavigate } from 'react-router-dom';
 import { useSquashI18n } from '../hooks/useSquashI18n';
 import { loadFontAwesome } from '../../../shared/lib/fontAwesomeLoader';
@@ -16,6 +17,9 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
     userSession?.user?.user_metadata?.full_name ||
     userSession?.user?.email ||
     '';
+
+  const headerRef = useRef(null);
+  useSiteHeaderLayout(headerRef);
 
   useEffect(() => {
     loadFontAwesome({ priority: 'high' }).catch(() => {});
@@ -38,6 +42,7 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
 
   return (
     <nav
+      ref={headerRef}
       className="site-header bg-white shadow-lg w-full"
       data-site-header
       role="navigation"
