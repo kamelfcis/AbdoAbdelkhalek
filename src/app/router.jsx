@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 
+import { Analytics } from '@vercel/analytics/react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import DashboardRoute from '../components/CoachRoute';
@@ -103,6 +104,7 @@ export function AppRouter() {
 
     <Router>
       <RouteThemeBridge />
+      <Analytics />
       <Routes>
 
         <Route
