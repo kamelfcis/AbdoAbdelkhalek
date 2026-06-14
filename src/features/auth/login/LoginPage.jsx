@@ -5,6 +5,8 @@ import LoginShowcase from './LoginShowcase';
 import LoginAuthPanel from './LoginAuthPanel';
 import { useLoginAuth } from './useLoginAuth';
 import { pageVariants, useLoginMotion } from './login.motion';
+import { fitnessPortalImage } from '../../fitness/assets/unsplashImages';
+import { squashPortalImage } from '../../squash/assets/unsplashImages';
 import './login-page.css';
 
 export default function LoginPage() {
@@ -33,6 +35,8 @@ export default function LoginPage() {
     t,
   } = useLoginAuth();
 
+  const heroImage = signupDomain === 'squash' ? squashPortalImage : fitnessPortalImage;
+
   if (isLoading) {
     return (
       <div
@@ -49,6 +53,7 @@ export default function LoginPage() {
       data-login-page
       data-login-domain={signupDomain || undefined}
       role="main"
+      style={{ '--login-hero-image': 'url(' + heroImage + ')' }}
     >
       <motion.div
         className="login-page__grid"

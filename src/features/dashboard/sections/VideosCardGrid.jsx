@@ -13,7 +13,6 @@ import { cn } from 'lib/utils';
 import { EmptyState } from '../../../shared/ui';
 import DashboardThumb from '../../../shared/ui/DashboardThumb';
 import { CardGridSkeleton } from '../../fitness/components/Skeletons';
-import { CARD_THUMB } from '../crud/entityImageUtils';
 import { VIDEOS_PAGE_SIZE } from '../constants/pagination';
 
 function VideoCard({
@@ -57,11 +56,9 @@ function VideoCard({
               src={thumbSrc}
               fallbackSrc={thumbFallbackSrc}
               alt=""
-              width={CARD_THUMB.width}
-              height={CARD_THUMB.height}
               priority
               instant
-              className="h-full w-full"
+              className="absolute inset-0 h-full w-full"
               imgClassName="object-cover object-center"
             />
           ) : (

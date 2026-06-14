@@ -438,3 +438,34 @@
   padding: 2rem;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
 }
+
+@media (max-width: 767px) {
+  .login-showcase {
+    display: none;
+  }
+
+  [data-login-page] {
+    background-image: var(--login-hero-image);
+    background-size: cover;
+    background-position: center;
+  }
+
+  [data-login-page]::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 8, 22, 0.72);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .login-page__grid {
+    position: relative;
+    z-index: 1;
+  }
+
+  .login-auth-panel {
+    background: transparent;
+    border-top: none;
+  }
+}
