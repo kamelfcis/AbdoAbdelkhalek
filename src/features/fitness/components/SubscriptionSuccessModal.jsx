@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import Modal from '../../../shared/ui/Modal';
 
-const COACH_WHATSAPP = '201234567890';
+const COACH_WHATSAPP = '201123903411';
 
 const SubscriptionSuccessModal = ({
   isOpen,
