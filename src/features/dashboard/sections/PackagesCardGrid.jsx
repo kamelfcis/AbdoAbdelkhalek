@@ -21,6 +21,14 @@ function parseFeatures(raw) {
     .filter(Boolean);
 }
 
+function getSubscriptionDurationFlags(pkg) {
+  return {
+    allow1Month: (pkg.allow_1_month ?? pkg.allow1Month) !== false,
+    allow3Months: (pkg.allow_3_months ?? pkg.allow3Months) !== false,
+    allow6Months: (pkg.allow_6_months ?? pkg.allow6Months) !== false,
+  };
+}
+
 function PackageCard({ pkg, isAr, t, onEdit, onDelete, isMutating, priority = false }) {
   const tr = typeof t === 'function' ? t : (key) => key;
   const nameMain = isAr ? pkg.name_ar || pkg.name_en : pkg.name_en || pkg.name_ar;
@@ -32,6 +40,7 @@ function PackageCard({ pkg, isAr, t, onEdit, onDelete, isMutating, priority = fa
   const priceEgp = pkg.price_egp != null ? Number(pkg.price_egp) : null;
   const priceUsd = pkg.price_usd != null ? Number(pkg.price_usd) : null;
   const durationDays = pkg.duration_days != null ? Number(pkg.duration_days) : null;
+  const { allow1Month, allow3Months, allow6Months } = getSubscriptionDurationFlags(pkg);
 
   const typeLabel =
     type === 'training'
@@ -137,6 +146,27 @@ function PackageCard({ pkg, isAr, t, onEdit, onDelete, isMutating, priority = fa
               </li>
             ))}
           </ul>
+        )}
+
+        {/* Subscription duration badges */}
+        {(allow1Month || allow3Months || allow6Months) && (
+          <div className="mb-2 flex flex-wrap items-center gap-1">
+            {allow1Month && (
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                1mo
+              </span>
+            )}
+            {allow3Months && (
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                3mo
+              </span>
+            )}
+            {allow6Months && (
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                6mo
+              </span>
+            )}
+          </div>
         )}
 
         {/* Extra boolean badges */}

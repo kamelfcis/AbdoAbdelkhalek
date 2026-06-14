@@ -156,6 +156,7 @@ const packageConfigFitness = {
   pageSize: 10,
   invalidateKey: 'packages',
   endpoint: '/packages',
+  dedicatedForm: true,
   methods: {
     list: 'getPackages',
     create: 'createPackage',

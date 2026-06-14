@@ -5,8 +5,8 @@ import { useEntityCrud } from '../crud/useEntityCrud';
 import { ViewModeToggle } from '../crud/ViewModeToggle';
 import { EntityToolbar } from '../crud/EntityToolbar';
 import { EntityTable } from '../crud/EntityTable';
-import { EntityFormModal } from '../crud/EntityFormModal';
 import { EntityPaginationBar } from '../crud/EntityPaginationBar';
+import PackageFormModal from '../components/PackageFormModal';
 import { PackagesCardGrid } from './PackagesCardGrid';
 
 const STORAGE_KEY = 'dashboardPackagesView';
@@ -118,17 +118,15 @@ export function PackagesSection() {
         onPageChange={crud.setPage}
       />
 
-      {!crud.config.dedicatedForm && (
-        <EntityFormModal
-          isOpen={crud.showForm}
-          onClose={crud.closeForm}
-          config={crud.config}
-          record={crud.editingRecord}
-          onSaved={crud.onSaved}
-          currentLanguage={c.currentLanguage}
-          t={c.t}
-        />
-      )}
+      <PackageFormModal
+        isOpen={crud.showForm}
+        onClose={crud.closeForm}
+        pack={crud.editingRecord}
+        onSaved={crud.onSaved}
+        currentLanguage={c.currentLanguage}
+        domain={c.adminDomain}
+        t={c.t}
+      />
     </div>
   );
 }
