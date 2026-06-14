@@ -271,69 +271,71 @@ const Videos = ({ onAlert, userSession }) => {
           </div>
         ) : (
           <>
-            <div className="bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl p-4 mb-10 shadow-sm">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="relative">
-                  <input
-                    type="search"
-                    value={searchTerm}
-                    onChange={(event) => setSearchTerm(event.target.value)}
-                    placeholder={getTranslation('videos-search-placeholder', currentLanguage)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)] focus:border-transparent"
-                    aria-label={getTranslation('videos-search-placeholder', currentLanguage)}
-                  />
-                  <i className={`fas fa-search absolute top-1/2 ${currentLanguage === 'ar' ? 'right-4' : 'left-4'} -translate-y-1/2 text-gray-400`}></i>
-                </div>
-                <select
-                  value={categorySelectValue}
-                  disabled={categoriesLoading}
-                  onChange={(event) => {
-                    const value = event.target.value;
-                    setCategoryFilter(value);
-                    if (value === 'all') {
-                      setSelectedCategory(null);
-                      setCategoryName('');
-                    } else {
-                      setSelectedCategory(value);
-                      const option = categoryOptions.find((item) => String(item.id) === String(value));
-                      if (option) {
-                        setCategoryName(currentLanguage === 'ar' ? option.name_ar : option.name_en);
+            {userSession && (
+              <div className="bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl p-4 mb-10 shadow-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="relative">
+                    <input
+                      type="search"
+                      value={searchTerm}
+                      onChange={(event) => setSearchTerm(event.target.value)}
+                      placeholder={getTranslation('videos-search-placeholder', currentLanguage)}
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)] focus:border-transparent"
+                      aria-label={getTranslation('videos-search-placeholder', currentLanguage)}
+                    />
+                    <i className={`fas fa-search absolute top-1/2 ${currentLanguage === 'ar' ? 'right-4' : 'left-4'} -translate-y-1/2 text-gray-400`}></i>
+                  </div>
+                  <select
+                    value={categorySelectValue}
+                    disabled={categoriesLoading}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setCategoryFilter(value);
+                      if (value === 'all') {
+                        setSelectedCategory(null);
+                        setCategoryName('');
+                      } else {
+                        setSelectedCategory(value);
+                        const option = categoryOptions.find((item) => String(item.id) === String(value));
+                        if (option) {
+                          setCategoryName(currentLanguage === 'ar' ? option.name_ar : option.name_en);
+                        }
                       }
-                    }
-                  }}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)] focus:border-transparent disabled:opacity-60"
-                >
-                  {categoriesLoading ? (
-                    <option value="all">{currentLanguage === 'ar' ? 'جارٍ التحميل…' : 'Loading…'}</option>
-                  ) : (
-                    <>
-                      <option value="all">{getTranslation('videos-filter-category-all', currentLanguage)}</option>
-                      {categoryOptions.map((option) => (
-                        <option key={option.id} value={option.id}>
-                          {currentLanguage === 'ar' ? option.name_ar : option.name_en}
-                        </option>
-                      ))}
-                    </>
-                  )}
-                </select>
-                <select
-                  value={accessFilter}
-                  onChange={(event) => setAccessFilter(event.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)] focus:border-transparent"
-                >
-                  <option value="all">{getTranslation('videos-filter-access-all', currentLanguage)}</option>
-                  <option value="public">{getTranslation('videos-filter-access-public', currentLanguage)}</option>
-                  <option value="private">{getTranslation('videos-filter-access-private', currentLanguage)}</option>
-                </select>
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-100 transition"
-                >
-                  {getTranslation('videos-clear-filters', currentLanguage)}
-                </button>
+                    }}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)] focus:border-transparent disabled:opacity-60"
+                  >
+                    {categoriesLoading ? (
+                      <option value="all">{currentLanguage === 'ar' ? 'جارٍ التحميل…' : 'Loading…'}</option>
+                    ) : (
+                      <>
+                        <option value="all">{getTranslation('videos-filter-category-all', currentLanguage)}</option>
+                        {categoryOptions.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {currentLanguage === 'ar' ? option.name_ar : option.name_en}
+                          </option>
+                        ))}
+                      </>
+                    )}
+                  </select>
+                  <select
+                    value={accessFilter}
+                    onChange={(event) => setAccessFilter(event.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)] focus:border-transparent"
+                  >
+                    <option value="all">{getTranslation('videos-filter-access-all', currentLanguage)}</option>
+                    <option value="public">{getTranslation('videos-filter-access-public', currentLanguage)}</option>
+                    <option value="private">{getTranslation('videos-filter-access-private', currentLanguage)}</option>
+                  </select>
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-100 transition"
+                  >
+                    {getTranslation('videos-clear-filters', currentLanguage)}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {visibleVideos.length ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
