@@ -15,8 +15,8 @@ const Hero = () => {
     const width = isMobile ? 640 : 1024;
     const quality = isMobile ? 50 : 60;
     return [
-      `https://images.unsplash.com/photo-1574629810-1484038240bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=${width}&q=${quality}`,
-      `https://images.unsplash.com/photo-1517466922-ee96b6069be7?ixlib=rb-4.0.3&auto=format&fit=crop&w=${width}&q=${quality}`,
+      `https://images.unsplash.com/photo-1508098682722-e99c43a406b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=${width}&q=${quality}`,
+      `https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?ixlib=rb-4.0.3&auto=format&fit=crop&w=${width}&q=${quality}`,
       `https://images.unsplash.com/photo-1553778263-73a83bab9b0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=${width}&q=${quality}`,
     ];
   }, []);
