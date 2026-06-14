@@ -15,7 +15,7 @@ const Hero = () => {
     const width = isMobile ? 640 : 1024;
     const quality = isMobile ? 50 : 60;
     return [
-      `https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=${width}&q=${quality}`,
+      `https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=${width}&q=${quality}`,
       `https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?ixlib=rb-4.0.3&auto=format&fit=crop&w=${width}&q=${quality}`,
       `https://images.unsplash.com/photo-1553778263-73a83bab9b0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=${width}&q=${quality}`,
     ];
