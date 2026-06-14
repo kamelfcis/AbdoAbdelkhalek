@@ -6,12 +6,23 @@ import type { Category, Video } from '../../types';
 
 export { mapFaq } from './mapFaq';
 
+function normalizeNestedCategory(raw: unknown): Category | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const row = (Array.isArray(raw) ? raw[0] : raw) as Record<string, unknown> | undefined;
+  if (!row) return undefined;
+  return {
+    ...(row as unknown as Category),
+    name_en: (row.name_en ?? row.nameEn) as string,
+    name_ar: (row.name_ar ?? row.nameAr) as string,
+  };
+}
+
 function mapVideo(v: Record<string, unknown> | null | undefined): Video | null {
   if (!v) return null;
   const row = rewriteMediaUrls(v) as Record<string, unknown>;
   return {
     ...(row as unknown as Video),
-    categories: (row.category || row.categories) as Category,
+    categories: normalizeNestedCategory(row.category ?? row.categories),
     video_url: (row.video_url ?? row.videoUrl) as string,
     video_path: (row.video_path ?? row.videoPath) as string,
     thumbnail_url: (row.thumbnail_url ?? row.thumbnailUrl) as string,
