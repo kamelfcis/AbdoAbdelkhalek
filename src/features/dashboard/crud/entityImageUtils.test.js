@@ -93,4 +93,16 @@ describe('getVideoThumbSrc', () => {
 
     expect(src).toContain('width=80');
   });
+
+  it('resolves squash videos with shared fitness thumbnail paths', async () => {
+    const getVideoThumbSrc = await loadGetVideoThumbSrc();
+    const { src, fallbackSrc } = getVideoThumbSrc(
+      { thumbnail_path: 'video-thumbnails/hero.jpg' },
+      'squash',
+      'card'
+    );
+
+    expect(src).toBe('https://pub.example.r2.dev/video-thumbnails/hero.jpg');
+    expect(fallbackSrc).toBe('https://pub.example.r2.dev/video-thumbnails/hero.jpg');
+  });
 });

@@ -149,7 +149,7 @@ const SquashVideos = () => {
                     onKeyDown={(e) => e.key === 'Enter' && handleVideoClick(video)}
                     role="button"
                     tabIndex={0}
-                    className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all"
+                    className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all video-card"
                   >
                     <div className="relative bg-gray-200">
                       {thumbnailUrl ? (
@@ -157,20 +157,20 @@ const SquashVideos = () => {
                           <OptimizedImage
                             src={thumbnailUrl}
                             alt={pickItemField(video, isAr, 'title_en', 'title_ar')}
-                            className="w-full h-48 object-cover"
+                            className="w-full h-auto object-cover"
                             width={800}
                             height={450}
                             loading={isAboveFold ? 'eager' : 'lazy'}
                             priority={isAboveFold}
                           />
                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <div className="w-14 h-14 bg-white/80 rounded-full flex items-center justify-center">
-                              <i className="fas fa-play text-[var(--color-primary)] text-xl" />
+                            <div className="w-16 h-16 bg-white bg-opacity-80 rounded-full flex items-center justify-center hover:bg-opacity-100 transition pointer-events-auto cursor-pointer">
+                              <i className="fas fa-play text-[var(--color-primary)] text-2xl" />
                             </div>
                           </div>
                         </>
                       ) : (
-                        <div className="w-full h-48 flex items-center justify-center">
+                        <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
                           <i className="fas fa-video text-gray-400 text-2xl" />
                         </div>
                       )}

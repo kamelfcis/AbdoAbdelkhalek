@@ -1,5 +1,5 @@
 import { mediaThumbUrl, resolveMediaUrl } from './cdn';
-import { resolveDomainMediaUrl, getMediaBuckets } from './mediaBuckets';
+import { resolveDomainMediaUrl, getSharedContentMediaBuckets } from './mediaBuckets';
 
 const TABLE_THUMB = { width: 40, height: 40, fetchWidth: 80 };
 const CARD_THUMB = { width: 480, height: 270, fetchWidth: 480 };
@@ -39,7 +39,7 @@ export function getVideoThumbSrc(video, domain, variant = 'card') {
   const path = normalizeThumbPath(rawPath, url);
   if (url === 'pending') return { src: null, fallbackSrc: null };
 
-  const bucket = getMediaBuckets(domain).videoThumbnails;
+  const bucket = getSharedContentMediaBuckets(domain, 'videoThumbnails').videoThumbnails;
   const full = resolveDomainMediaUrl(url, path, domain, 'videoThumbnails');
   if (!full && !path && !url) return { src: null, fallbackSrc: null };
 
