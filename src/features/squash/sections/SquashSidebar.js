@@ -1,10 +1,12 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useSquashI18n } from '../hooks/useSquashI18n';
 import { loadFontAwesome } from '../../../shared/lib/fontAwesomeLoader';
 import { buildDashboardPath } from '../../dashboard/config/dashboardRoutes';
 import { loginPath } from '../../../shared/lib/authRoutes';
 import { useLandingSectionsOptional } from '../../../shared/contexts/LandingSectionsContext';
+import { useBodyScrollLock } from '../../../shared/hooks/useBodyScrollLock';
 
 const NAV_ITEMS = [
   { section: 'home', key: 'sidebar.home' },
@@ -69,12 +71,7 @@ const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, 
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : '';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   useEffect(() => {
     if (isOpen) return;
@@ -86,7 +83,7 @@ const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, 
 
   const drawerPositionClass = isRTL ? 'landing-sidebar-drawer--start' : 'landing-sidebar-drawer--end';
 
-  return (
+  return createPortal(
     <>
       {isOpen && (
         <div className="landing-sidebar-overlay" onClick={onClose} aria-hidden="true" />
@@ -160,7 +157,8 @@ const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, 
           </ul>
         </nav>
       </div>
-    </>
+    </>,
+    document.body
   );
 };
 

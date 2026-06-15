@@ -1,6 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import { cn } from '../lib/cn';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+
+const MOBILE_MQ = '(max-width: 767px)';
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(MOBILE_MQ).matches
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_MQ);
+    const onChange = () => setIsMobile(mq.matches);
+    onChange();
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  return isMobile;
+}
 
 /**
  * Collapsible sidebar — fixed on the start side (left in LTR, right in RTL).
@@ -15,9 +35,12 @@ const Sidebar = ({
   width = 'var(--sidebar-width, 16rem)',
   className,
 }) => {
+  const isMobile = useIsMobile();
   const closedTransform = isRTL ? 'translate-x-full' : '-translate-x-full';
 
-  return (
+  useBodyScrollLock(isOpen && isMobile);
+
+  const sidebarContent = (
     <>
       {isOpen && (
         <div
@@ -31,7 +54,7 @@ const Sidebar = ({
         aria-label="Sidebar navigation"
         dir={isRTL ? 'rtl' : 'ltr'}
         className={cn(
-          'fixed top-0 h-full z-[1310] flex flex-col',
+          'fixed top-0 h-[100dvh] md:h-full z-[1310] flex flex-col',
           'bg-[var(--color-surface)] shadow-xl border-[var(--color-border)]',
           isRTL ? 'border-l right-0' : 'border-r left-0',
           'transition-transform duration-300 ease-in-out',
@@ -43,7 +66,7 @@ const Sidebar = ({
         {header && (
           <div className="p-5 border-b border-[var(--color-border)] shrink-0">{header}</div>
         )}
-        <nav className="flex-1 overflow-y-auto p-4">{children}</nav>
+        <nav className="flex-1 overflow-y-auto overscroll-contain p-4">{children}</nav>
         {footer && (
           <div className="p-4 border-t border-[var(--color-border)] bg-[var(--color-surface)] shrink-0">
             {footer}
@@ -54,6 +77,12 @@ const Sidebar = ({
       <span className="hidden" aria-hidden="true" />
     </>
   );
+
+  if (isMobile) {
+    return createPortal(sidebarContent, document.body);
+  }
+
+  return sidebarContent;
 };
 
 Sidebar.propTypes = {
@@ -75,8 +104,8 @@ export const SidebarNavItem = ({ icon, label, active, onClick, iconClassName, is
       'w-full text-start px-4 py-3 rounded-lg transition flex items-center gap-3',
       'hover:bg-[var(--color-bg-muted)]',
       active
-        ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-medium'
-        : 'text-[var(--color-text)]'
+        ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary-dark)] font-semibold'
+        : 'text-[var(--color-primary)]'
     )}
   >
     {icon && (

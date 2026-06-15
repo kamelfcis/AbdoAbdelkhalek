@@ -17,11 +17,12 @@
 }
 
 .landing-sidebar-drawer {
-  position: fixed;
+  position: fixed !important;
   top: 0;
   bottom: 0;
   width: 16rem;
   height: 100vh;
+  height: 100dvh;
   z-index: 1300;
   display: flex;
   flex-direction: column;
@@ -45,17 +46,21 @@
   right: auto;
 }
 
+.landing-sidebar-drawer nav {
+  overscroll-behavior: contain;
+}
+
 .landing-sidebar-link {
   display: block;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
-  color: var(--color-text);
+  color: var(--color-primary);
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .landing-sidebar-link:hover {
   background: var(--color-bg-muted);
-  color: var(--color-text);
+  color: var(--color-primary-dark);
 }
 
 .landing-sidebar-close {

@@ -1,10 +1,12 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { getTranslation } from '../../../utils/translations';
 import { buildDashboardPath, buildTraineeDashboardPath } from '../../dashboard/config/dashboardRoutes';
 import { loginPath } from '../../../shared/lib/authRoutes';
 import { useLandingSectionsOptional } from '../../../shared/contexts/LandingSectionsContext';
+import { useBodyScrollLock } from '../../../shared/hooks/useBodyScrollLock';
 
 const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShowProfile }) => {
   const { currentLanguage, toggleLanguage } = useLanguage();
@@ -70,16 +72,7 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   useEffect(() => {
     if (isOpen) return;
@@ -91,7 +84,7 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
 
   const drawerPositionClass = isRTL ? 'landing-sidebar-drawer--start' : 'landing-sidebar-drawer--end';
 
-  return (
+  return createPortal(
     <>
       {isOpen && (
         <div
@@ -103,7 +96,7 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
 
       <div
         ref={sidebarRef}
-        className={`sidebar landing-sidebar-drawer ${drawerPositionClass} ${isOpen ? 'open' : ''} ${isRTL ? 'rtl' : ''} relative`}
+        className={`sidebar landing-sidebar-drawer ${drawerPositionClass} ${isOpen ? 'open' : ''} ${isRTL ? 'rtl' : ''}`}
         style={sidebarStyle}
         dir={isRTL ? 'rtl' : 'ltr'}
         role="navigation"
@@ -313,7 +306,8 @@ const Sidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShow
           </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 };
 
