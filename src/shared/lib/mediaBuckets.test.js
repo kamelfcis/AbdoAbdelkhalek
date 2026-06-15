@@ -1,4 +1,4 @@
-import { getMediaBuckets, resolveDomainMediaUrl } from './mediaBuckets';
+import { getMediaBuckets, getSharedContentMediaBuckets, resolveDomainMediaUrl } from './mediaBuckets';
 
 describe('getMediaBuckets', () => {
   it('returns squash prefixes for squash domain', () => {
@@ -10,6 +10,24 @@ describe('getMediaBuckets', () => {
   it('returns fitness buckets for fitness domain', () => {
     const b = getMediaBuckets('fitness');
     expect(b.videos).toBe('videos');
+  });
+});
+
+describe('getSharedContentMediaBuckets', () => {
+  it('uses fitness buckets for squash categories and videos', () => {
+    expect(getSharedContentMediaBuckets('squash', 'categories').categories).toBe('categories');
+    expect(getSharedContentMediaBuckets('squash', 'videos').videos).toBe('videos');
+    expect(getSharedContentMediaBuckets('squash', 'videoThumbnails').videoThumbnails).toBe(
+      'video-thumbnails'
+    );
+  });
+
+  it('keeps squash buckets for non-shared entities', () => {
+    expect(getSharedContentMediaBuckets('squash', 'reviews').reviews).toBe('squash/reviews');
+  });
+
+  it('returns fitness buckets unchanged for fitness domain', () => {
+    expect(getSharedContentMediaBuckets('fitness', 'videos').videos).toBe('videos');
   });
 });
 

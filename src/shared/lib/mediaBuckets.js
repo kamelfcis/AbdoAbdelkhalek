@@ -43,6 +43,22 @@ export function getMediaBuckets(domain = 'fitness') {
   return domain === 'squash' ? SQUASH_MEDIA : FITNESS_MEDIA;
 }
 
+/** Categories/videos on squash share fitness storage prefixes (no duplicate files). */
+const SHARED_CONTENT_KINDS = new Set(['categories', 'videos', 'videoThumbnails']);
+
+/**
+ * Categories and videos share fitness storage paths across domains (no duplicate files).
+ * @param {'fitness'|'squash'|string} domain
+ * @param {MediaKind|string} [kind]
+ * @returns {typeof FITNESS_MEDIA}
+ */
+export function getSharedContentMediaBuckets(domain = 'fitness', kind = 'categories') {
+  if (domain === 'squash' && SHARED_CONTENT_KINDS.has(kind)) {
+    return FITNESS_MEDIA;
+  }
+  return getMediaBuckets(domain);
+}
+
 /**
  * Resolve a public media URL for a domain bucket, with legacy path fallback on squash.
  * @param {string|null|undefined} url

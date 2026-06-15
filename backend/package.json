@@ -20,7 +20,8 @@
     "test:coverage": "vitest run --coverage",
     "migrate:password-reset:api": "node scripts/apply-password-reset-migration.mjs",
     "migrate:online-football:api": "node scripts/migrate-fitness-to-online-football.mjs",
-    "backfill:fitness-trainee-source:api": "node scripts/backfill-fitness-trainee-source.mjs"
+    "backfill:fitness-trainee-source:api": "node scripts/backfill-fitness-trainee-source.mjs",
+    "sync:fitness-to-squash-media:api": "node scripts/sync-fitness-to-squash-media.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",

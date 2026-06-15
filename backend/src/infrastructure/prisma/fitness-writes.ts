@@ -3,6 +3,7 @@ import { prisma } from './client.js';
 import { isPoolerError } from './db-errors.js';
 import { toCamelKeys, toSnakeKeys } from '../../common/utils/case-map.js';
 import * as rest from '../supabase-rest/client.js';
+import * as mediaSync from '../sync/fitness-squash-media-sync.js';
 
 async function withWriteFallback<T>(
   prismaFn: () => Promise<T>,
@@ -66,6 +67,27 @@ function toRest(data: Record<string, unknown>) {
   return toSnakeKeys(normalize(data));
 }
 
+function rowId(row: unknown): string {
+  const r = row as Record<string, unknown>;
+  return String(r.id ?? r.id);
+}
+
+async function afterFitnessCategoryWrite(categoryId: string) {
+  try {
+    await mediaSync.syncFitnessCategoryToSquash(categoryId);
+  } catch (e) {
+    console.error('[fitness-writes] squash category sync failed:', e);
+  }
+}
+
+async function afterFitnessVideoWrite(videoId: string) {
+  try {
+    await mediaSync.syncFitnessVideoToSquash(videoId);
+  } catch (e) {
+    console.error('[fitness-writes] squash video sync failed:', e);
+  }
+}
+
 export async function deleteTrainee(userId: string) {
   return prisma.$transaction([
     prisma.userVideoAccess.deleteMany({ where: { userId } }),
@@ -78,30 +100,37 @@ export async function deleteTrainee(userId: string) {
 
 export async function createCategory(data: Record<string, unknown>) {
   const camel = normalize(data);
-  return withWriteFallback(
+  const result = await withWriteFallback(
     () => prisma.category.create({ data: camel as never }),
     () => rest.restCreate('categories', toRest(data))
   );
+  await afterFitnessCategoryWrite(rowId(result));
+  return result;
 }
 
 export async function updateCategory(id: string, data: Record<string, unknown>) {
   const camel = normalize(data);
-  return withWriteFallback(
+  const result = await withWriteFallback(
     () => prisma.category.update({ where: { id }, data: camel as never }),
     () => rest.restPatch('categories', id, toRest(data))
   );
+  await afterFitnessCategoryWrite(id);
+  return result;
 }
 
 export async function deleteCategory(id: string) {
   return withWriteFallback(
     () => prisma.category.delete({ where: { id } }).then(() => ({ ok: true })),
-    () => rest.restDelete('categories', id).then(() => ({ ok: true }))
+    async () => {
+      await mediaSync.deleteSquashMirrorForFitnessCategory(id);
+      return rest.restDelete('categories', id).then(() => ({ ok: true }));
+    }
   );
 }
 
 export async function createVideo(data: Record<string, unknown>) {
   const camel = normalize(data);
-  return withWriteFallback(
+  const result = await withWriteFallback(
     () => prisma.video.create({ data: camel as never, include: { category: true } }),
     async () => {
       const row = await rest.restCreate<Record<string, unknown>>('videos', toRest(data));
@@ -112,11 +141,13 @@ export async function createVideo(data: Record<string, unknown>) {
       return { ...row, category: null };
     }
   );
+  await afterFitnessVideoWrite(rowId(result));
+  return result;
 }
 
 export async function updateVideo(id: string, data: Record<string, unknown>) {
   const camel = normalize(data);
-  return withWriteFallback(
+  const result = await withWriteFallback(
     () => prisma.video.update({ where: { id }, data: camel as never, include: { category: true } }),
     async () => {
       const row = await rest.restPatch<Record<string, unknown>>('videos', id, toRest(data));
@@ -127,12 +158,17 @@ export async function updateVideo(id: string, data: Record<string, unknown>) {
       return { ...row, category: null };
     }
   );
+  await afterFitnessVideoWrite(id);
+  return result;
 }
 
 export async function deleteVideo(id: string) {
   return withWriteFallback(
     () => prisma.video.delete({ where: { id } }).then(() => ({ ok: true })),
-    () => rest.restDelete('videos', id).then(() => ({ ok: true }))
+    async () => {
+      await mediaSync.deleteSquashMirrorForFitnessVideo(id);
+      return rest.restDelete('videos', id).then(() => ({ ok: true }));
+    }
   );
 }
 

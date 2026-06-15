@@ -1,6 +1,6 @@
 /** Entity-driven CRUD configs for fitness + squash admin. */
 
-import { getMediaBuckets } from '../../../shared/lib/mediaBuckets';
+import { getMediaBuckets, getSharedContentMediaBuckets } from '../../../shared/lib/mediaBuckets';
 
 const bilingualName = [
   { name: 'name_en', type: 'text', required: true, labelEn: 'Name (EN)', labelAr: 'الاسم (إنجليزي)' },
@@ -133,21 +133,21 @@ const successStoryConfig = {
   ],
 };
 
-const squashMedia = getMediaBuckets('squash');
+const squashSharedCategoryBuckets = getSharedContentMediaBuckets('squash', 'categories');
 
 const categoryConfigSquash = {
   ...categoryConfig,
-  imageUpload: { bucket: squashMedia.categories, pathPrefix: squashMedia.categories },
+  imageUpload: { bucket: squashSharedCategoryBuckets.categories, pathPrefix: squashSharedCategoryBuckets.categories },
   columns: categoryConfig.columns.map((col) =>
-    col.key === 'image' ? { ...col, bucket: squashMedia.categories } : col
+    col.key === 'image' ? { ...col, bucket: squashSharedCategoryBuckets.categories } : col
   ),
 };
 
 const reviewConfigSquash = {
   ...reviewConfig,
-  imageUpload: { bucket: squashMedia.reviews, pathPrefix: squashMedia.reviews },
+  imageUpload: { bucket: getMediaBuckets('squash').reviews, pathPrefix: getMediaBuckets('squash').reviews },
   columns: reviewConfig.columns.map((col) =>
-    col.key === 'image' ? { ...col, bucket: squashMedia.reviews } : col
+    col.key === 'image' ? { ...col, bucket: getMediaBuckets('squash').reviews } : col
   ),
 };
 

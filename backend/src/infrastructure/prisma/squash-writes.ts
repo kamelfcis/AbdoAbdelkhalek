@@ -3,6 +3,7 @@ import { prisma } from './client.js';
 import { isPoolerError } from './db-errors.js';
 import { toCamelKeys, toSnakeKeys } from '../../common/utils/case-map.js';
 import * as rest from '../supabase-rest/client.js';
+import * as mediaSync from '../sync/fitness-squash-media-sync.js';
 
 const T = {
   categories: 'squash_categories',
@@ -35,29 +36,69 @@ function toRest(data: Record<string, unknown>) {
   return toSnakeKeys(normalize(data));
 }
 
+function rowId(row: unknown): string {
+  const r = row as Record<string, unknown>;
+  return String(r.id);
+}
+
+async function afterSquashCategoryWrite(squashCategoryId: string) {
+  try {
+    await mediaSync.syncSquashCategoryToFitness(squashCategoryId);
+  } catch (e) {
+    console.error('[squash-writes] fitness category sync failed:', e);
+  }
+}
+
+async function afterSquashVideoWrite(squashVideoId: string) {
+  try {
+    await mediaSync.syncSquashVideoToFitness(squashVideoId);
+  } catch (e) {
+    console.error('[squash-writes] fitness video sync failed:', e);
+  }
+}
+
 export async function createSquashCategory(data: Record<string, unknown>) {
-  return withWriteFallback(
+  const result = await withWriteFallback(
     () => prisma.squashCategory.create({ data: normalize(data) as never }),
     () => rest.restCreate(T.categories, toRest(data))
   );
+  await afterSquashCategoryWrite(rowId(result));
+  return result;
 }
 
 export async function updateSquashCategory(id: string, data: Record<string, unknown>) {
-  return withWriteFallback(
+  const result = await withWriteFallback(
     () => prisma.squashCategory.update({ where: { id }, data: normalize(data) as never }),
     () => rest.restPatch(T.categories, id, toRest(data))
   );
+  await afterSquashCategoryWrite(id);
+  return result;
 }
 
 export async function deleteSquashCategory(id: string) {
+  const deletedViaFitness = await mediaSync.deleteFitnessSourceForSquashCategory(id);
+  if (deletedViaFitness) {
+    return { ok: true };
+  }
   return withWriteFallback(
     () => prisma.squashCategory.delete({ where: { id } }).then(() => ({ ok: true })),
-    () => rest.restDelete(T.categories, id).then(() => ({ ok: true }))
+    async () => {
+      const row = await rest.restOne<{ source_category_id?: string }>(
+        T.categories,
+        `?id=eq.${encodeURIComponent(id)}&select=source_category_id`
+      );
+      if (row?.source_category_id) {
+        await rest.restDelete('categories', row.source_category_id);
+      } else {
+        await rest.restDelete(T.categories, id);
+      }
+      return { ok: true };
+    }
   );
 }
 
 export async function createSquashVideo(data: Record<string, unknown>) {
-  return withWriteFallback(
+  const result = await withWriteFallback(
     () =>
       prisma.squashVideo.create({
         data: normalize(data) as never,
@@ -75,10 +116,12 @@ export async function createSquashVideo(data: Record<string, unknown>) {
       return { ...row, category: null };
     }
   );
+  await afterSquashVideoWrite(rowId(result));
+  return result;
 }
 
 export async function updateSquashVideo(id: string, data: Record<string, unknown>) {
-  return withWriteFallback(
+  const result = await withWriteFallback(
     () =>
       prisma.squashVideo.update({
         where: { id },
@@ -97,12 +140,29 @@ export async function updateSquashVideo(id: string, data: Record<string, unknown
       return { ...row, category: null };
     }
   );
+  await afterSquashVideoWrite(id);
+  return result;
 }
 
 export async function deleteSquashVideo(id: string) {
+  const deletedViaFitness = await mediaSync.deleteFitnessSourceForSquashVideo(id);
+  if (deletedViaFitness) {
+    return { ok: true };
+  }
   return withWriteFallback(
     () => prisma.squashVideo.delete({ where: { id } }).then(() => ({ ok: true })),
-    () => rest.restDelete(T.videos, id).then(() => ({ ok: true }))
+    async () => {
+      const row = await rest.restOne<{ source_video_id?: string }>(
+        T.videos,
+        `?id=eq.${encodeURIComponent(id)}&select=source_video_id`
+      );
+      if (row?.source_video_id) {
+        await rest.restDelete('videos', row.source_video_id);
+      } else {
+        await rest.restDelete(T.videos, id);
+      }
+      return { ok: true };
+    }
   );
 }
 

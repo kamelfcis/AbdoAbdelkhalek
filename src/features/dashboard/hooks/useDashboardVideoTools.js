@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { uploadService } from '../../../shared/api/uploadService';
-import { getMediaBuckets, resolveDomainMediaUrl } from '../../../shared/lib/mediaBuckets';
+import { getSharedContentMediaBuckets, resolveDomainMediaUrl } from '../../../shared/lib/mediaBuckets';
 import { getContentService } from '../../../shared/lib/getContentService';
 import { showSuccess, showError, showConfirm } from '../../../shared/lib/notifications';
 import { invalidateContentCrud, removePaginatedListItem, queryKeys } from '../../../shared/lib/queryKeys';
@@ -216,7 +216,7 @@ export function useDashboardVideoTools({
       const kind = type === 'thumbnail' ? 'videoThumbnails' : 'videos';
       const storedPath = sanitizeStorageValue(video[pathKey]);
       if (!storedPath) return null;
-      const bucket = getMediaBuckets(adminDomain)[kind];
+      const bucket = getSharedContentMediaBuckets(adminDomain, kind)[kind];
       const { data: publicData } = uploadService.getPublicUrl(bucket, storedPath);
       return publicData?.publicUrl || resolveDomainMediaUrl(null, storedPath, adminDomain, kind);
     },

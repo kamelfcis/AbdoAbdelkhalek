@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { getContentService } from '../../../shared/lib/getContentService';
 import { uploadService } from '../../../shared/api/uploadService';
-import { getMediaBuckets } from '../../../shared/lib/mediaBuckets';
+import { getSharedContentMediaBuckets } from '../../../shared/lib/mediaBuckets';
 import { getDashboardTranslation } from '../../../shared/i18n/dashboard';
 import {
   Modal,
@@ -32,7 +32,7 @@ const VideoFormModal = ({
 }) => {
   const tr = t || ((key) => getDashboardTranslation(domain, currentLanguage, key));
   const contentService = getContentService(domain);
-  const mediaBuckets = useMemo(() => getMediaBuckets(domain), [domain]);
+  const mediaBuckets = useMemo(() => getSharedContentMediaBuckets(domain, 'videos'), [domain]);
   const [formData, setFormData] = useState({
     title_en: '',
     title_ar: '',

@@ -15,6 +15,7 @@ describe('mapFitnessSubscriptionRow', () => {
         status: 'active',
         startDate: start,
         endDate: end,
+        durationMonths: 1,
         createdAt: created,
         user: { fullName: 'Ahmed Ali', email: 'ahmed@example.com' },
         package: {
@@ -31,6 +32,7 @@ describe('mapFitnessSubscriptionRow', () => {
       status: 'active',
       start_date: start,
       end_date: end,
+      duration_months: 1,
       created_at: created,
       users: { full_name: 'Ahmed Ali', email: 'ahmed@example.com' },
       packages: {
@@ -54,6 +56,7 @@ describe('mapFitnessSubscriptionRow', () => {
         status: 'paused',
         startDate: start,
         endDate: end,
+        durationMonths: 1,
         createdAt: null,
       })
     ).toEqual({
@@ -63,6 +66,7 @@ describe('mapFitnessSubscriptionRow', () => {
       status: 'paused',
       start_date: start,
       end_date: end,
+      duration_months: 1,
       created_at: null,
       users: undefined,
       packages: null,
