@@ -20,11 +20,10 @@ const NAV_ITEMS = [
 ];
 
 const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, onShowProfile }) => {
-  const { t, isRTL, toggleLanguage } = useSquashI18n();
+  const { t, isRTL } = useSquashI18n();
   const navigate = useNavigate();
   const { isSlugVisible } = useLandingSectionsOptional();
   const sidebarRef = useRef(null);
-  const langText = isRTL ? 'English' : 'العربية';
   const isCoach = userProfile?.is_coach ?? userSession?.user?.user_metadata?.is_coach;
   const displayName =
     userProfile?.full_name ||
@@ -165,20 +164,6 @@ const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, 
             )}
           </ul>
         </nav>
-
-        <div className="p-4 border-t mt-auto flex-shrink-0">
-          <div className="mt-4 flex justify-center">
-            <button
-              onClick={toggleLanguage}
-              className={`bg-white p-2 rounded-full shadow flex items-center justify-center ${isRTL ? 'flex-row-reverse' : ''}`}
-              aria-label={t('nav.toggleLang')}
-              type="button"
-            >
-              <i className="fas fa-language text-lg gradient-text" />
-              <span className={`text-sm font-semibold gradient-text ${isRTL ? 'mr-2' : 'ml-2'}`}>{langText}</span>
-            </button>
-          </div>
-        </div>
       </div>
     </>
   );

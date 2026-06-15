@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { useLocation } from 'react-router-dom';
 import { themeIds } from '../../../design-system/themes';
-import { useLanguage } from '../../../contexts/LanguageContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import RouteGuardLoader from '../../../components/RouteGuardLoader';
 import TraineeProfileModal from '../../../shared/components/TraineeProfileModal';
@@ -169,24 +168,42 @@ function SquashHomeContent({
   );
 }
 
+const SQUASH_LANDING_LANG = 'en';
+
+function useSquashLandingDocumentLocale() {
+  useEffect(() => {
+    document.documentElement.dir = 'ltr';
+    document.documentElement.lang = SQUASH_LANDING_LANG;
+    document.body.classList.remove('rtl');
+
+    return () => {
+      const saved = localStorage.getItem('websiteLanguage') || SQUASH_LANDING_LANG;
+      if (saved === 'ar') {
+        document.documentElement.dir = 'rtl';
+        document.documentElement.lang = 'ar';
+        document.body.classList.add('rtl');
+      }
+    };
+  }, []);
+}
+
 export default function SquashHomePage() {
   const location = useLocation();
   const { user, session, isLoading, logout } = useAuth();
-  const { currentLanguage } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pageAlert, setPageAlert] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
+
+  useSquashLandingDocumentLocale();
 
   useEffect(() => {
     const authMessage = location.state?.authMessage;
     const authMessageAr = location.state?.authMessageAr;
     if (authMessage || authMessageAr) {
-      const message =
-        currentLanguage === 'ar' && authMessageAr ? authMessageAr : authMessage || authMessageAr;
-      setPageAlert(message);
+      setPageAlert(authMessage || authMessageAr);
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [location.state, currentLanguage]);
+  }, [location.state]);
 
   const handleNavClick = useCallback((section) => {
     document.getElementById(section)?.scrollIntoView({ behavior: 'auto', block: 'start' });
@@ -222,7 +239,7 @@ export default function SquashHomePage() {
         handleNavClick={handleNavClick}
         showAlert={showAlert}
         handleLogout={handleLogout}
-        currentLanguage={currentLanguage}
+        currentLanguage={SQUASH_LANDING_LANG}
       />
     </LandingSectionsProvider>
   );

@@ -1,26 +1,24 @@
 import { useCallback, useMemo } from 'react';
-import { useLanguage } from '../../../contexts/LanguageContext';
 import { getSquashTranslation } from '../../../shared/i18n';
 
-export function useSquashI18n() {
-  const { currentLanguage, toggleLanguage, setCurrentLanguage } = useLanguage();
-  const isAr = currentLanguage === 'ar';
+const SQUASH_LANDING_LANG = 'en';
 
-  const t = useCallback(
-    (key) => getSquashTranslation(currentLanguage, key),
-    [currentLanguage]
-  );
+/** Squash public landing is English-only; dashboard uses separate i18n. */
+export function useSquashI18n() {
+  const t = useCallback((key) => getSquashTranslation(SQUASH_LANDING_LANG, key), []);
+
+  const noop = useCallback(() => {}, []);
 
   return useMemo(
     () => ({
       t,
-      lang: currentLanguage,
-      isAr,
-      isRTL: isAr,
-      toggleLanguage,
-      setCurrentLanguage,
+      lang: SQUASH_LANDING_LANG,
+      isAr: false,
+      isRTL: false,
+      toggleLanguage: noop,
+      setCurrentLanguage: noop,
     }),
-    [t, currentLanguage, isAr, toggleLanguage, setCurrentLanguage]
+    [t, noop]
   );
 }
 
