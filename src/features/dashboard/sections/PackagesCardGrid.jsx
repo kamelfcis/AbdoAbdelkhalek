@@ -4,6 +4,7 @@ import { Badge } from 'components/ui/badge';
 import { cn } from 'lib/utils';
 import { EmptyState } from '../../../shared/ui';
 import { CardGridSkeleton } from '../../fitness/components/Skeletons';
+import { getPackageDurationPrice } from '../../../shared/lib/packageDurationPricing';
 
 const LEVEL_VARIANT = {
   beginner: 'secondary',
@@ -37,10 +38,27 @@ function PackageCard({ pkg, isAr, t, onEdit, onDelete, isMutating, priority = fa
 
   const level = pkg.level || '';
   const type = pkg.type || '';
-  const priceEgp = pkg.price_egp != null ? Number(pkg.price_egp) : null;
-  const priceUsd = pkg.price_usd != null ? Number(pkg.price_usd) : null;
   const durationDays = pkg.duration_days != null ? Number(pkg.duration_days) : null;
   const { allow1Month, allow3Months, allow6Months } = getSubscriptionDurationFlags(pkg);
+
+  const tierPrices = [];
+  if (allow1Month) {
+    const { egp, usd } = getPackageDurationPrice(pkg, 1);
+    if (egp != null && egp > 0) tierPrices.push(`1mo: ${egp.toLocaleString()} EGP`);
+    else if (usd != null && usd > 0) tierPrices.push(`1mo: $${usd} USD`);
+  }
+  if (allow3Months) {
+    const { egp, usd } = getPackageDurationPrice(pkg, 3);
+    if (egp != null && egp > 0) tierPrices.push(`3mo: ${egp.toLocaleString()} EGP`);
+    else if (usd != null && usd > 0) tierPrices.push(`3mo: $${usd} USD`);
+  }
+  if (allow6Months) {
+    const { egp, usd } = getPackageDurationPrice(pkg, 6);
+    if (egp != null && egp > 0) tierPrices.push(`6mo: ${egp.toLocaleString()} EGP`);
+    else if (usd != null && usd > 0) tierPrices.push(`6mo: $${usd} USD`);
+  }
+  const priceEgp = pkg.price_egp != null ? Number(pkg.price_egp) : null;
+  const priceUsd = pkg.price_usd != null ? Number(pkg.price_usd) : null;
 
   const typeLabel =
     type === 'training'
@@ -150,21 +168,26 @@ function PackageCard({ pkg, isAr, t, onEdit, onDelete, isMutating, priority = fa
 
         {/* Subscription duration badges */}
         {(allow1Month || allow3Months || allow6Months) && (
-          <div className="mb-2 flex flex-wrap items-center gap-1">
-            {allow1Month && (
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
-                1mo
-              </span>
-            )}
-            {allow3Months && (
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
-                3mo
-              </span>
-            )}
-            {allow6Months && (
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
-                6mo
-              </span>
+          <div className="mb-2 flex flex-col gap-1">
+            <div className="flex flex-wrap items-center gap-1">
+              {allow1Month && (
+                <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                  1mo
+                </span>
+              )}
+              {allow3Months && (
+                <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                  3mo
+                </span>
+              )}
+              {allow6Months && (
+                <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                  6mo
+                </span>
+              )}
+            </div>
+            {tierPrices.length > 0 && (
+              <p className="text-[11px] text-muted-foreground" dir="ltr">{tierPrices.join(' · ')}</p>
             )}
           </div>
         )}

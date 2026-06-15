@@ -44,5 +44,13 @@ export interface Package {
   description_ar?: string;
   price_egp?: number;
   price_usd?: number;
+  price_egp_3m?: number;
+  price_usd_3m?: number;
+  price_egp_6m?: number;
+  price_usd_6m?: number;
   duration_days?: number;
+  allow_1_month?: boolean;
+  allow_3_months?: boolean;
+  allow_6_months?: boolean;
+  available_durations?: number[];
 }

@@ -5,6 +5,7 @@ import { queryKeys } from '../../../shared/lib/queryKeys';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { getTranslation } from '../../../utils/translations';
 import { formatPrice } from '../../../shared/lib/currency';
+import { getPackageDurationPrice } from '../../../shared/lib/packageDurationPricing';
 import { usePackages } from '../../../shared/hooks/usePackages';
 import { PackageSkeletonGrid } from '../components/Skeletons';
 import { loadThreeJSOnIntersect, loadThreeJSOnInteraction } from '../../../shared/lib/threeLoader';
@@ -393,6 +394,22 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                 const isPlatinum = packageColor.text === 'text-white' && 
                   (nameEn.includes('platinum') || nameAr.includes('بلاتيني') || nameAr.includes('بلاتينوم'));
 
+                const availableDurations = [
+                  { months: 1, labelEn: '1 Mo', labelAr: 'شهر' },
+                  { months: 3, labelEn: '3 Mo', labelAr: '3 أشهر' },
+                  { months: 6, labelEn: '6 Mo', labelAr: '6 أشهر' },
+                ].filter(({ months }) => {
+                  if (months === 1) return (pkg.allow_1_month ?? pkg.allow1Month) !== false;
+                  if (months === 3) return (pkg.allow_3_months ?? pkg.allow3Months) !== false;
+                  return (pkg.allow_6_months ?? pkg.allow6Months) !== false;
+                });
+
+                const defaultDuration = availableDurations[0]?.months ?? 1;
+                const selectedMonths = availableDurations.some(d => d.months === (selectedDurations[pkg.id] || defaultDuration))
+                  ? (selectedDurations[pkg.id] || defaultDuration)
+                  : defaultDuration;
+                const { egp: displayEgp, usd: displayUsd } = getPackageDurationPrice(pkg, selectedMonths);
+
                 return (
                   <div
                     key={pkg.id}
@@ -413,7 +430,7 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                       </h3>
                       <div
                         className={`mb-3 ${isPlatinum ? 'text-white' : ''}`}
-                        dangerouslySetInnerHTML={{ __html: formatPrice(pkg.price_egp, pkg.price_usd) }}
+                        dangerouslySetInnerHTML={{ __html: formatPrice(displayEgp, displayUsd) }}
                       />
                       <p className="text-sm font-medium opacity-90">
                         {pkg.duration_days} {getTranslation('days', currentLanguage)}
@@ -480,23 +497,6 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                     </div>
 
                     {!isSubscribed && (() => {
-                      const availableDurations = [
-                        { months: 1, labelEn: '1 Mo', labelAr: 'شهر' },
-                        { months: 3, labelEn: '3 Mo', labelAr: '3 أشهر' },
-                        { months: 6, labelEn: '6 Mo', labelAr: '6 أشهر' },
-                      ].filter(({ months }) => {
-                        if (months === 1) return (pkg.allow_1_month ?? pkg.allow1Month) !== false;
-                        if (months === 3) return (pkg.allow_3_months ?? pkg.allow3Months) !== false;
-                        return (pkg.allow_6_months ?? pkg.allow6Months) !== false;
-                      });
-
-                      const defaultDuration = availableDurations[0]?.months ?? 1;
-                      const selectedMonths = availableDurations.some(d => d.months === (selectedDurations[pkg.id] || 1))
-                        ? (selectedDurations[pkg.id] || defaultDuration)
-                        : defaultDuration;
-
-                      const totalEgp = pkg.price_egp ? Math.round(parseFloat(pkg.price_egp) * selectedMonths) : null;
-                      const totalUsd = pkg.price_usd ? Math.round(parseFloat(pkg.price_usd) * selectedMonths) : null;
                       return (
                         <div className="px-6 pb-5 border-t border-gray-100 pt-5">
                           <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
@@ -506,6 +506,12 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                             <div className={`grid gap-2 mb-3`} style={{ gridTemplateColumns: `repeat(${availableDurations.length}, minmax(0, 1fr))` }}>
                               {availableDurations.map(({ months, labelEn, labelAr }) => {
                                 const isSelected = selectedMonths === months;
+                                const tierPrice = getPackageDurationPrice(pkg, months);
+                                const priceHint = tierPrice.egp
+                                  ? `${tierPrice.egp.toLocaleString()} EGP`
+                                  : tierPrice.usd
+                                    ? `$${tierPrice.usd}`
+                                    : null;
                                 return (
                                   <button
                                     key={months}
@@ -529,13 +535,18 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                                             transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                                           }
                                     }
-                                    className={`py-2.5 rounded-xl text-xs font-bold leading-none min-h-[44px] flex items-center justify-center ${
+                                    className={`py-2.5 rounded-xl text-xs font-bold leading-tight min-h-[44px] flex flex-col items-center justify-center gap-0.5 ${
                                       isSelected
                                         ? packageColor.text
                                         : 'text-gray-500 hover:text-[var(--color-primary)] hover:border-[var(--color-primary-light)]'
                                     }`}
                                   >
-                                    {currentLanguage === 'ar' ? labelAr : labelEn}
+                                    <span>{currentLanguage === 'ar' ? labelAr : labelEn}</span>
+                                    {priceHint && (
+                                      <span className={`text-[10px] font-semibold ${isSelected ? 'opacity-90' : 'opacity-70'}`}>
+                                        {priceHint}
+                                      </span>
+                                    )}
                                   </button>
                                 );
                               })}
@@ -547,15 +558,14 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                                 : availableDurations[0]?.labelEn ?? '1 Mo'}
                             </p>
                           )}
-                          {(totalEgp || totalUsd) && (
+                          {(displayEgp || displayUsd) && (
                             <p className="text-center text-xs font-semibold text-gray-500 transition-all duration-200">
                               {[
-                                totalEgp ? `${totalEgp.toLocaleString()} EGP` : null,
-                                totalUsd ? `${totalUsd} USD` : null,
+                                displayEgp ? `${displayEgp.toLocaleString()} EGP` : null,
+                                displayUsd ? `${displayUsd} USD` : null,
                               ]
                                 .filter(Boolean)
-                                .join(' / ')}{' '}
-                              {currentLanguage === 'ar' ? 'إجمالي' : 'total'}
+                                .join(' / ')}
                             </p>
                           )}
                         </div>
@@ -637,6 +647,11 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                 return Array.isArray(features) ? features : features ? JSON.parse(features) : [];
               })()}
               packageColor={selectedPackage ? getPackageColor(selectedPackage) : undefined}
+              durationMonths={
+                selectedPackage
+                  ? selectedDurations[selectedPackage.id] ?? selectedPackage.available_durations?.[0] ?? 1
+                  : 1
+              }
               domain="fitness"
               language={currentLanguage}
               isRTL={isRTL}

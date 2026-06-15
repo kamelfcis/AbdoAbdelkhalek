@@ -26,6 +26,18 @@ function packageToRest(data: Record<string, unknown>, mode: 'create' | 'update' 
     snake.type = snake.package_type;
     delete snake.package_type;
   }
+  const durationPriceAliases: Record<string, string> = {
+    price_egp3m: 'price_egp_3m',
+    price_usd3m: 'price_usd_3m',
+    price_egp6m: 'price_egp_6m',
+    price_usd6m: 'price_usd_6m',
+  };
+  for (const [from, to] of Object.entries(durationPriceAliases)) {
+    if (snake[from] !== undefined) {
+      snake[to] = snake[from];
+      delete snake[from];
+    }
+  }
   return snake;
 }
 
@@ -56,6 +68,8 @@ describe('package update pipeline', () => {
         nameEn: 'Silver Pro',
         type: 'nutrition',
         durationDays: 30,
+        priceEgp3m: 1400,
+        priceUsd3m: 45,
       },
       'update'
     );
@@ -63,12 +77,34 @@ describe('package update pipeline', () => {
     expect(restBody.type).toBe('nutrition');
     expect(restBody.package_type).toBeUndefined();
     expect(restBody.duration_days).toBe(30);
+    expect(restBody.price_egp_3m).toBe(1400);
+    expect(restBody.price_usd_3m).toBe(45);
   });
 
   it('does not zero prices on update when omitted', () => {
     const camel = packageData({ nameEn: 'Updated' }, 'update');
     expect(camel.priceEgp).toBeUndefined();
     expect(camel.priceUsd).toBeUndefined();
+    expect(camel.priceEgp3m).toBeUndefined();
+    expect(camel.priceUsd3m).toBeUndefined();
     expect(camel.packageType).toBeUndefined();
+  });
+
+  it('passes duration tier prices through REST mapping', () => {
+    const restBody = packageToRest(
+      {
+        nameEn: 'Silver Pro',
+        priceEgp3m: 1400,
+        priceUsd3m: 45,
+        priceEgp6m: 2500,
+        priceUsd6m: 80,
+      },
+      'update'
+    );
+
+    expect(restBody.price_egp_3m).toBe(1400);
+    expect(restBody.price_usd_3m).toBe(45);
+    expect(restBody.price_egp_6m).toBe(2500);
+    expect(restBody.price_usd_6m).toBe(80);
   });
 });

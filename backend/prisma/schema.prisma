@@ -89,6 +89,10 @@ model Package {
   descriptionAr         String?       @map("description_ar")
   priceEgp              Decimal       @map("price_egp") @db.Decimal
   priceUsd              Decimal       @map("price_usd") @db.Decimal
+  priceEgp3m            Decimal?      @map("price_egp_3m") @db.Decimal
+  priceUsd3m            Decimal?      @map("price_usd_3m") @db.Decimal
+  priceEgp6m            Decimal?      @map("price_egp_6m") @db.Decimal
+  priceUsd6m            Decimal?      @map("price_usd_6m") @db.Decimal
   durationDays          Int           @map("duration_days")
   level                 PackageLevel
   packageType           PackageType   @map("type")

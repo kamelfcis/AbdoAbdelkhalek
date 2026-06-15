@@ -78,6 +78,8 @@ const packagePrice = z.preprocess(
   z.number().nonnegative()
 );
 
+const optionalPackagePrice = z.preprocess(emptyToUndefined, optionalNumber);
+
 export const packageCreateSchema = bodyWithAliases({
   nameEn: z.string().min(1, 'nameEn is required'),
   nameAr: z.string().min(1, 'nameAr is required'),
@@ -85,6 +87,10 @@ export const packageCreateSchema = bodyWithAliases({
   descriptionAr: optionalString,
   priceEgp: packagePrice,
   priceUsd: packagePrice,
+  priceEgp3m: optionalPackagePrice,
+  priceUsd3m: optionalPackagePrice,
+  priceEgp6m: optionalPackagePrice,
+  priceUsd6m: optionalPackagePrice,
   durationDays: z.preprocess(
     emptyToUndefined,
     z.number({ invalid_type_error: 'durationDays is required' }).int().min(1)
@@ -98,7 +104,19 @@ export const packageCreateSchema = bodyWithAliases({
   allow1Month: optionalBool,
   allow3Months: optionalBool,
   allow6Months: optionalBool,
-});
+})
+  .refine(
+    (data) =>
+      (data.allow3Months ?? true) !== true ||
+      (data.priceEgp3m != null && data.priceUsd3m != null),
+    { message: 'priceEgp3m and priceUsd3m are required when 3-month duration is enabled' }
+  )
+  .refine(
+    (data) =>
+      (data.allow6Months ?? true) !== true ||
+      (data.priceEgp6m != null && data.priceUsd6m != null),
+    { message: 'priceEgp6m and priceUsd6m are required when 6-month duration is enabled' }
+  );
 
 export const packageUpdateSchema = bodyWithAliases({
   nameEn: z.string().min(1).optional(),
@@ -107,6 +125,10 @@ export const packageUpdateSchema = bodyWithAliases({
   descriptionAr: optionalString,
   priceEgp: z.preprocess(emptyToUndefined, optionalNumber),
   priceUsd: z.preprocess(emptyToUndefined, optionalNumber),
+  priceEgp3m: optionalPackagePrice,
+  priceUsd3m: optionalPackagePrice,
+  priceEgp6m: optionalPackagePrice,
+  priceUsd6m: optionalPackagePrice,
   durationDays: z.preprocess(emptyToUndefined, optionalInt),
   level: z.preprocess(emptyToUndefined, packageLevelEnum.optional()),
   type: z.preprocess(emptyToUndefined, packageTypeEnum.optional()),
@@ -117,7 +139,26 @@ export const packageUpdateSchema = bodyWithAliases({
   allow1Month: optionalBool,
   allow3Months: optionalBool,
   allow6Months: optionalBool,
-}).refine((data) => Object.keys(data).length > 0, { message: 'At least one field required' });
+})
+  .refine((data) => Object.keys(data).length > 0, { message: 'At least one field required' })
+  .refine(
+    (data) =>
+      data.allow3Months !== true ||
+      (data.priceEgp3m != null && data.priceUsd3m != null),
+    {
+      message:
+        'priceEgp3m and priceUsd3m are required in the same payload when enabling 3-month duration',
+    }
+  )
+  .refine(
+    (data) =>
+      data.allow6Months !== true ||
+      (data.priceEgp6m != null && data.priceUsd6m != null),
+    {
+      message:
+        'priceEgp6m and priceUsd6m are required in the same payload when enabling 6-month duration',
+    }
+  );
 
 export const reviewCreateSchema = bodyWithAliases({
   imageUrl: optionalString,

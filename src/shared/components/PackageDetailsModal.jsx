@@ -2,6 +2,7 @@ import React, { useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import { formatPrice } from '../lib/currency';
+import { getPackageDurationPrice } from '../lib/packageDurationPricing';
 import { getTranslation } from '../../utils/translations';
 import './package-details-modal.css';
 
@@ -39,6 +40,7 @@ const PackageDetailsModal = ({
   domain = 'fitness',
   language = 'en',
   isRTL = false,
+  durationMonths = 1,
 }) => {
   const isAr = language === 'ar';
   const lang = isAr ? 'ar' : 'en';
@@ -76,6 +78,7 @@ const PackageDetailsModal = ({
   const levelValue = formatPackageMetaValue(pkg.level, LEVEL_KEYS, lang);
   const typeValue = formatPackageMetaValue(pkg.type, TYPE_KEYS, lang);
   const showMetaGrid = Boolean(levelValue || typeValue);
+  const { egp: displayEgp, usd: displayUsd } = getPackageDurationPrice(pkg, durationMonths);
 
   return createPortal(
     <div
@@ -119,7 +122,7 @@ const PackageDetailsModal = ({
               <div
                 className="package-details-modal__price"
                 dangerouslySetInnerHTML={{
-                  __html: formatPrice(pkg.price_egp, pkg.price_usd),
+                  __html: formatPrice(displayEgp, displayUsd),
                 }}
               />
               {pkg.duration_days != null && (
@@ -235,6 +238,7 @@ PackageDetailsModal.propTypes = {
   domain: PropTypes.oneOf(['fitness', 'squash']),
   language: PropTypes.oneOf(['en', 'ar']),
   isRTL: PropTypes.bool,
+  durationMonths: PropTypes.number,
 };
 
 export default PackageDetailsModal;

@@ -40,6 +40,18 @@ function packageToRest(data: Record<string, unknown>, mode: 'create' | 'update' 
     snake.type = snake.package_type;
     delete snake.package_type;
   }
+  const durationPriceAliases: Record<string, string> = {
+    price_egp3m: 'price_egp_3m',
+    price_usd3m: 'price_usd_3m',
+    price_egp6m: 'price_egp_6m',
+    price_usd6m: 'price_usd_6m',
+  };
+  for (const [from, to] of Object.entries(durationPriceAliases)) {
+    if (snake[from] !== undefined) {
+      snake[to] = snake[from];
+      delete snake[from];
+    }
+  }
   return snake;
 }
 
