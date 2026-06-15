@@ -20,12 +20,13 @@ const Packages = lazy(() => import(/* webpackChunkName: "content-components" */ 
 const AboutMe = lazy(() => import(/* webpackChunkName: "about-components" */ '../sections/About'));
 const AboutCoach = lazy(() => import(/* webpackChunkName: "about-components" */ '../sections/AboutCoach'));
 const WhyChooseMe = lazy(() => import(/* webpackChunkName: "about-components" */ '../sections/WhyChooseMe'));
+const SuccessStories = lazy(() => import(/* webpackChunkName: "social-components" */ '../sections/SuccessStories'));
 const Reviews = lazy(() => import(/* webpackChunkName: "social-components" */ '../sections/Reviews'));
 const FAQ = lazy(() => import(/* webpackChunkName: "support-components" */ '../sections/FAQ'));
 
 const ComponentLoader = ({ message }) => (
   <div className="flex items-center justify-center section-py min-h-[200px]" role="status" aria-live="polite" aria-label={message || 'Loading content'}>
-    <div className="rounded-full h-8 w-8 border-2 border-gray-200 border-t-[var(--color-primary)] animate-spin" aria-hidden="true" />
+    <div className="rounded-full h-8 w-8 border-2 border-[var(--color-border)] border-t-[var(--color-primary)] animate-spin" aria-hidden="true" />
     {message && <span className="sr-only">{message}</span>}
   </div>
 );
@@ -46,7 +47,7 @@ function FitnessHomeContent({
   const { isSectionVisible } = useLandingSectionsContext();
 
   return (
-    <div className="App font-['Open_Sans',_sans-serif] bg-white" role="main">
+    <div className="App font-['Open_Sans',_sans-serif] surface-page" role="main">
       {pageAlert && (
         <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded z-50">
           {pageAlert}
@@ -86,6 +87,13 @@ function FitnessHomeContent({
             <WhyChooseMe />
           </Suspense>
         </ErrorBoundary>
+        {isSectionVisible('success-stories') && (
+          <ErrorBoundary fallbackTitle="Success Stories Section" fallbackMessage="Unable to load success stories. Please refresh the page.">
+            <Suspense fallback={<ComponentLoader message="Loading success stories..." />}>
+              <SuccessStories onAlert={showAlert} />
+            </Suspense>
+          </ErrorBoundary>
+        )}
         {isSectionVisible('reviews') && (
           <ErrorBoundary fallbackTitle="Reviews Section" fallbackMessage="Unable to load reviews. Please refresh the page.">
             <Suspense fallback={<ComponentLoader message="Loading reviews..." />}>

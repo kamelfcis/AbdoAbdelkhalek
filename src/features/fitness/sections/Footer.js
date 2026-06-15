@@ -6,14 +6,14 @@ const Footer = React.memo(() => {
   const { currentLanguage } = useLanguage();
 
   return (
-    <footer className="bg-gray-900 text-white py-12">
+    <footer className="bg-[var(--color-text)] text-[var(--color-text-inverse)] py-12">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="text-xl font-bold mb-4">
               {getTranslation('footer-company', currentLanguage)}
             </h3>
-            <p className="text-gray-400">
+            <p className="text-[var(--color-text-muted)]">
               Professional Performance Coach specializing in athletic development and sports science.
             </p>
           </div>
@@ -22,10 +22,10 @@ const Footer = React.memo(() => {
               {getTranslation('footer-links-title', currentLanguage)}
             </h3>
             <ul className="space-y-2">
-              <li><a href="#home" className="text-gray-400 hover:text-white transition">Home</a></li>
-              <li><a href="#categories" className="text-gray-400 hover:text-white transition">Categories</a></li>
-              <li><a href="#packages" className="text-gray-400 hover:text-white transition">Packages</a></li>
-              <li><a href="#about" className="text-gray-400 hover:text-white transition">About</a></li>
+              <li><a href="#home" className="text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)] transition">Home</a></li>
+              <li><a href="#categories" className="text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)] transition">Categories</a></li>
+              <li><a href="#packages" className="text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)] transition">Packages</a></li>
+              <li><a href="#about" className="text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)] transition">About</a></li>
             </ul>
           </div>
           <div>
@@ -45,8 +45,8 @@ const Footer = React.memo(() => {
             </div>
           </div>
         </div>
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-          <p className="text-gray-400">
+        <div className="border-t border-[var(--color-border)] mt-8 pt-8 text-center">
+          <p className="text-[var(--color-text-muted)]">
             {getTranslation('footer-copyright', currentLanguage)}
           </p>
         </div>

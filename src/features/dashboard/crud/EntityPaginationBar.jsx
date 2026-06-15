@@ -25,19 +25,19 @@ export function EntityPaginationBar({
   const pageWindow = getPaginationWindow(page, pageCount);
 
   const ghostBtnClass =
-    'min-w-[2.25rem] px-3 py-1 rounded-lg border bg-white text-gray-700 hover:bg-gray-50';
+    'min-w-[2.25rem] px-3 py-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] hover:bg-[var(--color-bg-muted)]';
   const activeBtnClass =
     'min-w-[2.25rem] px-3 py-1 rounded-lg border bg-[var(--color-primary)] text-white border-[var(--color-primary)]';
 
   return (
     <div className="flex items-center justify-between flex-wrap gap-3 mt-4">
-      <p className="text-sm text-gray-500">{summary}</p>
+      <p className="text-sm text-[var(--color-text-muted)]">{summary}</p>
       <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
         <button
           type="button"
           onClick={() => onPageChange(Math.max(1, page - 1))}
           disabled={page === 1}
-          className={`px-3 py-1 rounded-lg border ${page === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+          className={`px-3 py-1 rounded-lg border border-[var(--color-border)] ${page === 1 ? 'bg-[var(--color-bg-muted)] text-[var(--color-text-muted)] cursor-not-allowed' : 'bg-[var(--color-surface)] text-[var(--color-text)] hover:bg-[var(--color-bg-muted)]'}`}
         >
           {t('btn-prev')}
         </button>
@@ -48,7 +48,7 @@ export function EntityPaginationBar({
               return (
                 <span
                   key={`ellipsis-${index}`}
-                  className="px-1 text-sm text-gray-500 select-none"
+                  className="px-1 text-sm text-[var(--color-text-muted)] select-none"
                   aria-hidden="true"
                 >
                   …
@@ -77,13 +77,13 @@ export function EntityPaginationBar({
           })}
         </nav>
 
-        <span className="text-sm text-gray-600">{pageLabel}</span>
+        <span className="text-sm text-[var(--color-text-muted)]">{pageLabel}</span>
 
         <button
           type="button"
           onClick={() => onPageChange(Math.min(pageCount, page + 1))}
           disabled={page >= pageCount}
-          className={`px-3 py-1 rounded-lg border ${page >= pageCount ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+          className={`px-3 py-1 rounded-lg border border-[var(--color-border)] ${page >= pageCount ? 'bg-[var(--color-bg-muted)] text-[var(--color-text-muted)] cursor-not-allowed' : 'bg-[var(--color-surface)] text-[var(--color-text)] hover:bg-[var(--color-bg-muted)]'}`}
         >
           {t('btn-next')}
         </button>

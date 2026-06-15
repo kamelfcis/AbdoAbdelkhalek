@@ -115,16 +115,16 @@ const OptimizedImage = ({
       />
       {!isLoaded && !hasError && (
         <div
-          className="absolute inset-0 bg-gray-200 animate-pulse"
+          className="absolute inset-0 bg-[var(--color-bg-muted)] animate-pulse"
           aria-hidden="true"
         />
       )}
       {hasError && (
         <div
-          className="absolute inset-0 bg-gray-100 flex items-center justify-center"
+          className="absolute inset-0 bg-[var(--color-bg-muted)] flex items-center justify-center"
           aria-hidden="true"
         >
-          <span className="text-gray-400 text-sm">Image unavailable</span>
+          <span className="text-[var(--color-text-muted)] text-sm">Image unavailable</span>
         </div>
       )}
     </div>

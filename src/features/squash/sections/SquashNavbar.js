@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSiteHeaderLayout } from '../../../shared/hooks/useSiteHeaderLayout';
 import { useNavigate } from 'react-router-dom';
 import { useSquashI18n } from '../hooks/useSquashI18n';
@@ -6,11 +6,14 @@ import { loadFontAwesome } from '../../../shared/lib/fontAwesomeLoader';
 import { buildDashboardPath } from '../../dashboard/config/dashboardRoutes';
 import { loginPath } from '../../../shared/lib/authRoutes';
 import { useLandingSectionsOptional } from '../../../shared/contexts/LandingSectionsContext';
+import { useThemeOptional } from '../../../contexts/ThemeContext';
+import { cn } from '../../../shared/lib/cn';
 
 const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfile, onShowProfile }) => {
   const { t } = useSquashI18n();
   const navigate = useNavigate();
   const { isSlugVisible } = useLandingSectionsOptional();
+  const theme = useThemeOptional();
   const isCoach = userProfile?.is_coach ?? userSession?.user?.user_metadata?.is_coach;
   const displayName =
     userProfile?.full_name ||
@@ -18,11 +21,18 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
     userSession?.user?.email ||
     '';
 
+  const [scrolled, setScrolled] = useState(false);
   const headerRef = useRef(null);
   useSiteHeaderLayout(headerRef);
 
   useEffect(() => {
     loadFontAwesome({ priority: 'high' }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   const handleNavClick = (e, section) => {
@@ -40,15 +50,33 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
     navigate(buildDashboardPath('squash', 'overview'));
   };
 
+  const navLinkClass =
+    'text-[var(--color-text)] hover:text-[var(--color-primary)] text-base md:text-lg py-3 px-2 flex items-center h-full transition-colors';
+
   return (
     <nav
       ref={headerRef}
-      className="site-header bg-white shadow-lg w-full"
+      className="site-header surface-header w-full"
       data-site-header
       role="navigation"
       aria-label="Main navigation"
+      style={{
+        boxShadow: scrolled ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+        transition: 'box-shadow 0.3s ease, background 0.3s ease',
+        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        WebkitBackdropFilter: scrolled ? 'blur(12px)' : 'none',
+        backgroundColor: scrolled ? 'color-mix(in srgb, var(--color-surface) 92%, transparent)' : undefined,
+      }}
     >
-      <div className="container mx-auto px-4 md:px-6 py-6 md:py-7 flex justify-between items-center min-h-[100px] md:min-h-[110px]">
+      <div
+        className="container mx-auto px-4 md:px-6 flex justify-between items-center"
+        style={{
+          paddingTop: scrolled ? '0.75rem' : '1.5rem',
+          paddingBottom: scrolled ? '0.75rem' : '1.5rem',
+          minHeight: scrolled ? '72px' : '100px',
+          transition: 'padding 0.3s ease, min-height 0.3s ease',
+        }}
+      >
         <a
           href="#home"
           onClick={(e) => handleNavClick(e, 'home')}
@@ -71,20 +99,20 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
         </a>
 
         <div className="hidden lg:flex space-x-4 xl:space-x-6 items-center h-full">
-          <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="nav-link">
+          <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className={navLinkClass}>
             {t('nav.home')}
           </a>
           {isSlugVisible('categories') && (
-            <a href="#categories" onClick={(e) => handleNavClick(e, 'categories')} className="nav-link">
+            <a href="#categories" onClick={(e) => handleNavClick(e, 'categories')} className={navLinkClass}>
               {t('nav.categories')}
             </a>
           )}
           {isSlugVisible('packages') && (
-            <a href="#packages" onClick={(e) => handleNavClick(e, 'packages')} className="nav-link">
+            <a href="#packages" onClick={(e) => handleNavClick(e, 'packages')} className={navLinkClass}>
               {t('nav.packages')}
             </a>
           )}
-          <a href="#about-me" onClick={(e) => handleNavClick(e, 'about-me')} className="nav-link">
+          <a href="#about-me" onClick={(e) => handleNavClick(e, 'about-me')} className={navLinkClass}>
             {t('nav.about')}
           </a>
         </div>
@@ -117,9 +145,20 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
               <span className="hidden lg:inline">{displayName.split(' ')[0]}</span>
             </button>
           )}
+          {theme?.toggleMode && (
+            <button
+              type="button"
+              onClick={theme.toggleMode}
+              className="p-2 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-text)] transition flex items-center justify-center"
+              aria-label={theme.isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={theme.isDark ? 'Light mode' : 'Dark mode'}
+            >
+              <i className={cn('fas text-lg md:text-xl', theme.isDark ? 'fa-sun' : 'fa-moon')} aria-hidden="true" />
+            </button>
+          )}
           <button
             onClick={onSidebarToggle}
-            className="text-gray-800 hover:text-[var(--color-primary)] p-3 hover:bg-gray-100 rounded-lg flex items-center justify-center"
+            className="text-[var(--color-text)] hover:text-[var(--color-primary)] p-3 hover:bg-[var(--color-bg-muted)] rounded-lg flex items-center justify-center transition-colors"
             aria-label={t('nav.menu')}
             type="button"
           >
@@ -127,7 +166,6 @@ const SquashNavbar = React.memo(({ onSidebarToggle, onNavClick, userSession, use
           </button>
         </div>
       </div>
-      <style>{`.nav-link { color: #1f2937; font-size: 1rem; padding: 0.75rem 0.5rem; display: flex; align-items: center; height: 100%; } .nav-link:hover { color: var(--color-primary); }`}</style>
     </nav>
   );
 });

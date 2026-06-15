@@ -1,0 +1,72 @@
+/**
+ * Landing page mobile drawer — theme-aware surfaces and z-index stack.
+ * Overlay: 1250 | Drawer: 1300 (above .site-header @ 1100)
+ */
+
+.landing-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1250;
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+}
+
+@supports not (background: color-mix(in srgb, black 50%, transparent)) {
+  .landing-sidebar-overlay {
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.landing-sidebar-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 16rem;
+  height: 100vh;
+  z-index: 1300;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-inline-start: 1px solid var(--color-border);
+  box-shadow: var(--shadow-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.landing-sidebar-drawer--end {
+  right: 0;
+  left: auto;
+}
+
+.landing-sidebar-drawer--start {
+  left: 0;
+  right: auto;
+}
+
+.landing-sidebar-link {
+  display: block;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  color: var(--color-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.landing-sidebar-link:hover {
+  background: var(--color-bg-muted);
+  color: var(--color-text);
+}
+
+.landing-sidebar-close {
+  color: var(--color-text-muted);
+  transition: color 0.2s ease;
+}
+
+.landing-sidebar-close:hover {
+  color: var(--color-primary);
+}
+
+.landing-sidebar-section {
+  border-color: var(--color-border);
+}

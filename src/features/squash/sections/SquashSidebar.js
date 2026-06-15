@@ -54,17 +54,7 @@ const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, 
   };
 
   const sidebarStyle = {
-    position: 'fixed',
-    top: 0,
-    [isRTL ? 'left' : 'right']: 0,
-    width: '16rem',
-    height: '100vh',
-    backgroundColor: 'white',
-    boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-    zIndex: 50,
-    overflowY: 'auto',
     display: isOpen ? 'flex' : 'none',
-    flexDirection: 'column',
     transform: isOpen ? 'translateX(0)' : isRTL ? 'translateX(-100%)' : 'translateX(100%)',
     visibility: isOpen ? 'visible' : 'hidden',
     opacity: isOpen ? 1 : 0,
@@ -94,16 +84,16 @@ const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, 
     }
   }, [isOpen]);
 
-  const linkClass = `block py-2 px-4 rounded-lg hover:text-white ${
-    isRTL ? 'hover:bg-gradient-to-l' : 'hover:bg-gradient-to-r'
-  } from-[var(--color-primary-light)] to-[var(--color-primary)]`;
+  const drawerPositionClass = isRTL ? 'landing-sidebar-drawer--start' : 'landing-sidebar-drawer--end';
 
   return (
     <>
-      {isOpen && <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} aria-hidden="true" />}
+      {isOpen && (
+        <div className="landing-sidebar-overlay" onClick={onClose} aria-hidden="true" />
+      )}
       <div
         ref={sidebarRef}
-        className={`sidebar ${isOpen ? 'open' : ''} ${isRTL ? 'rtl' : ''}`}
+        className={`sidebar landing-sidebar-drawer ${drawerPositionClass} ${isOpen ? 'open' : ''} ${isRTL ? 'rtl' : ''}`}
         style={sidebarStyle}
         dir={isRTL ? 'rtl' : 'ltr'}
         role="navigation"
@@ -112,10 +102,10 @@ const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, 
         {...(!isOpen ? { inert: true } : {})}
         tabIndex={isOpen ? 0 : -1}
       >
-        <div className="p-4 border-b flex-shrink-0 relative">
+        <div className="p-4 border-b landing-sidebar-section flex-shrink-0 relative">
           <button
             onClick={onClose}
-            className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} text-gray-600 hover:text-[var(--color-primary)] z-10`}
+            className={`landing-sidebar-close absolute top-4 ${isRTL ? 'left-4' : 'right-4'} z-10`}
             aria-label={t('nav.close')}
             type="button"
           >
@@ -133,7 +123,12 @@ const SquashSidebar = ({ isOpen, onClose, onNavClick, userSession, userProfile, 
           <ul className="space-y-4">
             {NAV_ITEMS.filter(({ section }) => isSlugVisible(section)).map(({ section, key }) => (
               <li key={section}>
-                <a href={`#${section}`} onClick={(e) => handleNavClick(e, section)} className={linkClass} style={{ textAlign: isRTL ? 'right' : 'left' }}>
+                <a
+                  href={`#${section}`}
+                  onClick={(e) => handleNavClick(e, section)}
+                  className="landing-sidebar-link"
+                  style={{ textAlign: isRTL ? 'right' : 'left' }}
+                >
                   {t(key)}
                 </a>
               </li>

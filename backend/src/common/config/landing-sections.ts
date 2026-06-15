@@ -9,6 +9,7 @@ export interface LandingSectionDef {
 
 export const LANDING_SECTIONS_BY_DOMAIN: Record<LandingDomain, LandingSectionDef[]> = {
   fitness: [
+    { key: 'success-stories', anchorId: 'success', icon: 'trophy', labelKey: 'landing-section-success-stories' },
     { key: 'reviews', anchorId: 'reviews', icon: 'star', labelKey: 'landing-section-reviews' },
     { key: 'categories', anchorId: 'categories', icon: 'folder', labelKey: 'landing-section-categories' },
     { key: 'videos', anchorId: 'videos', icon: 'video', labelKey: 'landing-section-videos' },

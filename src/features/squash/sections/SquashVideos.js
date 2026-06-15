@@ -101,7 +101,7 @@ const SquashVideos = () => {
   };
 
   return (
-    <section id="videos" className="section-py relative overflow-hidden bg-gray-50">
+    <section id="videos" className="section-py relative overflow-hidden bg-[var(--color-bg-muted)]">
       <div className="container mx-auto px-4">
         <div className="mb-16">
           {selectedCategory ? (
@@ -117,7 +117,7 @@ const SquashVideos = () => {
             <div className="text-center">
               <h2 className="text-4xl font-bold mb-4 gradient-text">{t('videos.title')}</h2>
               <div className="w-20 h-1 bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] mx-auto" />
-              <p className="text-gray-600 mt-4">{t('videos.subtitle')}</p>
+              <p className="text-[var(--color-text-muted)] mt-4">{t('videos.subtitle')}</p>
             </div>
           )}
         </div>
@@ -125,13 +125,13 @@ const SquashVideos = () => {
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-lg h-64 animate-pulse" />
+              <div key={i} className="bg-[var(--color-surface)] rounded-lg h-64 animate-pulse" />
             ))}
           </div>
         ) : error ? (
           <p className="text-center text-red-600">{t('common.error')}</p>
         ) : visibleVideos.length === 0 ? (
-          <p className="text-center text-gray-600">{t('videos.empty')}</p>
+          <p className="text-center text-[var(--color-text-muted)]">{t('videos.empty')}</p>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -149,9 +149,9 @@ const SquashVideos = () => {
                     onKeyDown={(e) => e.key === 'Enter' && handleVideoClick(video)}
                     role="button"
                     tabIndex={0}
-                    className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all video-card"
+                    className="bg-[var(--color-surface)] rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all video-card"
                   >
-                    <div className="relative bg-gray-200">
+                    <div className="relative bg-[var(--color-bg-muted)]">
                       {thumbnailUrl ? (
                         <>
                           <OptimizedImage
@@ -164,20 +164,20 @@ const SquashVideos = () => {
                             priority={isAboveFold}
                           />
                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <div className="w-16 h-16 bg-white bg-opacity-80 rounded-full flex items-center justify-center hover:bg-opacity-100 transition pointer-events-auto cursor-pointer">
+                            <div className="w-16 h-16 bg-[var(--color-surface)] bg-opacity-80 rounded-full flex items-center justify-center hover:bg-opacity-100 transition pointer-events-auto cursor-pointer">
                               <i className="fas fa-play text-[var(--color-primary)] text-2xl" />
                             </div>
                           </div>
                         </>
                       ) : (
-                        <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                          <i className="fas fa-video text-gray-400 text-2xl" />
+                        <div className="w-full h-48 bg-[var(--color-bg-muted)] flex items-center justify-center">
+                          <i className="fas fa-video text-[var(--color-text-muted)] text-2xl" />
                         </div>
                       )}
                     </div>
                     <div className="p-4">
                       <h3 className="font-bold text-lg">{pickItemField(video, isAr, 'title_en', 'title_ar')}</h3>
-                      <p className="text-gray-600 text-sm mt-1 line-clamp-2">
+                      <p className="text-[var(--color-text-muted)] text-sm mt-1 line-clamp-2">
                         {pickItemField(video, isAr, 'description_en', 'description_ar')}
                       </p>
                     </div>

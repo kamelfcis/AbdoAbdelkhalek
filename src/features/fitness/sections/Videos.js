@@ -228,7 +228,7 @@ const Videos = ({ onAlert, userSession }) => {
   }, [selectedCategory, categoryFilter, accessFilter, searchTerm, allVideos]);
 
   return (
-    <section id="videos" className="section-py relative overflow-hidden bg-gray-50">
+    <section id="videos" className="section-py relative overflow-hidden bg-[var(--color-bg-muted)]">
       <div className="container mx-auto px-4">
         <div className="mb-16">
           {selectedCategory ? (
@@ -245,7 +245,7 @@ const Videos = ({ onAlert, userSession }) => {
                   {categoryName} {currentLanguage === 'ar' ? 'فيديوهات' : 'Videos'}
                 </h2>
               </div>
-              <span className="text-sm font-normal text-gray-600">
+              <span className="text-sm font-normal text-[var(--color-text-muted)]">
                 {getTranslation('back-to-all-videos', currentLanguage)}
               </span>
             </div>
@@ -272,7 +272,7 @@ const Videos = ({ onAlert, userSession }) => {
         ) : (
           <>
             {userSession && (
-              <div className="bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl p-4 mb-10 shadow-sm">
+              <div className="bg-[var(--color-surface)]/80 backdrop-blur-sm border border-[var(--color-border)] rounded-2xl p-4 mb-10 shadow-sm">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="relative">
                     <input
@@ -280,10 +280,10 @@ const Videos = ({ onAlert, userSession }) => {
                       value={searchTerm}
                       onChange={(event) => setSearchTerm(event.target.value)}
                       placeholder={getTranslation('videos-search-placeholder', currentLanguage)}
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)] focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)] focus:border-transparent"
                       aria-label={getTranslation('videos-search-placeholder', currentLanguage)}
                     />
-                    <i className={`fas fa-search absolute top-1/2 ${currentLanguage === 'ar' ? 'right-4' : 'left-4'} -translate-y-1/2 text-gray-400`}></i>
+                    <i className={`fas fa-search absolute top-1/2 ${currentLanguage === 'ar' ? 'right-4' : 'left-4'} -translate-y-1/2 text-[var(--color-text-muted)]`}></i>
                   </div>
                   <select
                     value={categorySelectValue}
@@ -302,7 +302,7 @@ const Videos = ({ onAlert, userSession }) => {
                         }
                       }
                     }}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)] focus:border-transparent disabled:opacity-60"
+                    className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)] focus:border-transparent disabled:opacity-60"
                   >
                     {categoriesLoading ? (
                       <option value="all">{currentLanguage === 'ar' ? 'جارٍ التحميل…' : 'Loading…'}</option>
@@ -320,7 +320,7 @@ const Videos = ({ onAlert, userSession }) => {
                   <select
                     value={accessFilter}
                     onChange={(event) => setAccessFilter(event.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)] focus:border-transparent"
+                    className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)] focus:border-transparent"
                   >
                     <option value="all">{getTranslation('videos-filter-access-all', currentLanguage)}</option>
                     <option value="public">{getTranslation('videos-filter-access-public', currentLanguage)}</option>
@@ -329,7 +329,7 @@ const Videos = ({ onAlert, userSession }) => {
                   <button
                     type="button"
                     onClick={clearFilters}
-                    className="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-100 transition"
+                    className="px-4 py-2.5 rounded-xl border border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-bg-muted)] transition"
                   >
                     {getTranslation('videos-clear-filters', currentLanguage)}
                   </button>
@@ -353,9 +353,9 @@ const Videos = ({ onAlert, userSession }) => {
                     tabIndex={0}
                     onKeyDown={(e) => e.key === 'Enter' && handleVideoClick(video)}
                     role="button"
-                    className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all video-card"
+                    className="bg-[var(--color-surface)] rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all video-card"
                   >
-                    <div className="relative bg-gray-200">
+                    <div className="relative bg-[var(--color-bg-muted)]">
                       {thumbnailUrl ? (
                           <>
                             <OptimizedImage
@@ -369,14 +369,14 @@ const Videos = ({ onAlert, userSession }) => {
                               onError={() => {}}
                             />
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                              <div className="w-16 h-16 bg-white bg-opacity-80 rounded-full flex items-center justify-center hover:bg-opacity-100 transition pointer-events-auto cursor-pointer">
+                              <div className="w-16 h-16 bg-[var(--color-surface)] bg-opacity-80 rounded-full flex items-center justify-center hover:bg-opacity-100 transition pointer-events-auto cursor-pointer">
                           <i className="fas fa-play text-[var(--color-primary)] text-2xl"></i>
                         </div>
                       </div>
                           </>
                         ) : (
-                          <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                            <i className="fas fa-video text-gray-400 text-2xl"></i>
+                          <div className="w-full h-48 bg-[var(--color-bg-muted)] flex items-center justify-center">
+                            <i className="fas fa-video text-[var(--color-text-muted)] text-2xl"></i>
                           </div>
                         )}
                       {!userSession && !video.is_public && (
@@ -394,12 +394,12 @@ const Videos = ({ onAlert, userSession }) => {
                       <h3 className="font-bold text-lg mb-2">
                         {currentLanguage === 'ar' ? video.title_ar : video.title_en}
                       </h3>
-                      <p className="text-gray-600 text-sm mb-2">
+                      <p className="text-[var(--color-text-muted)] text-sm mb-2">
                         {currentLanguage === 'ar' 
                           ? (video.categories?.name_ar || video.category_name_ar || '') 
                           : (video.categories?.name_en || video.category_name_en || '')}
                       </p>
-                      <p className="text-gray-500 text-sm">
+                      <p className="text-[var(--color-text-muted)] text-sm">
                         {video.duration_seconds ? `${Math.floor(video.duration_seconds / 60)}:${String(video.duration_seconds % 60).padStart(2, '0')}` : ''}
                       </p>
                     </div>
@@ -408,7 +408,7 @@ const Videos = ({ onAlert, userSession }) => {
                 })}
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-dashed border-gray-200 text-center py-16 text-gray-500">
+              <div className="bg-[var(--color-surface)] rounded-xl border border-dashed border-[var(--color-border)] text-center py-16 text-[var(--color-text-muted)]">
                 {getTranslation('videos-no-results', currentLanguage)}
               </div>
             )}

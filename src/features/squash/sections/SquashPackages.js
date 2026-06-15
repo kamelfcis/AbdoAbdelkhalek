@@ -170,7 +170,7 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
           gradientFrom: 'rgb(244, 215, 123)',
           gradientTo: 'rgb(220, 180, 80)',
           solid: 'rgb(244, 215, 123)',
-          text: 'text-gray-900',
+          text: 'text-[var(--color-text)]',
         };
       } else if (
         nameEn.includes('platinum') ||
@@ -212,25 +212,25 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
   return (
     <section id="packages" className="section-py relative overflow-hidden">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }} aria-hidden="true" />
-      <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-gray-50/90" style={{ zIndex: 1 }} />
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg)]/90 to-[var(--color-bg-muted)]/90" style={{ zIndex: 1 }} />
 
       <div className="container mx-auto px-4 relative" style={{ zIndex: 2 }}>
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4 gradient-text">{t('packages.title')}</h2>
           <div className="w-20 h-1 bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] mx-auto mb-6" />
-          <p className="text-gray-600">{t('packages.subtitle')}</p>
+          <p className="text-[var(--color-text-muted)]">{t('packages.subtitle')}</p>
         </div>
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-xl h-80 animate-pulse" />
+              <div key={i} className="bg-[var(--color-surface)] rounded-xl h-80 animate-pulse" />
             ))}
           </div>
         ) : error ? (
           <p className="text-center text-red-600">{t('common.error')}</p>
         ) : packages.length === 0 ? (
-          <p className="text-center text-gray-600">{t('packages.empty')}</p>
+          <p className="text-center text-[var(--color-text-muted)]">{t('packages.empty')}</p>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -247,7 +247,7 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
                 return (
                   <div
                     key={pkg.id}
-                    className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all hover:-translate-y-2"
+                    className="bg-[var(--color-surface)] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all hover:-translate-y-2"
                   >
                     <div
                       className={`${packageColor.text} p-6 text-center`}
@@ -272,7 +272,7 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
                       )}
                     </div>
                     <div className="p-6">
-                      <p className="text-gray-600 mb-4">
+                      <p className="text-[var(--color-text-muted)] mb-4">
                         {pickItemField(pkg, isAr, 'description_en', 'description_ar')}
                       </p>
                       {features.length > 0 && (
@@ -286,7 +286,7 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
                                 >
                                   <i className="fas fa-check-circle text-lg" />
                                 </div>
-                                <span className="text-gray-700 text-sm leading-relaxed flex-1 group-hover:text-gray-900 transition-colors">
+                                <span className="text-[var(--color-text)] text-sm leading-relaxed flex-1 group-hover:text-[var(--color-text)] transition-colors">
                                   {feature}
                                 </span>
                               </li>

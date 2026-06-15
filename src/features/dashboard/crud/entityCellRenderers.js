@@ -147,7 +147,7 @@ export function renderCell(col, row, { isAr, t, domain = 'fitness', rowIndex = 0
             <p className="truncate text-xs text-muted-foreground">{secondary}</p>
           )}
           {desc && (
-            <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
+            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">{desc}</p>
           )}
         </div>
       );

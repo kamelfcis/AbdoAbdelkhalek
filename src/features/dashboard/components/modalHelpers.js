@@ -284,7 +284,7 @@ export const VideoAccessRow = ({ video, label, checked, onChange, publicLabel, p
           title={isPublic ? publicLabel : privateLabel}
           aria-label={isPublic ? publicLabel : privateLabel}
           className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${
-            isPublic ? 'bg-green-500' : 'bg-red-400'
+            isPublic ? 'bg-[var(--color-success)]' : 'bg-[var(--color-danger)]'
           }`}
         />
         <Badge variant={isPublic ? 'success' : 'danger'} className="shrink-0">

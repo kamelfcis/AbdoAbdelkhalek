@@ -342,7 +342,7 @@ export function SubscriptionsSection() {
                         c.setShowTraineeAccessModal(true);
                       }}
                     >
-                      <i className="fas fa-key text-green-600 me-1" aria-hidden="true" />
+                      <i className="fas fa-key text-[var(--color-success)] me-1" aria-hidden="true" />
                       {c.t('btn-access')}
                     </Button>
                     <Button

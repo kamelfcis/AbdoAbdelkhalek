@@ -1,6 +1,6 @@
-/* Squash light-green — landing + dashboard overrides */
+/* Squash light-green — landing + dashboard overrides (light mode only) */
 
-[data-squash-dashboard='true'] {
+html[data-mode='light'] [data-squash-dashboard='true'] {
   --color-primary: #6bb800;
   --color-primary-light: #d7ff3f;
   --color-primary-dark: #4d8a00;
@@ -14,8 +14,27 @@
   --gradient-brand: linear-gradient(to right, #d7ff3f, #9bea00);
 }
 
-[data-squash-dashboard='true'] .dashboard-shell-main {
+html[data-mode='light'] [data-squash-dashboard='true'] .dashboard-shell-main {
   background: linear-gradient(180deg, #f9fafb 0%, #ecfccb 100%);
+}
+
+html[data-mode='dark'] [data-squash-dashboard='true'] {
+  --color-primary: #d7ff3f;
+  --color-primary-light: #dfff4a;
+  --color-primary-dark: #9bea00;
+  --color-bg: #0b1220;
+  --color-bg-elevated: #111827;
+  --color-bg-muted: #050816;
+  --color-surface: #0b1220;
+  --color-text: #f4fce8;
+  --color-text-muted: #9ca89a;
+  --color-text-inverse: #050816;
+  --color-border: rgba(155, 234, 0, 0.2);
+  --gradient-brand: linear-gradient(to right, #dfff4a, #9bea00);
+}
+
+html[data-mode='dark'] [data-squash-dashboard='true'] .dashboard-shell-main {
+  background: linear-gradient(180deg, var(--color-bg) 0%, #0a1208 100%);
 }
 
 /* Squash landing — hero slider (lime green, no fitness blue) */

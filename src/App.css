@@ -100,11 +100,7 @@
   margin-right: 2rem;
 }
 
-/* Landing page header — height controlled by component; sticky via .site-header */
-.site-header {
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
+/* Landing page header — surfaces via .surface-header / site-header.css */
 
 main {
   padding-top: 0;
@@ -484,33 +480,6 @@ img {
 .content-transition {
   animation: none !important;
   transition: none !important;
-}
-
-/* Sidebar on the right - always toggleable */
-#sidebar {
-  position: fixed !important;
-  top: 0 !important;
-  right: 0 !important;
-  height: 100vh !important;
-  width: 16rem !important;
-  background-color: white !important;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1) !important;
-  z-index: 50 !important;
-  animation: none !important;
-  transition: none !important;
-  display: flex !important;
-  flex-direction: column !important;
-  visibility: hidden !important;
-}
-
-#sidebar.sidebar-closed {
-  transform: translateX(100%) !important;
-  visibility: hidden !important;
-}
-
-#sidebar.sidebar-open {
-  transform: translateX(0) !important;
-  visibility: visible !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

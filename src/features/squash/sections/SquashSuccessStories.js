@@ -35,25 +35,25 @@ const SquashSuccessStories = React.memo(() => {
   return (
     <section id="success-stories" className="section-py relative overflow-hidden">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }} aria-hidden="true" />
-      <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-gray-50/90" style={{ zIndex: 1 }} />
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg)]/90 to-[var(--color-bg-muted)]/90" style={{ zIndex: 1 }} />
 
       <div className="container mx-auto px-4 relative" style={{ zIndex: 2 }}>
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 gradient-text">{t('stories.title')}</h2>
           <div className="w-20 h-1 bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] mx-auto mb-6" />
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">{t('stories.subtitle')}</p>
+          <p className="text-xl text-[var(--color-text-muted)] max-w-3xl mx-auto">{t('stories.subtitle')}</p>
         </div>
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="bg-white p-6 rounded-xl shadow-lg animate-pulse h-64" />
+              <div key={i} className="bg-[var(--color-surface)] p-6 rounded-xl shadow-lg animate-pulse h-64" />
             ))}
           </div>
         ) : error ? (
           <p className="text-center text-red-600">{t('common.error')}</p>
         ) : stories.length === 0 ? (
-          <p className="text-center text-gray-600">{t('stories.empty')}</p>
+          <p className="text-center text-[var(--color-text-muted)]">{t('stories.empty')}</p>
         ) : (
           <LazySplide ref={splideRef} options={splideOptions} aria-label={t('stories.title')}>
             {stories.map((story) => {
@@ -61,11 +61,11 @@ const SquashSuccessStories = React.memo(() => {
               const afterSrc = resolveImage(story.after_image_url, story.after_image_path);
               return (
                 <LazySplideSlide key={story.id}>
-                  <div className="bg-white p-6 rounded-xl shadow-lg mx-4 h-full">
+                  <div className="bg-[var(--color-surface)] p-6 rounded-xl shadow-lg mx-4 h-full">
                     <h3 className="text-2xl font-bold mb-4 gradient-text">
                       {pickItemField(story, isAr, 'title_en', 'title_ar')}
                     </h3>
-                    <p className="text-gray-700 mb-6">
+                    <p className="text-[var(--color-text)] mb-6">
                       {pickItemField(story, isAr, 'content_en', 'content_ar')}
                     </p>
                     {(beforeSrc || afterSrc) && (

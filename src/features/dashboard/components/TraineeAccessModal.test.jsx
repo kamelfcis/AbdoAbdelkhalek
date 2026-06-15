@@ -325,9 +325,9 @@ describe('TraineeAccessModal', () => {
     const privateIndicator = screen.getByTestId('video-public-indicator-vid-2');
 
     expect(publicIndicator).toHaveAttribute('data-public', 'true');
-    expect(publicIndicator.className).toContain('bg-green-500');
+    expect(publicIndicator.className).toContain('bg-[var(--color-success)]');
     expect(privateIndicator).toHaveAttribute('data-public', 'false');
-    expect(privateIndicator.className).toContain('bg-red-400');
+    expect(privateIndicator.className).toContain('bg-[var(--color-danger)]');
   });
 
   it('selects all categories and videos via Grant All', async () => {

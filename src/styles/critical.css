@@ -24,8 +24,8 @@ body {
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #fff;
-  color: #000;
+  background: var(--color-bg, #f3f4f6);
+  color: var(--color-text, #1f2937);
   line-height: 1.6;
 }
 
@@ -54,8 +54,8 @@ body.loaded {
 
 /* Site header — Critical for above-the-fold (scoped; sidebar nav excluded) */
 .site-header {
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: var(--color-surface, #ffffff);
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
   position: -webkit-sticky;
   position: sticky;
   top: 0;

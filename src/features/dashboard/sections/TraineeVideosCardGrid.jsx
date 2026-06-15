@@ -25,7 +25,7 @@ function TraineeVideoCard({ video, c }) {
   );
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all video-card relative">
+    <div className="bg-[var(--color-surface)] rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all video-card relative">
       <button
         type="button"
         onClick={(e) => {
@@ -34,8 +34,8 @@ function TraineeVideoCard({ video, c }) {
         }}
         className={`absolute top-2 ${c.isRTL ? 'left-2' : 'right-2'} z-10 p-2 rounded-full transition-all ${
           c.isFavorite(video.id)
-            ? 'bg-yellow-400 text-yellow-900 hover:bg-yellow-500'
-            : 'bg-white bg-opacity-80 text-gray-400 hover:bg-opacity-100 hover:text-yellow-500'
+            ? 'bg-[var(--color-warning)] text-[var(--color-text)] hover:opacity-90'
+            : 'bg-[var(--color-surface)] bg-opacity-80 text-[var(--color-text-muted)] hover:bg-opacity-100 hover:text-[var(--color-warning)]'
         }`}
         title={
           c.isFavorite(video.id)
@@ -47,7 +47,7 @@ function TraineeVideoCard({ video, c }) {
               : 'Add to favorites'
         }
       >
-        <i className={`fas fa-star ${c.isFavorite(video.id) ? 'text-yellow-900' : ''}`} />
+        <i className={`fas fa-star ${c.isFavorite(video.id) ? 'text-[var(--color-text)]' : ''}`} />
       </button>
 
       <button
@@ -55,7 +55,7 @@ function TraineeVideoCard({ video, c }) {
         onClick={() => c.handlePreviewVideo(video)}
         className="block w-full text-left cursor-pointer"
       >
-        <AspectRatio ratio={16 / 9} className="relative overflow-hidden bg-gray-200">
+        <AspectRatio ratio={16 / 9} className="relative overflow-hidden bg-[var(--color-bg-muted)]">
           {thumbSrc ? (
             <>
               <DashboardThumb
@@ -66,22 +66,22 @@ function TraineeVideoCard({ video, c }) {
                 imgClassName="object-cover object-center"
               />
               <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <span className="w-16 h-16 bg-white bg-opacity-80 rounded-full flex items-center justify-center">
+                <span className="w-16 h-16 bg-[var(--color-surface)] bg-opacity-80 rounded-full flex items-center justify-center">
                   <i className="fas fa-play text-[var(--color-primary)] text-2xl" />
                 </span>
               </span>
             </>
           ) : (
             <span className="flex h-full w-full items-center justify-center">
-              <i className="fas fa-video text-gray-400 text-2xl" />
+              <i className="fas fa-video text-[var(--color-text-muted)] text-2xl" />
             </span>
           )}
         </AspectRatio>
         <div className="p-4">
-          <h3 className="font-bold text-lg mb-2">{title}</h3>
-          {categoryLabel && <p className="text-gray-600 text-sm mb-2">{categoryLabel}</p>}
+          <h3 className="font-bold text-lg mb-2 text-[var(--color-text)]">{title}</h3>
+          {categoryLabel && <p className="text-[var(--color-text-muted)] text-sm mb-2">{categoryLabel}</p>}
           {video.duration_seconds != null && (
-            <p className="text-gray-500 text-sm">{formatDuration(video.duration_seconds)}</p>
+            <p className="text-[var(--color-text-muted)] text-sm">{formatDuration(video.duration_seconds)}</p>
           )}
         </div>
       </button>

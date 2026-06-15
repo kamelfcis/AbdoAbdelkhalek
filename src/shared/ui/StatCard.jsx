@@ -4,60 +4,60 @@ import { cn } from '../lib/cn';
 
 const colorSchemes = {
   blue: {
-    card: 'from-blue-50 to-blue-100 border-blue-200 dark:from-blue-950/40 dark:to-blue-900/30 dark:border-blue-800',
-    label: 'text-blue-700 dark:text-blue-300',
-    value: 'text-blue-900 dark:text-blue-100',
-    icon: 'from-blue-400 to-blue-600',
-    footer: 'text-blue-600 border-blue-200',
+    card: 'bg-[var(--color-info)]/10 border-[var(--color-info)]/25',
+    label: 'text-[var(--color-info)]',
+    value: 'text-[var(--color-text)]',
+    icon: 'bg-[var(--color-info)]',
+    footer: 'text-[var(--color-info)] border-[var(--color-info)]/25',
   },
   green: {
-    card: 'from-green-50 to-green-100 border-green-200 dark:from-green-950/40 dark:to-green-900/30 dark:border-green-800',
-    label: 'text-green-700 dark:text-green-300',
-    value: 'text-green-900 dark:text-green-100',
-    icon: 'from-green-400 to-green-600',
-    footer: 'text-green-600 border-green-200',
+    card: 'bg-[var(--color-success)]/10 border-[var(--color-success)]/25',
+    label: 'text-[var(--color-success)]',
+    value: 'text-[var(--color-text)]',
+    icon: 'bg-[var(--color-success)]',
+    footer: 'text-[var(--color-success)] border-[var(--color-success)]/25',
   },
   purple: {
-    card: 'from-purple-50 to-purple-100 border-purple-200 dark:from-purple-950/40 dark:to-purple-900/30 dark:border-purple-800',
-    label: 'text-purple-700 dark:text-purple-300',
-    value: 'text-purple-900 dark:text-purple-100',
-    icon: 'from-purple-400 to-purple-600',
-    footer: 'text-purple-600 border-purple-200',
+    card: 'bg-[var(--color-accent)]/10 border-[var(--color-accent)]/25',
+    label: 'text-[var(--color-accent)]',
+    value: 'text-[var(--color-text)]',
+    icon: 'bg-[var(--color-accent)]',
+    footer: 'text-[var(--color-accent)] border-[var(--color-accent)]/25',
   },
   yellow: {
-    card: 'from-yellow-50 to-yellow-100 border-yellow-200 dark:from-yellow-950/40 dark:to-yellow-900/30 dark:border-yellow-800',
-    label: 'text-yellow-700 dark:text-yellow-300',
-    value: 'text-yellow-900 dark:text-yellow-100',
-    icon: 'from-yellow-400 to-yellow-600',
-    footer: 'text-yellow-600 border-yellow-200',
+    card: 'bg-[var(--color-warning)]/10 border-[var(--color-warning)]/25',
+    label: 'text-[var(--color-warning)]',
+    value: 'text-[var(--color-text)]',
+    icon: 'bg-[var(--color-warning)]',
+    footer: 'text-[var(--color-warning)] border-[var(--color-warning)]/25',
   },
   orange: {
-    card: 'from-orange-50 to-orange-100 border-orange-200 dark:from-orange-950/40 dark:to-orange-900/30 dark:border-orange-800',
-    label: 'text-orange-700 dark:text-orange-300',
-    value: 'text-orange-900 dark:text-orange-100',
-    icon: 'from-orange-400 to-orange-600',
-    footer: 'text-orange-600 border-orange-200',
+    card: 'bg-[var(--color-warning)]/10 border-[var(--color-warning)]/25',
+    label: 'text-[var(--color-warning)]',
+    value: 'text-[var(--color-text)]',
+    icon: 'bg-[var(--color-warning)]',
+    footer: 'text-[var(--color-warning)] border-[var(--color-warning)]/25',
   },
   red: {
-    card: 'from-red-50 to-red-100 border-red-200 dark:from-red-950/40 dark:to-red-900/30 dark:border-red-800',
-    label: 'text-red-700 dark:text-red-300',
-    value: 'text-red-900 dark:text-red-100',
-    icon: 'from-red-400 to-red-600',
-    footer: 'text-red-600 border-red-200',
+    card: 'bg-[var(--color-danger)]/10 border-[var(--color-danger)]/25',
+    label: 'text-[var(--color-danger)]',
+    value: 'text-[var(--color-text)]',
+    icon: 'bg-[var(--color-danger)]',
+    footer: 'text-[var(--color-danger)] border-[var(--color-danger)]/25',
   },
   indigo: {
-    card: 'from-indigo-50 to-indigo-100 border-indigo-200 dark:from-indigo-950/40 dark:to-indigo-900/30 dark:border-indigo-800',
-    label: 'text-indigo-700 dark:text-indigo-300',
-    value: 'text-indigo-900 dark:text-indigo-100',
-    icon: 'from-indigo-400 to-indigo-600',
-    footer: 'text-indigo-600 border-indigo-200',
+    card: 'bg-[var(--color-primary)]/10 border-[var(--color-primary)]/25',
+    label: 'text-[var(--color-primary)]',
+    value: 'text-[var(--color-text)]',
+    icon: 'bg-[var(--color-primary)]',
+    footer: 'text-[var(--color-primary)] border-[var(--color-primary)]/25',
   },
   teal: {
-    card: 'from-teal-50 to-teal-100 border-teal-200 dark:from-teal-950/40 dark:to-teal-900/30 dark:border-teal-800',
-    label: 'text-teal-700 dark:text-teal-300',
-    value: 'text-teal-900 dark:text-teal-100',
-    icon: 'from-teal-400 to-teal-600',
-    footer: 'text-teal-600 border-teal-200',
+    card: 'bg-[var(--color-secondary)]/10 border-[var(--color-secondary)]/25',
+    label: 'text-[var(--color-secondary)]',
+    value: 'text-[var(--color-text)]',
+    icon: 'bg-[var(--color-secondary)]',
+    footer: 'text-[var(--color-secondary)] border-[var(--color-secondary)]/25',
   },
 };
 
@@ -89,7 +89,7 @@ const StatCard = ({
           : undefined
       }
       className={cn(
-        'bg-gradient-to-br rounded-xl shadow-md p-6 border transition-all duration-300',
+        'rounded-xl shadow-md p-6 border transition-all duration-300',
         onClick && 'cursor-pointer hover:shadow-xl hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]',
         scheme.card,
         className
@@ -103,7 +103,7 @@ const StatCard = ({
         {icon && (
           <div
             className={cn(
-              'w-14 h-14 shrink-0 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md',
+              'w-14 h-14 shrink-0 rounded-xl flex items-center justify-center shadow-md',
               scheme.icon
             )}
           >

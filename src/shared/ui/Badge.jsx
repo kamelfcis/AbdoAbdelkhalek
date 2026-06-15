@@ -4,10 +4,10 @@ import { cn } from '../lib/cn';
 
 const variants = {
   primary: 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border-[var(--color-primary)]/20',
-  success: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300',
-  warning: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300',
-  danger: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300',
-  info: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300',
+  success: 'bg-[var(--color-success)]/15 text-[var(--color-success)] border-[var(--color-success)]/25',
+  warning: 'bg-[var(--color-warning)]/15 text-[var(--color-warning)] border-[var(--color-warning)]/25',
+  danger: 'bg-[var(--color-danger)]/15 text-[var(--color-danger)] border-[var(--color-danger)]/25',
+  info: 'bg-[var(--color-info)]/15 text-[var(--color-info)] border-[var(--color-info)]/25',
   neutral: 'bg-[var(--color-bg-muted)] text-[var(--color-text-muted)] border-[var(--color-border)]',
 };
 

@@ -34,7 +34,7 @@ const SquashFAQ = lazy(() => import(/* webpackChunkName: "squash-faq" */ '../sec
 
 const ComponentLoader = ({ message }) => (
   <div className="flex items-center justify-center section-py min-h-[200px]" role="status" aria-live="polite">
-    <div className="rounded-full h-8 w-8 border-2 border-gray-200 border-t-[var(--color-primary)] animate-spin" />
+    <div className="rounded-full h-8 w-8 border-2 border-[var(--color-border)] border-t-[var(--color-primary)] animate-spin" />
     {message && <span className="sr-only">{message}</span>}
   </div>
 );
@@ -57,7 +57,7 @@ function SquashHomeContent({
 
   return (
     <div
-      className="App font-['Open_Sans',_sans-serif] bg-white"
+      className="App font-['Open_Sans',_sans-serif] surface-page"
       data-theme={themeIds.SQUASH}
       role="main"
     >

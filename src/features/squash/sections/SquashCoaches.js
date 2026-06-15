@@ -11,24 +11,24 @@ const SquashCoaches = () => {
   const { data = [], isLoading, error } = useSquashContent('coaches');
 
   return (
-    <section id="coaches" className="section-py relative overflow-hidden bg-gray-50">
+    <section id="coaches" className="section-py relative overflow-hidden bg-[var(--color-bg-muted)]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4 gradient-text">{t('coaches.title')}</h2>
           <div className="w-20 h-1 bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] mx-auto mb-6" />
-          <p className="text-gray-600">{t('coaches.subtitle')}</p>
+          <p className="text-[var(--color-text-muted)]">{t('coaches.subtitle')}</p>
         </div>
 
         {isLoading ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-xl h-72 animate-pulse" />
+              <div key={i} className="bg-[var(--color-surface)] rounded-xl h-72 animate-pulse" />
             ))}
           </div>
         ) : error ? (
           <p className="text-center text-red-600">{t('common.error')}</p>
         ) : data.length === 0 ? (
-          <p className="text-center text-gray-600">{t('coaches.empty')}</p>
+          <p className="text-center text-[var(--color-text-muted)]">{t('coaches.empty')}</p>
         ) : (
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {data.map((coach) => {
@@ -36,7 +36,7 @@ const SquashCoaches = () => {
                 resolveDomainMediaUrl(coach.image_url, coach.image_path, 'squash', 'coaches') ||
                 getUnsplashUrl('coach');
               return (
-                <div key={coach.id} className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all">
+                <div key={coach.id} className="bg-[var(--color-surface)] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all">
                   <OptimizedImage
                     src={imageSrc}
                     alt={pickItemField(coach, isAr, 'name_en', 'name_ar')}
@@ -46,10 +46,10 @@ const SquashCoaches = () => {
                     loading="lazy"
                   />
                   <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-800">
+                    <h3 className="text-xl font-bold text-[var(--color-text)]">
                       {pickItemField(coach, isAr, 'name_en', 'name_ar')}
                     </h3>
-                    <p className="text-gray-600 mt-2 line-clamp-4">
+                    <p className="text-[var(--color-text-muted)] mt-2 line-clamp-4">
                       {pickItemField(coach, isAr, 'description_en', 'description_ar')}
                     </p>
                   </div>

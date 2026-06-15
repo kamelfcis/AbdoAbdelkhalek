@@ -105,12 +105,12 @@ const AboutCoach = React.memo(() => {
         height="1241"
       />
       <div
-        className="absolute inset-0 bg-gradient-to-b from-gray-50/90 to-white/90"
+        className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg-muted)]/90 to-[var(--color-bg)]/90"
         style={{ zIndex: 1 }}
       ></div>
 
       <div className="container mx-auto px-4 relative" style={{ zIndex: 2 }}>
-        <div className="max-w-6xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+        <div className="max-w-6xl mx-auto bg-[var(--color-surface)] p-8 rounded-xl shadow-lg">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="relative">
               <OptimizedImage
@@ -134,7 +134,7 @@ const AboutCoach = React.memo(() => {
               </h2>
               <p
                 id="about-content"
-                className="text-gray-700 mb-6 text-lg leading-relaxed"
+                className="text-[var(--color-text)] mb-6 text-lg leading-relaxed"
               >
                 {getTranslation('about-content', currentLanguage)}
               </p>
@@ -174,7 +174,7 @@ const AboutCoach = React.memo(() => {
               </h3>
               <p
                 id="methodology-content"
-                className="mb-4 text-gray-100 leading-relaxed"
+                className="mb-4 text-[var(--color-text-inverse)]/90 leading-relaxed"
               >
                 {getTranslation('methodology-content', currentLanguage)}
               </p>
@@ -189,7 +189,7 @@ const AboutCoach = React.memo(() => {
               </h3>
               <p
                 id="approach-content"
-                className="mb-4 text-gray-100 leading-relaxed"
+                className="mb-4 text-[var(--color-text-inverse)]/90 leading-relaxed"
               >
                 {getTranslation('approach-content', currentLanguage)}
               </p>

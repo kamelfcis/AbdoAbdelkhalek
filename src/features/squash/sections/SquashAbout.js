@@ -20,14 +20,14 @@ const SquashAbout = React.memo(() => {
         style={{ zIndex: 0 }}
         aria-hidden="true"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-50/90 to-white/90" style={{ zIndex: 1 }} />
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg-muted)]/90 to-[var(--color-bg)]/90" style={{ zIndex: 1 }} />
 
       <div className="container mx-auto px-4 relative" style={{ zIndex: 2 }}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4 gradient-text">{t('about.title')}</h2>
             <div className="w-20 h-1 bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] mx-auto mb-6" />
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">{t('about.subtitle')}</p>
+            <p className="text-xl text-[var(--color-text-muted)] max-w-3xl mx-auto leading-relaxed">{t('about.subtitle')}</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -45,7 +45,7 @@ const SquashAbout = React.memo(() => {
               </div>
             </div>
 
-            <div className="space-y-6 text-gray-700 leading-relaxed">
+            <div className="space-y-6 text-[var(--color-text)] leading-relaxed">
               <p>{t('about.p1')}</p>
               <p>{t('about.p2')}</p>
             </div>

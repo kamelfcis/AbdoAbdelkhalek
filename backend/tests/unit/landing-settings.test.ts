@@ -29,6 +29,7 @@ describe('landing-settings service', () => {
 
     expect(result.domain).toBe('fitness');
     expect(result.sections).toEqual({
+      'success-stories': true,
       reviews: true,
       categories: true,
       videos: true,

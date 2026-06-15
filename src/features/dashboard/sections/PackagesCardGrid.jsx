@@ -102,7 +102,7 @@ function PackageCard({ pkg, isAr, t, onEdit, onDelete, isMutating, priority = fa
           </div>
           {/* Duration pill */}
           {durationDays != null && (
-            <span className="shrink-0 rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap">
+            <span className="shrink-0 rounded-full bg-[var(--color-surface)]/20 px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap">
               {durationDays}d
             </span>
           )}
@@ -114,7 +114,7 @@ function PackageCard({ pkg, isAr, t, onEdit, onDelete, isMutating, priority = fa
             <span
               className={cn(
                 'inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold',
-                'bg-white/20 text-white'
+                'bg-[var(--color-surface)]/20 text-white'
               )}
             >
               {typeLabel}
@@ -195,13 +195,13 @@ function PackageCard({ pkg, isAr, t, onEdit, onDelete, isMutating, priority = fa
         {/* Extra boolean badges */}
         <div className="mt-auto flex flex-wrap gap-1.5 pb-1">
           {pkg.includes_video_feedback && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-info)]/15 px-2 py-0.5 text-[10px] font-medium text-[var(--color-info)]">
               <i className="fas fa-video" aria-hidden="true" />
               {tr('pkg-video-feedback') || 'Video Feedback'}
             </span>
           )}
           {pkg.daily_support && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-700 dark:bg-green-900/30 dark:text-green-300">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-success)]/15 px-2 py-0.5 text-[10px] font-medium text-[var(--color-success)]">
               <i className="fas fa-headset" aria-hidden="true" />
               {tr('pkg-daily-support') || 'Daily Support'}
             </span>

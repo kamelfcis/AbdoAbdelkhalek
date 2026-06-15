@@ -7,11 +7,14 @@ import { loadFontAwesome } from '../../../shared/lib/fontAwesomeLoader';
 import { buildDashboardPath } from '../../dashboard/config/dashboardRoutes';
 import { loginPath } from '../../../shared/lib/authRoutes';
 import { useLandingSectionsOptional } from '../../../shared/contexts/LandingSectionsContext';
+import { useThemeOptional } from '../../../contexts/ThemeContext';
+import { cn } from '../../../shared/lib/cn';
 
 const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfile, onShowProfile }) => {
   const { currentLanguage } = useLanguage();
   const navigate = useNavigate();
   const { isSlugVisible } = useLandingSectionsOptional();
+  const theme = useThemeOptional();
   const isCoach = userProfile?.is_coach ?? userSession?.user?.user_metadata?.is_coach;
   const displayName =
     userProfile?.full_name ||
@@ -22,14 +25,12 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
   const headerRef = useRef(null);
   useSiteHeaderLayout(headerRef);
 
-  // Professional Font Awesome deferred loading
   useEffect(() => {
     loadFontAwesome({ priority: 'high' }).catch((error) => {
       console.warn('Font Awesome loading failed:', error);
     });
   }, []);
 
-  // Shrink navbar on scroll for better mobile UX
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -51,20 +52,22 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
     navigate(buildDashboardPath('fitness', 'overview'));
   };
 
+  const navLinkClass =
+    'text-[var(--color-text)] hover:text-[var(--color-primary)] text-base md:text-lg py-3 px-2 flex items-center h-full transition-colors';
+
   return (
     <nav
       ref={headerRef}
-      className="site-header bg-white w-full"
+      className="site-header surface-header w-full"
       data-site-header
       role="navigation"
       aria-label="Main navigation"
       style={{
-        boxShadow: scrolled
-          ? '0 2px 12px rgba(0,0,0,0.12)'
-          : '0 1px 4px rgba(0,0,0,0.08)',
+        boxShadow: scrolled ? 'var(--shadow-md)' : 'var(--shadow-sm)',
         transition: 'box-shadow 0.3s ease, background 0.3s ease',
-        backdropFilter: scrolled ? 'blur(8px)' : 'none',
-        backgroundColor: scrolled ? 'rgba(255,255,255,0.95)' : '#fff',
+        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        WebkitBackdropFilter: scrolled ? 'blur(12px)' : 'none',
+        backgroundColor: scrolled ? 'color-mix(in srgb, var(--color-surface) 92%, transparent)' : undefined,
       }}
     >
       <div
@@ -76,9 +79,9 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
           transition: 'padding 0.3s ease, min-height 0.3s ease',
         }}
       >
-        <a 
-          href="#home" 
-          onClick={(e) => handleNavClick(e, 'home')} 
+        <a
+          href="#home"
+          onClick={(e) => handleNavClick(e, 'home')}
           className="flex flex-col items-center justify-center space-y-1"
           aria-label="Home"
         >
@@ -124,36 +127,20 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
         </a>
 
         <div className="hidden lg:flex space-x-4 xl:space-x-6 items-center h-full">
-          <a
-            href="#home"
-            onClick={(e) => handleNavClick(e, 'home')}
-            className="text-gray-800 hover:text-[var(--color-primary)] text-base md:text-lg py-3 px-2 flex items-center h-full"
-          >
+          <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className={navLinkClass}>
             {getTranslation('nav-home', currentLanguage)}
           </a>
           {isSlugVisible('categories') && (
-            <a
-              href="#categories"
-              onClick={(e) => handleNavClick(e, 'categories')}
-              className="text-gray-800 hover:text-[var(--color-primary)] text-base md:text-lg py-3 px-2 flex items-center h-full"
-            >
+            <a href="#categories" onClick={(e) => handleNavClick(e, 'categories')} className={navLinkClass}>
               {getTranslation('nav-categories', currentLanguage)}
             </a>
           )}
           {isSlugVisible('packages') && (
-            <a
-              href="#packages"
-              onClick={(e) => handleNavClick(e, 'packages')}
-              className="text-gray-800 hover:text-[var(--color-primary)] text-base md:text-lg py-3 px-2 flex items-center h-full"
-            >
+            <a href="#packages" onClick={(e) => handleNavClick(e, 'packages')} className={navLinkClass}>
               {getTranslation('nav-packages', currentLanguage)}
             </a>
           )}
-          <a
-            href="#about-me"
-            onClick={(e) => handleNavClick(e, 'about-me')}
-            className="text-gray-800 hover:text-[var(--color-primary)] text-base md:text-lg py-3 px-2 flex items-center h-full"
-          >
+          <a href="#about-me" onClick={(e) => handleNavClick(e, 'about-me')} className={navLinkClass}>
             {getTranslation('nav-about', currentLanguage)}
           </a>
         </div>
@@ -185,9 +172,20 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
               <span className="hidden lg:inline">{displayName.split(' ')[0]}</span>
             </button>
           )}
+          {theme?.toggleMode && (
+            <button
+              type="button"
+              onClick={theme.toggleMode}
+              className="p-2 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-text)] transition flex items-center justify-center"
+              aria-label={theme.isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={theme.isDark ? 'Light mode' : 'Dark mode'}
+            >
+              <i className={cn('fas text-lg md:text-xl', theme.isDark ? 'fa-sun' : 'fa-moon')} aria-hidden="true" />
+            </button>
+          )}
           <button
             onClick={onSidebarToggle}
-            className="text-gray-800 hover:text-[var(--color-primary)] p-3 hover:bg-gray-100 rounded-lg flex items-center justify-center"
+            className="text-[var(--color-text)] hover:text-[var(--color-primary)] p-3 hover:bg-[var(--color-bg-muted)] rounded-lg flex items-center justify-center transition-colors"
             aria-label="Toggle menu"
             aria-expanded={false}
             type="button"
@@ -203,4 +201,3 @@ const Navbar = React.memo(({ onSidebarToggle, onNavClick, userSession, userProfi
 Navbar.displayName = 'Navbar';
 
 export default Navbar;
-

@@ -39,35 +39,35 @@ const SquashReviews = React.memo(() => {
   };
 
   return (
-    <section id="reviews" className="section-py relative overflow-hidden bg-gray-50">
+    <section id="reviews" className="section-py relative overflow-hidden bg-[var(--color-bg-muted)]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 gradient-text">{t('reviews.title')}</h2>
           <div className="w-20 h-1 bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] mx-auto mb-6" />
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">{t('reviews.subtitle')}</p>
+          <p className="text-xl text-[var(--color-text-muted)] max-w-3xl mx-auto">{t('reviews.subtitle')}</p>
         </div>
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="bg-white p-4 rounded-xl shadow-lg animate-pulse h-80" />
+              <div key={i} className="bg-[var(--color-surface)] p-4 rounded-xl shadow-lg animate-pulse h-80" />
             ))}
           </div>
         ) : error ? (
           <p className="text-center text-red-600">{t('common.error')}</p>
         ) : reviews.length === 0 ? (
-          <p className="text-center text-gray-600">{t('reviews.empty')}</p>
+          <p className="text-center text-[var(--color-text-muted)]">{t('reviews.empty')}</p>
         ) : (
           <LazySplide ref={splideRef} options={splideOptions} aria-label={t('reviews.title')}>
             {reviews.map((review, index) => {
               const imageUrl = resolveDomainMediaUrl(review.image_url, review.image_path, 'squash', 'reviews');
               return (
                 <LazySplideSlide key={review.id}>
-                  <div className="bg-white p-4 rounded-xl shadow-lg mx-4">
+                  <div className="bg-[var(--color-surface)] p-4 rounded-xl shadow-lg mx-4">
                     <OptimizedImage
                       src={imageUrl}
                       alt={`Review ${index + 1}`}
-                      className="w-full h-auto max-h-[500px] object-contain bg-gray-50 rounded-lg cursor-pointer hover:opacity-90"
+                      className="w-full h-auto max-h-[500px] object-contain bg-[var(--color-bg-muted)] rounded-lg cursor-pointer hover:opacity-90"
                       onClick={() => openImage(imageUrl)}
                       width={400}
                       height={600}

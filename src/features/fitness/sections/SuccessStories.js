@@ -183,7 +183,7 @@ const SuccessStories = React.memo(({ onAlert }) => {
     const dots = stories.map((_, index) => {
       const button = document.createElement('button');
       button.className =
-        'relative w-3 h-3 rounded-full bg-gray-300 hover:bg-[var(--color-primary)] transition-all duration-500 mx-1.5 hover:scale-150 group focus:outline-none';
+        'relative w-3 h-3 rounded-full bg-[var(--color-border)] hover:bg-[var(--color-primary)] transition-all duration-500 mx-1.5 hover:scale-150 group focus:outline-none';
       const glow = document.createElement('span');
       glow.className =
         'absolute inset-0 rounded-full bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] opacity-0 blur-sm transition-opacity duration-300';
@@ -322,7 +322,7 @@ const SuccessStories = React.memo(({ onAlert }) => {
         height="1200"
       />
       <div
-        className="absolute inset-0 bg-gradient-to-b from-white/90 to-gray-50/90"
+        className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg)]/90 to-[var(--color-bg-muted)]/90"
         style={{ zIndex: 1 }}
       ></div>
 
@@ -349,11 +349,11 @@ const SuccessStories = React.memo(({ onAlert }) => {
           </h2>
           <div className="w-32 h-1 bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] mx-auto mb-8 rounded-full"></div>
           {currentLanguage === 'ar' ? (
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-[var(--color-text-muted)] max-w-3xl mx-auto leading-relaxed">
               اكتشف رحلات التحول المذهلة للاعبين الذين حققوا أحلامهم من خلال التدريب العلمي والمتابعة المتخصصة
             </p>
           ) : (
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-[var(--color-text-muted)] max-w-3xl mx-auto leading-relaxed">
               Discover the amazing transformation journeys of players who achieved their dreams through
               scientific training and specialized follow-up
             </p>
@@ -363,12 +363,12 @@ const SuccessStories = React.memo(({ onAlert }) => {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="bg-white p-6 rounded-xl shadow-lg animate-pulse">
-                <div className="h-6 bg-gray-200 rounded mb-4 w-2/3"></div>
-                <div className="h-4 bg-gray-200 rounded mb-6 w-full"></div>
+              <div key={index} className="bg-[var(--color-surface)] p-6 rounded-xl shadow-lg animate-pulse">
+                <div className="h-6 bg-[var(--color-bg-muted)] rounded mb-4 w-2/3"></div>
+                <div className="h-4 bg-[var(--color-bg-muted)] rounded mb-6 w-full"></div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="h-[300px] bg-gray-200 rounded-lg"></div>
-                  <div className="h-[300px] bg-gray-200 rounded-lg"></div>
+                  <div className="h-[300px] bg-[var(--color-bg-muted)] rounded-lg"></div>
+                  <div className="h-[300px] bg-[var(--color-bg-muted)] rounded-lg"></div>
                 </div>
               </div>
             ))}
@@ -384,20 +384,20 @@ const SuccessStories = React.memo(({ onAlert }) => {
             <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 z-20 hidden lg:block">
               <button
                 onClick={handlePrev}
-                className="w-16 h-16 bg-gradient-to-br from-white to-gray-50 rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(0,116,183,0.5)] transition-all duration-500 flex items-center justify-center group hover:scale-125 hover:rotate-[-10deg] border-2 border-transparent hover:border-[var(--color-primary)] backdrop-blur-sm relative overflow-hidden"
+                className="w-16 h-16 bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-bg-muted)] rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(0,116,183,0.5)] transition-all duration-500 flex items-center justify-center group hover:scale-125 hover:rotate-[-10deg] border-2 border-transparent hover:border-[var(--color-primary)] backdrop-blur-sm relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary-light)] to-[var(--color-primary)] opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full"></div>
-                <i className={`fas fa-chevron-${currentLanguage === 'ar' ? 'right' : 'left'} text-[var(--color-primary)] text-xl group-hover:text-white transition-all duration-300 relative z-10 group-hover:scale-110`}></i>
+                <i className={`fas fa-chevron-${currentLanguage === 'ar' ? 'right' : 'left'} text-[var(--color-primary)] text-xl group-hover:text-[var(--color-text-inverse)] transition-all duration-300 relative z-10 group-hover:scale-110`}></i>
                 <span className="absolute inset-0 rounded-full border-2 border-[var(--color-primary)] opacity-0 group-hover:opacity-100 group-hover:scale-150 transition-all duration-700"></span>
               </button>
             </div>
             <div className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-20 hidden lg:block">
               <button
                 onClick={handleNext}
-                className="w-16 h-16 bg-gradient-to-br from-white to-gray-50 rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(0,116,183,0.5)] transition-all duration-500 flex items-center justify-center group hover:scale-125 hover:rotate-[10deg] border-2 border-transparent hover:border-[var(--color-primary)] backdrop-blur-sm relative overflow-hidden"
+                className="w-16 h-16 bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-bg-muted)] rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(0,116,183,0.5)] transition-all duration-500 flex items-center justify-center group hover:scale-125 hover:rotate-[10deg] border-2 border-transparent hover:border-[var(--color-primary)] backdrop-blur-sm relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary-light)] to-[var(--color-primary)] opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full"></div>
-                <i className={`fas fa-chevron-${currentLanguage === 'ar' ? 'left' : 'right'} text-[var(--color-primary)] text-xl group-hover:text-white transition-all duration-300 relative z-10 group-hover:scale-110`}></i>
+                <i className={`fas fa-chevron-${currentLanguage === 'ar' ? 'left' : 'right'} text-[var(--color-primary)] text-xl group-hover:text-[var(--color-text-inverse)] transition-all duration-300 relative z-10 group-hover:scale-110`}></i>
                 <span className="absolute inset-0 rounded-full border-2 border-[var(--color-primary)] opacity-0 group-hover:opacity-100 group-hover:scale-150 transition-all duration-700"></span>
               </button>
             </div>
@@ -409,13 +409,13 @@ const SuccessStories = React.memo(({ onAlert }) => {
 
                 return (
                   <LazySplideSlide key={story.id}>
-                    <div className="bg-white p-6 pb-8 rounded-xl shadow-lg mx-4 h-full">
+                    <div className="bg-[var(--color-surface)] p-6 pb-8 rounded-xl shadow-lg mx-4 h-full">
                       <div className="flex flex-col h-full justify-center">
                         <h3 className="text-2xl font-bold mb-4 gradient-text">
                           {currentLanguage === 'ar' ? (story.title_ar || 'قصة نجاح') : (story.title_en || 'Success Story')}
                         </h3>
                         {(story.content_en || story.content_ar) && (
-                          <p className="text-gray-700 mb-6 flex-grow">
+                          <p className="text-[var(--color-text)] mb-6 flex-grow">
                             {currentLanguage === 'ar' ? (story.content_ar || story.content_en) : (story.content_en || story.content_ar)}
                           </p>
                         )}
@@ -427,7 +427,7 @@ const SuccessStories = React.memo(({ onAlert }) => {
                                 <OptimizedImage
                                   src={beforeSrc}
                                   alt={currentLanguage === 'ar' ? 'قبل' : 'Before'}
-                                  className="w-full h-[180px] sm:h-[449px] md:h-[280px] lg:h-[300px] object-cover bg-gray-50 transition-transform duration-500 hover:scale-105"
+                                  className="w-full h-[180px] sm:h-[449px] md:h-[280px] lg:h-[300px] object-cover bg-[var(--color-bg-muted)] transition-transform duration-500 hover:scale-105"
                                   width={600}
                                   height={450}
                                   loading="lazy"
@@ -444,7 +444,7 @@ const SuccessStories = React.memo(({ onAlert }) => {
                                 <OptimizedImage
                                   src={afterSrc}
                                   alt={currentLanguage === 'ar' ? 'بعد' : 'After'}
-                                  className="w-full h-[180px] sm:h-[449px] md:h-[280px] lg:h-[300px] object-cover bg-gray-50 transition-transform duration-500 hover:scale-105"
+                                  className="w-full h-[180px] sm:h-[449px] md:h-[280px] lg:h-[300px] object-cover bg-[var(--color-bg-muted)] transition-transform duration-500 hover:scale-105"
                                   width={600}
                                   height={450}
                                   loading="lazy"
@@ -471,7 +471,7 @@ const SuccessStories = React.memo(({ onAlert }) => {
                                 onError={() => {}}
                               />
                             </div>
-                            <p className="text-sm font-semibold text-gray-600 bg-gray-100 py-1 px-3 rounded-full inline-block">
+                            <p className="text-sm font-semibold text-[var(--color-text-muted)] bg-[var(--color-bg-muted)] py-1 px-3 rounded-full inline-block">
                               {currentLanguage === 'ar' ? (beforeSrc ? 'قبل' : 'بعد') : (beforeSrc ? 'Before' : 'After')}
                             </p>
                           </div>
@@ -490,7 +490,7 @@ const SuccessStories = React.memo(({ onAlert }) => {
               ></div>
 
               <div className="w-full max-w-md">
-                <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-1 bg-[var(--color-bg-muted)] rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] transition-all duration-100"
                     style={{ width: `${autoplayProgress * 100}%` }}
@@ -500,11 +500,11 @@ const SuccessStories = React.memo(({ onAlert }) => {
 
               <button
                 onClick={toggleAutoplay}
-                className="flex items-center space-x-2 bg-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group hover:scale-105"
+                className="flex items-center space-x-2 bg-[var(--color-surface)] px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group hover:scale-105"
                 title="Toggle Autoplay"
               >
                 <i className={`fas ${isAutoplayPaused ? 'fa-play' : 'fa-pause'} text-[var(--color-primary)] group-hover:text-[var(--color-primary-light)] transition-colors`}></i>
-                <span className="text-sm font-semibold text-gray-700 group-hover:text-[var(--color-primary)] transition-colors">
+                <span className="text-sm font-semibold text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors">
                   {isAutoplayPaused
                     ? getTranslation('autoplay-text-play', currentLanguage)
                     : getTranslation('autoplay-text-pause', currentLanguage)}
@@ -514,7 +514,7 @@ const SuccessStories = React.memo(({ onAlert }) => {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-600">
+            <p className="text-[var(--color-text-muted)]">
               {currentLanguage === 'ar' ? 'لا توجد قصص نجاح متاحة حالياً' : 'No success stories available yet.'}
             </p>
           </div>
@@ -522,11 +522,11 @@ const SuccessStories = React.memo(({ onAlert }) => {
 
         {stories.length > 0 && (
           <div className="text-center mt-16">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20 max-w-2xl mx-auto">
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">
+            <div className="bg-[var(--color-surface)]/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20 max-w-2xl mx-auto">
+              <h3 className="text-2xl font-bold text-[var(--color-text)] mb-4">
                 {currentLanguage === 'ar' ? 'كن القصة التالية' : 'Be the Next Story'}
               </h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
+              <p className="text-[var(--color-text-muted)] mb-6 leading-relaxed">
                 {currentLanguage === 'ar' 
                   ? 'ابدأ رحلتك نحو الاحتراف مع برامج تدريبية مخصصة ومتابعة متخصصة'
                   : 'Start your journey towards professionalism with customized training programs and specialized follow-up'}

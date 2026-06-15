@@ -1,17 +1,47 @@
 [data-login-page] {
-  --login-bg: #050816;
-  --login-surface: #0b1220;
-  --login-accent: #d7ff3f;
-  --login-accent-glow: rgba(215, 255, 63, 0.15);
-  --login-glass-border: rgba(255, 255, 255, 0.08);
-  --login-text: #f1f5f9;
-  --login-text-muted: #94a3b8;
-  --login-gradient-fitness: linear-gradient(135deg, #050816 0%, #0b1220 50%, #0f1a2e 100%);
-  --login-gradient-squash: linear-gradient(135deg, #050816 0%, #0b1220 45%, #1a0f2e 100%);
+  --login-bg: var(--color-bg);
+  --login-surface: var(--color-surface);
+  --login-accent: var(--color-primary-light);
+  --login-accent-glow: color-mix(in srgb, var(--color-primary-light) 18%, transparent);
+  --login-glass-border: var(--color-border);
+  --login-text: var(--color-text);
+  --login-text-muted: var(--color-text-muted);
+  --login-gradient-fitness: var(--gradient-hero);
+  --login-gradient-squash: var(--gradient-hero);
   min-height: 100vh;
   background: var(--login-bg);
   color: var(--login-text);
   font-family: 'Rajdhani', sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+html[data-mode='dark'] [data-login-page] {
+  --login-glass-border: rgba(255, 255, 255, 0.08);
+  --login-accent-glow: color-mix(in srgb, var(--color-primary-light) 15%, transparent);
+}
+
+html[data-mode='light'] [data-login-page] {
+  --login-accent: var(--color-primary);
+  --login-accent-glow: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  --login-glass-border: var(--color-border);
+}
+
+html[data-mode='light'] [data-login-page] .login-showcase__overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.55) 70%,
+    var(--login-bg) 100%
+  );
+}
+
+html[data-mode='dark'] [data-login-page] .login-showcase__overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(5, 8, 22, 0.4) 0%,
+    rgba(5, 8, 22, 0.85) 70%,
+    var(--login-bg) 100%
+  );
 }
 
 [data-login-page][data-login-domain='fitness'] {
@@ -65,10 +95,11 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(5, 8, 22, 0.4) 0%,
-    rgba(5, 8, 22, 0.85) 70%,
+    color-mix(in srgb, var(--login-bg) 40%, transparent) 0%,
+    color-mix(in srgb, var(--login-bg) 85%, transparent) 70%,
     var(--login-bg) 100%
   );
+  transition: background 0.2s ease;
 }
 
 .login-showcase__content {
@@ -107,7 +138,7 @@
 }
 
 .login-stat-card {
-  background: rgba(11, 18, 32, 0.7);
+  background: color-mix(in srgb, var(--login-surface) 70%, transparent);
   backdrop-filter: blur(20px);
   border: 1px solid var(--login-glass-border);
   border-radius: 0.875rem;
@@ -118,7 +149,7 @@
 }
 
 .login-stat-card:hover {
-  border-color: rgba(215, 255, 63, 0.25);
+  border-color: color-mix(in srgb, var(--login-accent) 25%, transparent);
   box-shadow: 0 8px 32px var(--login-accent-glow);
 }
 
@@ -146,7 +177,7 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.4rem 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: color-mix(in srgb, var(--login-surface) 50%, transparent);
   backdrop-filter: blur(12px);
   border: 1px solid var(--login-glass-border);
   border-radius: 999px;
@@ -160,7 +191,7 @@
 }
 
 .login-testimonial {
-  background: rgba(11, 18, 32, 0.65);
+  background: color-mix(in srgb, var(--login-surface) 65%, transparent);
   backdrop-filter: blur(20px);
   border: 1px solid var(--login-glass-border);
   border-radius: 1rem;
@@ -244,7 +275,7 @@
 .login-reset-page__card input[type='email'],
 .login-reset-page__card input[type='password'],
 .login-reset-page__card input[type='text'] {
-  background: rgba(255, 255, 255, 0.06) !important;
+  background: color-mix(in srgb, var(--login-surface) 60%, transparent) !important;
   border: 1px solid var(--login-glass-border) !important;
   color: var(--login-text) !important;
 }
@@ -347,7 +378,7 @@
 }
 
 .login-auth-panel__toggle {
-  background: rgba(255, 255, 255, 0.06);
+  background: color-mix(in srgb, var(--login-surface) 50%, transparent);
   backdrop-filter: blur(12px);
   border: 1px solid var(--login-glass-border);
   border-radius: 999px;
@@ -361,7 +392,7 @@
 }
 
 .login-auth-panel__toggle:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--login-surface) 70%, transparent);
 }
 
 .login-auth-panel__toggle i {
@@ -370,7 +401,7 @@
 
 .login-auth-panel__btn-accent {
   background: var(--login-accent) !important;
-  color: #050816 !important;
+  color: var(--color-text-inverse) !important;
   font-weight: 700;
   border: none;
 }
@@ -380,7 +411,7 @@
 }
 
 .login-signup-panel {
-  background: rgba(11, 18, 32, 0.95);
+  background: color-mix(in srgb, var(--login-surface) 95%, transparent);
   backdrop-filter: blur(20px);
   border: 1px solid var(--login-glass-border);
   border-radius: 1.25rem;
@@ -431,7 +462,7 @@
 .login-reset-page__card {
   width: 100%;
   max-width: 24rem;
-  background: rgba(11, 18, 32, 0.9);
+  background: color-mix(in srgb, var(--login-surface) 90%, transparent);
   backdrop-filter: blur(20px);
   border: 1px solid var(--login-glass-border);
   border-radius: 1.25rem;
@@ -454,7 +485,7 @@
     content: '';
     position: fixed;
     inset: 0;
-    background: rgba(5, 8, 22, 0.72);
+    background: color-mix(in srgb, var(--login-bg) 72%, transparent);
     pointer-events: none;
     z-index: 0;
   }

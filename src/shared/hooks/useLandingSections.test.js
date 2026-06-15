@@ -30,8 +30,8 @@ describe('isSlugVisible', () => {
 });
 
 describe('getLandingSectionsForDomain', () => {
-  it('returns 5 fitness sections and 7 squash sections', () => {
-    expect(getLandingSectionsForDomain('fitness')).toHaveLength(5);
+  it('returns 6 fitness sections and 7 squash sections', () => {
+    expect(getLandingSectionsForDomain('fitness')).toHaveLength(6);
     expect(getLandingSectionsForDomain('squash')).toHaveLength(7);
   });
 });

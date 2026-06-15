@@ -227,7 +227,7 @@ const FAQ = ({ onAlert }) => {
       />
 
       <div
-        className="absolute inset-0 bg-gradient-to-b from-[var(--color-primary-light)]/10 via-white/80 to-gray-50/90"
+        className="absolute inset-0 bg-gradient-to-b from-[var(--color-primary-light)]/10 via-[var(--color-bg)]/80 to-[var(--color-bg-muted)]/90"
         style={{ zIndex: 1 }}
       ></div>
 
@@ -247,7 +247,7 @@ const FAQ = ({ onAlert }) => {
           <div className="w-32 h-1.5 bg-gradient-to-r from-transparent via-[var(--color-primary)] to-transparent mx-auto mb-6 rounded-full"></div>
           <p
             id="faq-subtitle"
-            className="text-xl text-gray-700 max-w-3xl mx-auto font-medium"
+            className="text-xl text-[var(--color-text)] max-w-3xl mx-auto font-medium"
           >
             {getTranslation('faq-subtitle', currentLanguage)}
           </p>
@@ -255,12 +255,12 @@ const FAQ = ({ onAlert }) => {
 
         {loading ? (
           <div className="max-w-4xl mx-auto">
-            <div className="text-center py-12 bg-white/80 rounded-2xl shadow-lg">
+            <div className="text-center py-12 bg-[var(--color-surface)]/80 rounded-2xl shadow-lg">
               <div className="relative w-16 h-16 mx-auto mb-6">
                 <div className="absolute inset-0 rounded-full border-4 border-[var(--color-primary-light)] opacity-25"></div>
                 <div className="absolute inset-0 rounded-full border-4 border-[var(--color-primary)] border-t-transparent animate-spin"></div>
               </div>
-              <p className="text-gray-600 font-medium">
+              <p className="text-[var(--color-text-muted)] font-medium">
                 {getTranslation('loading-faqs', currentLanguage)}
               </p>
             </div>
@@ -270,7 +270,7 @@ const FAQ = ({ onAlert }) => {
             {faqs.map((faq, index) => (
               <div
                 key={faq.id}
-                className="faq-item bg-white/90 backdrop-blur-md rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border-2 border-transparent hover:border-[var(--color-primary)]/30 transform hover:-translate-y-1"
+                className="faq-item bg-[var(--color-surface)]/90 backdrop-blur-md rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border-2 border-transparent hover:border-[var(--color-primary)]/30 transform hover:-translate-y-1"
               >
                 <button
                   className={`w-full px-8 py-6 ${
@@ -290,7 +290,7 @@ const FAQ = ({ onAlert }) => {
                       <span className="text-white font-bold text-lg">{index + 1}</span>
                     </div>
                     <span
-                      className={`font-bold text-gray-800 text-lg group-hover:text-[var(--color-primary)] transition-colors duration-300 ${
+                      className={`font-bold text-[var(--color-text)] text-lg group-hover:text-[var(--color-primary)] transition-colors duration-300 ${
                         isRTL ? 'leading-relaxed' : ''
                       }`}
                     >
@@ -305,7 +305,7 @@ const FAQ = ({ onAlert }) => {
                     }`}
                   >
                     <i
-                      className={`fas fa-chevron-down text-[var(--color-primary)] group-hover:text-white transition-all duration-300 ${
+                      className={`fas fa-chevron-down text-[var(--color-primary)] group-hover:text-[var(--color-text-inverse)] transition-all duration-300 ${
                         openIndex === index ? 'rotate-180' : ''
                       }`}
                       id={`faq-icon-${index}`}
@@ -337,7 +337,7 @@ const FAQ = ({ onAlert }) => {
                           </div>
                         </div>
                           <p
-                            className={`text-gray-700 leading-relaxed text-base flex-1 ${
+                            className={`text-[var(--color-text)] leading-relaxed text-base flex-1 ${
                               isRTL ? 'text-right' : 'text-left'
                             }`}
                           >

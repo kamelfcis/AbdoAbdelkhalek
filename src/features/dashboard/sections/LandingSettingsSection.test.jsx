@@ -56,6 +56,7 @@ describe('LandingSettingsSection', () => {
     });
     useLandingSections.mockReturnValue({
       sections: {
+        'success-stories': true,
         reviews: true,
         categories: true,
         videos: true,
@@ -73,7 +74,7 @@ describe('LandingSettingsSection', () => {
   it('renders section toggle cards for fitness domain', () => {
     renderSection();
     expect(screen.getByText('landing-section-faq')).toBeInTheDocument();
-    expect(screen.getAllByRole('switch')).toHaveLength(5);
+    expect(screen.getAllByRole('switch')).toHaveLength(6);
   });
 
   it('calls API when toggle is clicked', async () => {

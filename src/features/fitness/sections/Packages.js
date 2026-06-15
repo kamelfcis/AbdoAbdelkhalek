@@ -324,7 +324,7 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
         gradientFrom: 'rgb(244, 215, 123)',
         gradientTo: 'rgb(220, 180, 80)',
         solid: 'rgb(244, 215, 123)',
-        text: 'text-gray-900'
+        text: 'text-[var(--color-text)]'
       };
       } else if (nameEn.includes('platinum') || nameAr.includes('بلاتيني') || nameAr.includes('بلاتينوم')) {
         colorConfig = {
@@ -361,7 +361,7 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
   return (
     <section id="packages" className="section-py relative overflow-hidden">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}></canvas>
-      <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-gray-50/90" style={{ zIndex: 1 }}></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg)]/90 to-[var(--color-bg-muted)]/90" style={{ zIndex: 1 }}></div>
 
       <div className="container mx-auto px-4 relative" style={{ zIndex: 2 }}>
         <div className="text-center mb-16">
@@ -379,7 +379,7 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
           </div>
         ) : packages.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">No packages available.</p>
+            <p className="text-[var(--color-text-muted)]">No packages available.</p>
           </div>
         ) : (
           <>
@@ -413,7 +413,7 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                 return (
                   <div
                     key={pkg.id}
-                    className="flex flex-col bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:-translate-y-3"
+                    className="flex flex-col bg-[var(--color-surface)] rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:-translate-y-3"
                     style={{ '--pkg-shadow': '0 20px 40px rgba(0,0,0,0.12)' }}
                     onMouseEnter={e => e.currentTarget.style.boxShadow = '0 24px 48px rgba(0,0,0,0.18)'}
                     onMouseLeave={e => e.currentTarget.style.boxShadow = ''}
@@ -446,7 +446,7 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                                 key={idx}
                                 className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse text-right' : ''}`}
                               >
-                                <span className="text-gray-700 text-sm leading-relaxed flex-1">
+                                <span className="text-[var(--color-text)] text-sm leading-relaxed flex-1">
                                   {feature}
                                 </span>
                                 <div
@@ -498,8 +498,8 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
 
                     {!isSubscribed && (() => {
                       return (
-                        <div className="px-6 pb-5 border-t border-gray-100 pt-5">
-                          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
+                        <div className="px-6 pb-5 border-t border-[var(--color-border)] pt-5">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] mb-3">
                             {currentLanguage === 'ar' ? 'مدة الاشتراك' : 'Duration'}
                           </p>
                           {availableDurations.length > 1 ? (
@@ -538,7 +538,7 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                                     className={`py-2.5 rounded-xl text-xs font-bold leading-tight min-h-[44px] flex flex-col items-center justify-center gap-0.5 ${
                                       isSelected
                                         ? packageColor.text
-                                        : 'text-gray-500 hover:text-[var(--color-primary)] hover:border-[var(--color-primary-light)]'
+                                        : 'text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary-light)]'
                                     }`}
                                   >
                                     <span>{currentLanguage === 'ar' ? labelAr : labelEn}</span>
@@ -559,7 +559,7 @@ const Packages = ({ onAlert, userSession, userProfile }) => {
                             </p>
                           )}
                           {(displayEgp || displayUsd) && (
-                            <p className="text-center text-xs font-semibold text-gray-500 transition-all duration-200">
+                            <p className="text-center text-xs font-semibold text-[var(--color-text-muted)] transition-all duration-200">
                               {[
                                 displayEgp ? `${displayEgp.toLocaleString()} EGP` : null,
                                 displayUsd ? `${displayUsd} USD` : null,

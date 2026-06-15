@@ -16,17 +16,17 @@ const SquashWhyChooseMe = React.memo(() => {
   return (
     <section id="why-choose" className="section-py relative overflow-hidden">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }} aria-hidden="true" />
-      <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-gray-50/85 to-white/90" style={{ zIndex: 1 }} />
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg)]/90 via-[var(--color-bg-muted)]/85 to-[var(--color-bg)]/90" style={{ zIndex: 1 }} />
 
       <div className="container mx-auto px-4 relative" style={{ zIndex: 2 }}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4 gradient-text">{t('why.title')}</h2>
             <div className="w-20 h-1 bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] mx-auto mb-6" />
-            <p className="text-xl text-gray-600">{t('why.subtitle')}</p>
+            <p className="text-xl text-[var(--color-text-muted)]">{t('why.subtitle')}</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12">
+          <div className="bg-[var(--color-surface)] rounded-2xl shadow-2xl p-8 md:p-12">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {FEATURES.map(({ icon, keys }) => (
                 <div
@@ -40,8 +40,8 @@ const SquashWhyChooseMe = React.memo(() => {
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-800 mb-2">{t(keys[0])}</h3>
-                      <p className="text-gray-600 text-sm leading-relaxed">{t(keys[1])}</p>
+                      <h3 className="text-lg font-bold text-[var(--color-text)] mb-2">{t(keys[0])}</h3>
+                      <p className="text-[var(--color-text-muted)] text-sm leading-relaxed">{t(keys[1])}</p>
                     </div>
                   </div>
                 </div>

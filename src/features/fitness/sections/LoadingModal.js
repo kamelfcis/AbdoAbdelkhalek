@@ -20,7 +20,7 @@ const LoadingModal = ({ isLoading, progress }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-white flex items-center justify-center z-[9999]" 
+      className="fixed inset-0 bg-[var(--color-surface)] flex items-center justify-center z-[9999]" 
       style={{ willChange: 'opacity' }}
       role="status"
       aria-live="polite"
@@ -33,7 +33,7 @@ const LoadingModal = ({ isLoading, progress }) => {
               cx="50"
               cy="50"
               r="45"
-              stroke="#e5e7eb"
+              stroke="var(--color-border)"
               strokeWidth="8"
               fill="none"
             />
@@ -42,7 +42,7 @@ const LoadingModal = ({ isLoading, progress }) => {
               cx="50"
               cy="50"
               r="45"
-              stroke="#0074b7"
+              stroke="var(--color-primary)"
               strokeWidth="8"
               fill="none"
               strokeLinecap="round"
@@ -61,8 +61,8 @@ const LoadingModal = ({ isLoading, progress }) => {
             />
           </div>
         </div>
-        <h3 className="text-lg font-semibold text-gray-800 mb-1">Loading</h3>
-        <p className="text-sm text-gray-500">Please wait...</p>
+        <h3 className="text-lg font-semibold text-[var(--color-text)] mb-1">Loading</h3>
+        <p className="text-sm text-[var(--color-text-muted)]">Please wait...</p>
       </div>
     </div>
   );

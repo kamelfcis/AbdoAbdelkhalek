@@ -160,7 +160,7 @@ const About = React.memo(() => {
         width="1900"
         height="1510"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-50/90 to-white/90" style={{ zIndex: 1 }}></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg-muted)]/90 to-[var(--color-bg)]/90" style={{ zIndex: 1 }}></div>
 
       <div className="container mx-auto px-4 relative" style={{ zIndex: 2 }}>
         <div className="max-w-6xl mx-auto">
@@ -169,7 +169,7 @@ const About = React.memo(() => {
               {currentLanguage === 'ar' ? 'من أنا؟' : 'Who Am I?'}
             </h2>
             <div className="w-20 h-1 bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] mx-auto mb-6"></div>
-            <p id="about-me-subtitle" className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p id="about-me-subtitle" className="text-xl text-[var(--color-text-muted)] max-w-3xl mx-auto leading-relaxed">
               {currentLanguage === 'ar'
                 ? 'عبدالرحمن عبدالخالق - لاعب كرة قدم سابق | مدرب أداء | متخصص في تطوير الرياضيين وعلوم الرياضة'
                 : 'Abdelrahman Abdelkhalek - Former Professional Footballer | Performance Coach | Specialist in Athletic Development & Sports Science'}
@@ -194,7 +194,7 @@ const About = React.memo(() => {
             </div>
 
             <div className="space-y-8">
-              <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-[var(--color-primary)]">
+              <div className="bg-[var(--color-surface)] p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-[var(--color-primary)]">
                 <div className="flex items-start space-x-4 rtl:space-x-reverse">
                   <div className="flex-shrink-0">
                     <div className="w-12 h-12 bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] rounded-full flex items-center justify-center">
@@ -202,10 +202,10 @@ const About = React.memo(() => {
                     </div>
                   </div>
                   <div>
-                    <h3 id="strength-title" className="text-xl font-bold text-gray-800 mb-2">
+                    <h3 id="strength-title" className="text-xl font-bold text-[var(--color-text)] mb-2">
                       Strength &amp; Conditioning (S&amp;C)
                     </h3>
-                    <p id="strength-desc" className="text-gray-600 leading-relaxed">
+                    <p id="strength-desc" className="text-[var(--color-text-muted)] leading-relaxed">
                       {currentLanguage === 'ar'
                         ? 'متخصص في تصميم برامج تطوير السرعة، القوة، التحمّل، الاجلتي باستخدام منهجيات مبنية على الأدلة العلمية.'
                         : 'Specialized in designing speed, strength, endurance, and agility development programs using evidence-based methodologies.'}
@@ -214,7 +214,7 @@ const About = React.memo(() => {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-[var(--color-primary-light)]">
+              <div className="bg-[var(--color-surface)] p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-[var(--color-primary-light)]">
                 <div className="flex items-start space-x-4 rtl:space-x-reverse">
                   <div className="flex-shrink-0">
                     <div className="w-12 h-12 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-light)] rounded-full flex items-center justify-center">
@@ -222,10 +222,10 @@ const About = React.memo(() => {
                     </div>
                   </div>
                   <div>
-                    <h3 id="nutrition-title" className="text-xl font-bold text-gray-800 mb-2">
+                    <h3 id="nutrition-title" className="text-xl font-bold text-[var(--color-text)] mb-2">
                       Sports Nutrition
                     </h3>
-                    <p id="nutrition-desc" className="text-gray-600 leading-relaxed">
+                    <p id="nutrition-desc" className="text-[var(--color-text-muted)] leading-relaxed">
                       {currentLanguage === 'ar'
                         ? 'حاصل على شهادات متعددة في التغذية الرياضية المتقدمة، مع تطبيق عملي لأنظمة غذائية مخصصة حسب مراحل الموسم (Pre-season, In-season, Off-season, Tapering).'
                         : 'Holder of multiple certifications in advanced sports nutrition, applying customized nutrition systems across season phases (Pre-season, In-season, Off-season, Tapering).'}
@@ -234,7 +234,7 @@ const About = React.memo(() => {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-[var(--color-primary)]">
+              <div className="bg-[var(--color-surface)] p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-[var(--color-primary)]">
                 <div className="flex items-start space-x-4 rtl:space-x-reverse">
                   <div className="flex-shrink-0">
                     <div className="w-12 h-12 bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] rounded-full flex items-center justify-center">
@@ -242,10 +242,10 @@ const About = React.memo(() => {
                     </div>
                   </div>
                   <div>
-                    <h3 id="mental-title" className="text-xl font-bold text-gray-800 mb-2">
+                    <h3 id="mental-title" className="text-xl font-bold text-[var(--color-text)] mb-2">
                       Mental Performance
                     </h3>
-                    <p id="mental-desc" className="text-gray-600 leading-relaxed">
+                    <p id="mental-desc" className="text-[var(--color-text-muted)] leading-relaxed">
                       {currentLanguage === 'ar'
                         ? 'دارس وممارس لعلم النفس الرياضي، متخصص في تقنيات التحكم في الضغط العصبي، تحسين التركيز، وزيادة الاستجابة الذهنية تحت ضغط المنافسة.'
                         : 'Student and practitioner of sports psychology, specialized in stress-control techniques, focus improvement, and enhanced mental response under competition pressure.'}
@@ -254,7 +254,7 @@ const About = React.memo(() => {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-[var(--color-primary-light)]">
+              <div className="bg-[var(--color-surface)] p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-[var(--color-primary-light)]">
                 <div className="flex items-start space-x-4 rtl:space-x-reverse">
                   <div className="flex-shrink-0">
                     <div className="w-12 h-12 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-light)] rounded-full flex items-center justify-center">
@@ -262,10 +262,10 @@ const About = React.memo(() => {
                     </div>
                   </div>
                   <div>
-                    <h3 id="analysis-title" className="text-xl font-bold text-gray-800 mb-2">
+                    <h3 id="analysis-title" className="text-xl font-bold text-[var(--color-text)] mb-2">
                       Football Analysis
                     </h3>
-                    <p id="analysis-desc" className="text-gray-600 leading-relaxed">
+                    <p id="analysis-desc" className="text-[var(--color-text-muted)] leading-relaxed">
                       {currentLanguage === 'ar'
                         ? 'تحليل متخصص لأداء اللاعب في المباريات، فهم الأدوار الوظيفية للمراكز المختلفة وتطوير استراتيجيات تحسين الأداء.'
                         : 'Specialized analysis of player performance in matches, understanding position-specific responsibilities, and developing performance enhancement strategies.'}

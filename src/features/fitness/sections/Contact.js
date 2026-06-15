@@ -39,21 +39,21 @@ const Contact = React.memo(({ onAlert }) => {
   }, []);
 
   return (
-    <section id="contact" className="section-py relative overflow-hidden bg-gray-50">
+    <section id="contact" className="section-py relative overflow-hidden bg-[var(--color-bg-muted)]">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4 gradient-text">
               {getTranslation('contact-title', currentLanguage)}
             </h2>
-            <p className="text-gray-600">
+            <p className="text-[var(--color-text-muted)]">
               {getTranslation('contact-intro', currentLanguage)}
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-lg">
+          <form onSubmit={handleSubmit} className="bg-[var(--color-surface)] p-8 rounded-xl shadow-lg">
             <div className="mb-4">
-              <label className="block text-gray-700 mb-2">
+              <label className="block text-[var(--color-text)] mb-2">
                 {getTranslation('name-label', currentLanguage)}
               </label>
               <input
@@ -67,7 +67,7 @@ const Contact = React.memo(({ onAlert }) => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-gray-700 mb-2">
+              <label className="block text-[var(--color-text)] mb-2">
                 Email
               </label>
               <input
@@ -81,7 +81,7 @@ const Contact = React.memo(({ onAlert }) => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-gray-700 mb-2">
+              <label className="block text-[var(--color-text)] mb-2">
                 {getTranslation('subject-label', currentLanguage)}
               </label>
               <input
@@ -95,7 +95,7 @@ const Contact = React.memo(({ onAlert }) => {
             </div>
 
             <div className="mb-6">
-              <label className="block text-gray-700 mb-2">
+              <label className="block text-[var(--color-text)] mb-2">
                 {getTranslation('message-label', currentLanguage)}
               </label>
               <textarea

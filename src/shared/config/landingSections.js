@@ -2,6 +2,7 @@
 
 export const LANDING_SECTIONS_BY_DOMAIN = {
   fitness: [
+    { key: 'success-stories', anchorId: 'success', icon: 'trophy', labelKey: 'landing-section-success-stories', descKey: 'landing-section-success-stories-desc' },
     { key: 'reviews', anchorId: 'reviews', icon: 'star', labelKey: 'landing-section-reviews', descKey: 'landing-section-reviews-desc' },
     { key: 'categories', anchorId: 'categories', icon: 'folder', labelKey: 'landing-section-categories', descKey: 'landing-section-categories-desc' },
     { key: 'videos', anchorId: 'videos', icon: 'video', labelKey: 'landing-section-videos', descKey: 'landing-section-videos-desc' },
@@ -21,6 +22,7 @@ export const LANDING_SECTIONS_BY_DOMAIN = {
 
 /** Map DOM anchor / sidebar slug → registry visibility key. */
 export const SECTION_SLUG_TO_KEY = {
+  success: 'success-stories',
   reviews: 'reviews',
   categories: 'categories',
   videos: 'videos',

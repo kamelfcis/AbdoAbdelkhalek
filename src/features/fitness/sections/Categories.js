@@ -199,7 +199,7 @@ const Categories = ({ onAlert, userSession }) => {
   return (
     <section id="categories" className="section-py relative overflow-hidden">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}></canvas>
-      <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-gray-50/90" style={{ zIndex: 1 }}></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg)]/90 to-[var(--color-bg-muted)]/90" style={{ zIndex: 1 }}></div>
 
       <div className="container mx-auto px-4 relative" style={{ zIndex: 2 }}>
         <div className="text-center mb-16">
@@ -228,10 +228,10 @@ const Categories = ({ onAlert, userSession }) => {
                   category.name_en || category.title_en,
                   category.name_ar || category.title_ar
                 )}
-                  className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all hover:-translate-y-2 cursor-pointer"
+                  className="bg-[var(--color-surface)] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all hover:-translate-y-2 cursor-pointer"
                 >
                   {/* Image Section */}
-                  <div className="h-48 bg-gray-200 flex items-center justify-center relative overflow-hidden">
+                  <div className="h-48 bg-[var(--color-bg-muted)] flex items-center justify-center relative overflow-hidden">
                     {imageUrl ? (
                       <>
                         <OptimizedImage
@@ -262,7 +262,7 @@ const Categories = ({ onAlert, userSession }) => {
                     <h3 className="text-xl font-bold text-[#2c3e50] mb-2">
                       {currentLanguage === 'ar' ? (category.name_ar || category.title_ar) : (category.name_en || category.title_en)}
                     </h3>
-                    <p className="text-gray-600 mb-4">
+                    <p className="text-[var(--color-text-muted)] mb-4">
                       {currentLanguage === 'ar' ? category.description_ar : category.description_en}
                     </p>
                     <button

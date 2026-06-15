@@ -48,11 +48,11 @@ export function LandingSettingsSection() {
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--color-primary-light)]/30 via-white to-[var(--color-primary)]/10 p-6 md:p-8 ring-1 ring-[var(--color-primary)]/20">
         <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">{t('page-landing-settings')}</h2>
-            <p className="mt-2 text-gray-600 max-w-xl">{t('landing-settings-subtitle')}</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-[var(--color-text)]">{t('page-landing-settings')}</h2>
+            <p className="mt-2 text-[var(--color-text-muted)] max-w-xl">{t('landing-settings-subtitle')}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center rounded-full bg-white/80 px-4 py-1.5 text-sm font-semibold text-[var(--color-primary)] shadow-sm ring-1 ring-[var(--color-primary)]/20">
+            <span className="inline-flex items-center rounded-full bg-[var(--color-surface)]/80 px-4 py-1.5 text-sm font-semibold text-[var(--color-primary)] shadow-sm ring-1 ring-[var(--color-primary)]/20">
               {t('landing-settings-visible-count')
                 .replace('{{visible}}', String(visibleCount))
                 .replace('{{total}}', String(sectionDefs.length))}
@@ -89,8 +89,8 @@ export function LandingSettingsSection() {
                       <i className={`fas fa-${def.icon}`} aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="font-semibold text-gray-900">{t(def.labelKey)}</h3>
-                      <p className="mt-1 text-sm text-gray-500 leading-relaxed">{t(def.descKey)}</p>
+                      <h3 className="font-semibold text-[var(--color-text)]">{t(def.labelKey)}</h3>
+                      <p className="mt-1 text-sm text-[var(--color-text-muted)] leading-relaxed">{t(def.descKey)}</p>
                     </div>
                   </div>
                   <ToggleSwitch

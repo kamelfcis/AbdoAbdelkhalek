@@ -18,17 +18,17 @@ const SquashContact = React.memo(() => {
   }, []);
 
   return (
-    <section id="contact" className="section-py relative overflow-hidden bg-gray-50">
+    <section id="contact" className="section-py relative overflow-hidden bg-[var(--color-bg-muted)]">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4 gradient-text">{t('contact.title')}</h2>
-            <p className="text-gray-600">{t('contact.subtitle')}</p>
+            <p className="text-[var(--color-text-muted)]">{t('contact.subtitle')}</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-lg" dir={isRTL ? 'rtl' : 'ltr'}>
+          <form onSubmit={handleSubmit} className="bg-[var(--color-surface)] p-8 rounded-xl shadow-lg" dir={isRTL ? 'rtl' : 'ltr'}>
             <div className="mb-4">
-              <label htmlFor="sq-contact-name" className="block text-gray-700 mb-2">
+              <label htmlFor="sq-contact-name" className="block text-[var(--color-text)] mb-2">
                 {t('contact.name')}
               </label>
               <input
@@ -40,7 +40,7 @@ const SquashContact = React.memo(() => {
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="sq-contact-email" className="block text-gray-700 mb-2">
+              <label htmlFor="sq-contact-email" className="block text-[var(--color-text)] mb-2">
                 {t('contact.email')}
               </label>
               <input
@@ -52,7 +52,7 @@ const SquashContact = React.memo(() => {
               />
             </div>
             <div className="mb-6">
-              <label htmlFor="sq-contact-message" className="block text-gray-700 mb-2">
+              <label htmlFor="sq-contact-message" className="block text-[var(--color-text)] mb-2">
                 {t('contact.message')}
               </label>
               <textarea

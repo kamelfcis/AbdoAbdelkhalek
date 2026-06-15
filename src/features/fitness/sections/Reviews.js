@@ -148,8 +148,8 @@ const Reviews = React.memo(({ onAlert }) => {
   };
 
   return (
-    <section id="reviews" className="section-py relative overflow-hidden bg-gray-50">
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-50/90 to-white/90" style={{ zIndex: 1 }}></div>
+    <section id="reviews" className="section-py relative overflow-hidden bg-[var(--color-bg-muted)]">
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg-muted)]/90 to-[var(--color-bg)]/90" style={{ zIndex: 1 }}></div>
       
       <div className="container mx-auto px-4 relative" style={{ zIndex: 2 }}>
         <div className="text-center mb-20">
@@ -160,7 +160,7 @@ const Reviews = React.memo(({ onAlert }) => {
             {getTranslation('reviews-title', currentLanguage)}
           </h2>
           <div className="w-32 h-1 bg-gradient-to-r from-green-400 to-green-600 mx-auto mb-8 rounded-full"></div>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-[var(--color-text-muted)] max-w-3xl mx-auto leading-relaxed">
             {getTranslation('reviews-subtitle', currentLanguage)}
           </p>
         </div>
@@ -168,8 +168,8 @@ const Reviews = React.memo(({ onAlert }) => {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="bg-white p-4 rounded-xl shadow-lg animate-pulse">
-                <div className="h-[500px] bg-gray-200 rounded-lg"></div>
+              <div key={index} className="bg-[var(--color-surface)] p-4 rounded-xl shadow-lg animate-pulse">
+                <div className="h-[500px] bg-[var(--color-bg-muted)] rounded-lg"></div>
               </div>
             ))}
           </div>
@@ -185,20 +185,20 @@ const Reviews = React.memo(({ onAlert }) => {
             <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 z-20 hidden lg:block">
               <button
                 onClick={handlePrev}
-                className="w-16 h-16 bg-gradient-to-br from-white to-gray-50 rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] transition-all duration-500 flex items-center justify-center group hover:scale-125 hover:rotate-[-10deg] border-2 border-transparent hover:border-green-600 backdrop-blur-sm relative overflow-hidden"
+                className="w-16 h-16 bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-bg-muted)] rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] transition-all duration-500 flex items-center justify-center group hover:scale-125 hover:rotate-[-10deg] border-2 border-transparent hover:border-green-600 backdrop-blur-sm relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full"></div>
-                <i className={`fas fa-chevron-${currentLanguage === 'ar' ? 'right' : 'left'} text-green-600 text-xl group-hover:text-white transition-all duration-300 relative z-10 group-hover:scale-110`}></i>
+                <i className={`fas fa-chevron-${currentLanguage === 'ar' ? 'right' : 'left'} text-green-600 text-xl group-hover:text-[var(--color-text-inverse)] transition-all duration-300 relative z-10 group-hover:scale-110`}></i>
                 <span className="absolute inset-0 rounded-full border-2 border-green-600 opacity-0 group-hover:opacity-100 group-hover:scale-150 transition-all duration-700"></span>
               </button>
             </div>
             <div className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-20 hidden lg:block">
               <button
                 onClick={handleNext}
-                className="w-16 h-16 bg-gradient-to-br from-white to-gray-50 rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] transition-all duration-500 flex items-center justify-center group hover:scale-125 hover:rotate-[10deg] border-2 border-transparent hover:border-green-600 backdrop-blur-sm relative overflow-hidden"
+                className="w-16 h-16 bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-bg-muted)] rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] transition-all duration-500 flex items-center justify-center group hover:scale-125 hover:rotate-[10deg] border-2 border-transparent hover:border-green-600 backdrop-blur-sm relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full"></div>
-                <i className={`fas fa-chevron-${currentLanguage === 'ar' ? 'left' : 'right'} text-green-600 text-xl group-hover:text-white transition-all duration-300 relative z-10 group-hover:scale-110`}></i>
+                <i className={`fas fa-chevron-${currentLanguage === 'ar' ? 'left' : 'right'} text-green-600 text-xl group-hover:text-[var(--color-text-inverse)] transition-all duration-300 relative z-10 group-hover:scale-110`}></i>
                 <span className="absolute inset-0 rounded-full border-2 border-green-600 opacity-0 group-hover:opacity-100 group-hover:scale-150 transition-all duration-700"></span>
               </button>
             </div>
@@ -210,13 +210,13 @@ const Reviews = React.memo(({ onAlert }) => {
                 
                 return (
                   <LazySplideSlide key={review.id}>
-                    <div className="bg-white p-4 rounded-xl shadow-lg mx-4 h-full">
+                    <div className="bg-[var(--color-surface)] p-4 rounded-xl shadow-lg mx-4 h-full">
                       <div className="flex flex-col h-full justify-center">
                         <div className="relative overflow-hidden rounded-lg">
                           <OptimizedImage
                             src={imageUrl}
                             alt={`WhatsApp Review ${index + 1}`}
-                            className="w-full h-auto max-h-[500px] object-contain bg-gray-50 transition-transform duration-500 hover:scale-105 rounded-lg cursor-pointer hover:opacity-90"
+                            className="w-full h-auto max-h-[500px] object-contain bg-[var(--color-bg-muted)] transition-transform duration-500 hover:scale-105 rounded-lg cursor-pointer hover:opacity-90"
                             onClick={() => openReviewImageModal(imageUrl)}
                             width={400}
                             height={600}
@@ -241,7 +241,7 @@ const Reviews = React.memo(({ onAlert }) => {
             <div className="flex flex-col items-center mt-8 space-y-4">
               {/* Autoplay Progress Bar */}
               <div className="w-full max-w-md">
-                <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-1 bg-[var(--color-bg-muted)] rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-100"
                     style={{ width: `${autoplayProgress * 100}%` }}
@@ -252,11 +252,11 @@ const Reviews = React.memo(({ onAlert }) => {
               {/* Play/Pause Button */}
               <button
                 onClick={toggleAutoplay}
-                className="flex items-center space-x-2 bg-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group hover:scale-105"
+                className="flex items-center space-x-2 bg-[var(--color-surface)] px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group hover:scale-105"
                 title="Toggle Autoplay"
               >
                 <i className={`fas ${isAutoplayPaused ? 'fa-play' : 'fa-pause'} text-green-600 group-hover:text-green-400 transition-colors`}></i>
-                <span className="text-sm font-semibold text-gray-700 group-hover:text-green-600 transition-colors">
+                <span className="text-sm font-semibold text-[var(--color-text)] group-hover:text-green-600 transition-colors">
                   {currentLanguage === 'ar' ? (isAutoplayPaused ? 'تشغيل' : 'إيقاف مؤقت') : (isAutoplayPaused ? 'Play' : 'Pause')}
                 </span>
               </button>
@@ -264,7 +264,7 @@ const Reviews = React.memo(({ onAlert }) => {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-600">
+            <p className="text-[var(--color-text-muted)]">
               {currentLanguage === 'ar' ? 'لا توجد آراء متاحة حالياً' : 'No reviews available yet.'}
             </p>
           </div>

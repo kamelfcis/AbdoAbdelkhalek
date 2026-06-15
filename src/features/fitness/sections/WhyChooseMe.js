@@ -139,7 +139,7 @@ const WhyChooseMe = React.memo(() => {
         height="1628"
       />
       <div
-        className="absolute inset-0 bg-gradient-to-b from-white/90 via-gray-50/85 to-white/90"
+        className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg)]/90 via-[var(--color-bg-muted)]/85 to-[var(--color-bg)]/90"
         style={{ zIndex: 1 }}
       ></div>
 
@@ -155,7 +155,7 @@ const WhyChooseMe = React.memo(() => {
             <div className="w-20 h-1 bg-gradient-to-r from-[#bfd7ed] to-[#0074b7] mx-auto mb-6"></div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 relative overflow-hidden">
+          <div className="bg-[var(--color-surface)] rounded-2xl shadow-2xl p-8 md:p-12 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#bfd7ed] to-[#0074b7] rounded-full opacity-10 transform translate-x-16 -translate-y-16"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-[#0074b7] to-[#bfd7ed] rounded-full opacity-10 transform -translate-x-12 translate-y-12"></div>
 
@@ -166,7 +166,7 @@ const WhyChooseMe = React.memo(() => {
                 </div>
                 <p
                   id="personal-message"
-                  className="text-xl text-gray-700 leading-relaxed italic max-w-3xl mx-auto"
+                  className="text-xl text-[var(--color-text)] leading-relaxed italic max-w-3xl mx-auto"
                 >
                   {getTranslation('personal-message', currentLanguage)}
                 </p>
@@ -184,13 +184,13 @@ const WhyChooseMe = React.memo(() => {
                       <div>
                         <h3
                           id={`${card.idPrefix}-title`}
-                          className="text-lg font-bold text-gray-800 mb-2"
+                          className="text-lg font-bold text-[var(--color-text)] mb-2"
                         >
                           {getTranslation(`${card.idPrefix}-title`, currentLanguage)}
                         </h3>
                         <p
                           id={`${card.idPrefix}-desc`}
-                          className="text-gray-600 text-sm leading-relaxed"
+                          className="text-[var(--color-text-muted)] text-sm leading-relaxed"
                         >
                           {getTranslation(`${card.idPrefix}-desc`, currentLanguage)}
                         </p>

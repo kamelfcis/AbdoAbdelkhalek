@@ -27,7 +27,7 @@ export function ToggleSwitch({ checked, onChange, disabled = false, id, classNam
     >
       <span
         className={cn(
-          'inline-block rounded-full bg-white shadow-md transition-transform duration-200',
+          'inline-block rounded-full bg-[var(--color-surface)] shadow-md transition-transform duration-200',
           s.thumb,
           s.translate
         )}
