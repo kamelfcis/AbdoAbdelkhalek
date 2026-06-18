@@ -18,8 +18,10 @@ const OptimizedImage = ({
   onLoad,
   onError,
   placeholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"%3E%3C/svg%3E',
+  objectFit = 'cover',
   ...props
 }) => {
+  const objectFitClass = objectFit === 'contain' ? 'object-contain' : 'object-cover';
   const [imageSrc, setImageSrc] = useState(priority ? src : placeholder);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -105,7 +107,7 @@ const OptimizedImage = ({
         loading={priority ? 'eager' : loading}
         srcSet={imageSrcSet || undefined}
         sizes={imageSrcSet ? imageSizes : undefined}
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+        className={`absolute inset-0 w-full h-full ${objectFitClass} transition-opacity duration-300 ${
           isLoaded ? 'opacity-100' : 'opacity-0'
         } ${hasError ? 'opacity-0' : ''}`}
         onLoad={handleLoad}

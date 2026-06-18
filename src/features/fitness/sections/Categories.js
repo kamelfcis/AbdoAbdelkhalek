@@ -237,7 +237,8 @@ const Categories = ({ onAlert, userSession }) => {
                         <OptimizedImage
                           src={imageUrl}
                           alt={currentLanguage === 'ar' ? (category.name_ar || category.title_ar) : (category.name_en || category.title_en)}
-                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                          objectFit="contain"
+                          className="w-full h-full transition-transform duration-500 hover:scale-110"
                           width={600}
                           height={400}
                           loading="lazy"
