@@ -59,7 +59,12 @@ describe('resolveVideoPlayUrl', () => {
     expect(url).toBe('https://pub.example.r2.dev/videos/workout.mp4');
   });
 
-  it('resolves squash video_path under squash/videos bucket', () => {
+  it('resolves squash video_path under shared videos bucket', () => {
+    const url = resolveVideoPlayUrl({ video_path: 'lesson.mp4' }, 'squash');
+    expect(url).toBe('https://pub.example.r2.dev/videos/lesson.mp4');
+  });
+
+  it('resolves legacy squash/* video_path', () => {
     const url = resolveVideoPlayUrl(
       { video_path: 'squash/videos/lesson.mp4' },
       'squash'

@@ -1,4 +1,4 @@
-/** Allowed R2 bucket prefixes for fitness media uploads. */
+/** Allowed R2 bucket prefixes for fitness + shared squash categories/videos/thumbnails. */
 const FITNESS_BUCKETS = new Set([
   'categories',
   'videos',

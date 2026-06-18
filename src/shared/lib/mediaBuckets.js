@@ -14,10 +14,11 @@ const FITNESS_MEDIA = {
   programs: 'programs',
 };
 
+/** Squash-only entities keep squash/* prefixes; categories/videos/thumbnails share fitness R2 paths. */
 const SQUASH_MEDIA = {
-  categories: 'squash/categories',
-  videos: 'squash/videos',
-  videoThumbnails: 'squash/video-thumbnails',
+  categories: FITNESS_MEDIA.categories,
+  videos: FITNESS_MEDIA.videos,
+  videoThumbnails: FITNESS_MEDIA.videoThumbnails,
   reviews: 'squash/reviews',
   successStories: 'squash/success-stories',
   packages: 'squash/packages',
@@ -25,6 +26,7 @@ const SQUASH_MEDIA = {
   coaches: 'squash/coaches',
   programs: 'squash/programs',
 };
+
 
 /** Legacy fitness-style prefixes that may appear on squash rows migrated before squash/* keys. */
 const LEGACY_FITNESS_PREFIX = {
@@ -35,6 +37,11 @@ const LEGACY_FITNESS_PREFIX = {
   successStories: 'success-stories/',
 };
 
+function legacySquashBucketFromKey(key) {
+  const parts = key.split('/');
+  return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : parts[0];
+}
+
 /**
  * @param {'fitness'|'squash'|string} domain
  * @returns {typeof FITNESS_MEDIA}
@@ -43,19 +50,8 @@ export function getMediaBuckets(domain = 'fitness') {
   return domain === 'squash' ? SQUASH_MEDIA : FITNESS_MEDIA;
 }
 
-/** Categories/videos on squash share fitness storage prefixes (no duplicate files). */
-const SHARED_CONTENT_KINDS = new Set(['categories', 'videos', 'videoThumbnails']);
-
-/**
- * Categories and videos share fitness storage paths across domains (no duplicate files).
- * @param {'fitness'|'squash'|string} domain
- * @param {MediaKind|string} [kind]
- * @returns {typeof FITNESS_MEDIA}
- */
-export function getSharedContentMediaBuckets(domain = 'fitness', kind = 'categories') {
-  if (domain === 'squash' && SHARED_CONTENT_KINDS.has(kind)) {
-    return FITNESS_MEDIA;
-  }
+/** Categories/videos/thumbnails share fitness R2 paths; other squash entities keep squash/* prefixes. */
+export function getSharedContentMediaBuckets(domain = 'fitness', _kind = 'categories') {
   return getMediaBuckets(domain);
 }
 
@@ -80,7 +76,7 @@ export function resolveDomainMediaUrl(url, path, domain, kind) {
   }
 
   if (domain === 'squash' && candidate.startsWith('squash/')) {
-    return resolveMediaUrl(null, candidate, primary);
+    return resolveMediaUrl(null, candidate, legacySquashBucketFromKey(candidate));
   }
 
   const legacyPrefix = LEGACY_FITNESS_PREFIX[kind];

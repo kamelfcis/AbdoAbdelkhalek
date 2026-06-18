@@ -133,13 +133,13 @@ const successStoryConfig = {
   ],
 };
 
-const squashSharedCategoryBuckets = getSharedContentMediaBuckets('squash', 'categories');
+const squashCategoryBuckets = getSharedContentMediaBuckets('squash', 'categories');
 
 const categoryConfigSquash = {
   ...categoryConfig,
-  imageUpload: { bucket: squashSharedCategoryBuckets.categories, pathPrefix: squashSharedCategoryBuckets.categories },
+  imageUpload: { bucket: squashCategoryBuckets.categories, pathPrefix: squashCategoryBuckets.categories },
   columns: categoryConfig.columns.map((col) =>
-    col.key === 'image' ? { ...col, bucket: squashSharedCategoryBuckets.categories } : col
+    col.key === 'image' ? { ...col, bucket: squashCategoryBuckets.categories } : col
   ),
 };
 

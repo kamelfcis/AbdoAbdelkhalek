@@ -1,10 +1,17 @@
 import { getMediaBuckets, getSharedContentMediaBuckets, resolveDomainMediaUrl } from './mediaBuckets';
 
 describe('getMediaBuckets', () => {
-  it('returns squash prefixes for squash domain', () => {
+  it('shares fitness R2 paths for squash categories and videos', () => {
     const b = getMediaBuckets('squash');
-    expect(b.videos).toBe('squash/videos');
-    expect(b.categories).toBe('squash/categories');
+    expect(b.videos).toBe('videos');
+    expect(b.categories).toBe('categories');
+    expect(b.videoThumbnails).toBe('video-thumbnails');
+  });
+
+  it('keeps squash-only prefixes for other entities', () => {
+    const b = getMediaBuckets('squash');
+    expect(b.reviews).toBe('squash/reviews');
+    expect(b.coaches).toBe('squash/coaches');
   });
 
   it('returns fitness buckets for fitness domain', () => {
@@ -14,7 +21,7 @@ describe('getMediaBuckets', () => {
 });
 
 describe('getSharedContentMediaBuckets', () => {
-  it('uses fitness buckets for squash categories and videos', () => {
+  it('uses shared fitness paths for squash categories and videos', () => {
     expect(getSharedContentMediaBuckets('squash', 'categories').categories).toBe('categories');
     expect(getSharedContentMediaBuckets('squash', 'videos').videos).toBe('videos');
     expect(getSharedContentMediaBuckets('squash', 'videoThumbnails').videoThumbnails).toBe(
@@ -35,6 +42,13 @@ describe('resolveDomainMediaUrl', () => {
   it('uses legacy fitness path on squash when needed', () => {
     const url = resolveDomainMediaUrl(null, 'categories/old-id.jpg', 'squash', 'categories');
     expect(url).toContain('categories/old-id.jpg');
+  });
+
+  it('resolves legacy squash/* video paths', () => {
+    process.env.REACT_APP_R2_PUBLIC_URL = 'https://pub.example.r2.dev';
+    process.env.REACT_APP_USE_CDN = 'false';
+    const url = resolveDomainMediaUrl(null, 'squash/videos/lesson.mp4', 'squash', 'videos');
+    expect(url).toBe('https://pub.example.r2.dev/squash/videos/lesson.mp4');
   });
 
   it('resolves legacy before/after success story paths on squash', () => {

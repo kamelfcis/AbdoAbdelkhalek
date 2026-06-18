@@ -39,7 +39,6 @@ model Category {
 
   videos Video[]
   userCategoryAccess UserCategoryAccess[]
-  squashMirror SquashCategory?
 
   @@map("categories")
 }
@@ -61,7 +60,6 @@ model Video {
 
   category   Category? @relation(fields: [categoryId], references: [id])
   userAccess UserVideoAccess[]
-  squashMirror SquashVideo?
 
   @@map("videos")
 }
@@ -242,12 +240,9 @@ model SquashCategory {
   imagePath     String?  @map("image_path")
   isPublic         Boolean  @default(true) @map("is_public")
   createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  sourceCategoryId String?  @unique @map("source_category_id") @db.Uuid
 
-  sourceCategory Category?    @relation(fields: [sourceCategoryId], references: [id], onDelete: Cascade)
   videos         SquashVideo[]
 
-  @@index([sourceCategoryId], map: "idx_squash_categories_source")
   @@map("squash_categories")
 }
 
@@ -265,12 +260,9 @@ model SquashVideo {
   durationSeconds Int?      @map("duration_seconds")
   isPublic        Boolean   @default(false) @map("is_public")
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  sourceVideoId   String?   @unique @map("source_video_id") @db.Uuid
 
   category    SquashCategory? @relation(fields: [categoryId], references: [id])
-  sourceVideo Video?          @relation(fields: [sourceVideoId], references: [id], onDelete: Cascade)
 
-  @@index([sourceVideoId], map: "idx_squash_videos_source")
   @@map("squash_videos")
 }
 
