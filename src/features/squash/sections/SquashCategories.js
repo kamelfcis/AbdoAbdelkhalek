@@ -86,9 +86,9 @@ const SquashCategories = () => {
                   tabIndex={0}
                   className="bg-[var(--color-surface)] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all hover:-translate-y-2 cursor-pointer"
                 >
-                  <div className="h-48 bg-[var(--color-bg-muted)] relative overflow-hidden">
+                  <div className="h-48 bg-[var(--color-bg-muted)] flex items-center justify-center relative overflow-hidden">
                     {imageUrl ? (
-                      <OptimizedImage src={imageUrl} alt={title} className="w-full h-full object-cover" width={600} height={400} loading="lazy" />
+                      <OptimizedImage src={imageUrl} alt={title} objectFit="contain" className="w-full h-full" width={600} height={400} loading="lazy" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)]">
                         <i className="fas fa-table-tennis text-white text-5xl" />
