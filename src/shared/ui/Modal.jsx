@@ -14,6 +14,7 @@ const Modal = ({
   size = 'md',
   closeOnOverlay = true,
   className,
+  overlayClassName,
   contentClassName,
   headerClassName,
   headerStyle,
@@ -77,7 +78,10 @@ const Modal = ({
 
   return (
     <div
-      className="fixed inset-0 z-[1400] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      className={cn(
+        'fixed inset-0 z-[1400] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm',
+        overlayClassName
+      )}
       role="presentation"
       onClick={closeOnOverlay ? onClose : undefined}
       onKeyDown={handleKeyDown}
@@ -147,6 +151,7 @@ Modal.propTypes = {
   size: PropTypes.oneOf(['sm', 'md', 'lg', 'xl', 'full']),
   closeOnOverlay: PropTypes.bool,
   className: PropTypes.string,
+  overlayClassName: PropTypes.string,
   contentClassName: PropTypes.string,
   headerClassName: PropTypes.string,
   headerStyle: PropTypes.object,

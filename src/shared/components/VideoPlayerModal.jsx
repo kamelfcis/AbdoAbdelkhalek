@@ -101,18 +101,18 @@ export default function VideoPlayerModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-1 sm:p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label={title}
     >
       <div
-        className={`bg-white rounded-lg p-6 max-w-4xl w-full m-4 max-h-[90vh] overflow-y-auto ${isRTL ? 'text-right' : ''}`}
+        className={`bg-white rounded-lg p-3 sm:p-6 max-w-4xl w-[calc(100vw-0.5rem)] sm:w-full max-h-[98dvh] sm:max-h-[90vh] overflow-y-auto ${isRTL ? 'text-right' : ''}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className={`flex justify-between items-center mb-4 gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <h3 className="text-2xl font-bold flex-1">{title}</h3>
+        <div className={`flex justify-between items-center mb-3 sm:mb-4 gap-3 sm:gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <h3 className="text-lg sm:text-2xl font-bold flex-1 truncate">{title}</h3>
           <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             {!isYouTube && playUrl && (
               <button
@@ -138,7 +138,7 @@ export default function VideoPlayerModal({
 
         <div
           ref={containerRef}
-          className="relative bg-gray-900 mb-4 aspect-video w-full overflow-hidden rounded-lg"
+          className="relative bg-gray-900 mb-3 sm:mb-4 aspect-video w-full overflow-hidden rounded-lg max-h-[min(72dvh,calc(100vw*9/16))] sm:max-h-none"
           onContextMenu={(e) => e.preventDefault()}
           onDragStart={(e) => e.preventDefault()}
           style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
