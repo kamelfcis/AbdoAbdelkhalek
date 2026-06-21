@@ -101,18 +101,18 @@ export default function VideoPlayerModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-1 sm:p-4"
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label={title}
     >
       <div
-        className={`bg-white rounded-lg p-3 sm:p-6 max-w-4xl w-[calc(100vw-0.5rem)] sm:w-full max-h-[98dvh] sm:max-h-[90vh] overflow-y-auto ${isRTL ? 'text-right' : ''}`}
+        className={`bg-white flex flex-col w-full sm:max-w-4xl h-[95dvh] sm:h-auto max-h-[95dvh] sm:max-h-[90vh] rounded-t-2xl sm:rounded-xl rounded-b-none sm:rounded-b-xl shadow-[0_-12px_40px_rgba(0,0,0,0.35)] sm:shadow-xl pb-[env(safe-area-inset-bottom,0px)] animate-slide-up sm:animate-none overflow-hidden sm:overflow-y-auto ${isRTL ? 'text-right' : ''}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className={`flex justify-between items-center mb-3 sm:mb-4 gap-3 sm:gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <h3 className="text-lg sm:text-2xl font-bold flex-1 truncate">{title}</h3>
+        <div className={`flex shrink-0 justify-between items-center px-4 py-2.5 sm:p-6 sm:pb-0 gap-2 sm:gap-4 border-b sm:border-b-0 border-gray-100 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <h3 className="text-base sm:text-2xl font-bold flex-1 truncate">{title}</h3>
           <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             {!isYouTube && playUrl && (
               <button
@@ -136,9 +136,10 @@ export default function VideoPlayerModal({
           </div>
         </div>
 
+        <div className="flex flex-col flex-1 min-h-0 px-0 sm:px-6 sm:pb-6 overflow-hidden">
         <div
           ref={containerRef}
-          className="relative bg-gray-900 mb-3 sm:mb-4 aspect-video w-full overflow-hidden rounded-lg max-h-[min(72dvh,calc(100vw*9/16))] sm:max-h-none"
+          className="relative bg-gray-900 flex-1 min-h-[68dvh] sm:min-h-0 sm:aspect-video w-full overflow-hidden rounded-none sm:rounded-lg sm:max-h-none mb-0 sm:mb-4"
           onContextMenu={(e) => e.preventDefault()}
           onDragStart={(e) => e.preventDefault()}
           style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
@@ -163,7 +164,7 @@ export default function VideoPlayerModal({
               <video
                 ref={videoRef}
                 key={playUrl}
-                className="w-full h-full object-contain"
+                className="absolute inset-0 w-full h-full object-contain"
                 controls
                 controlsList="nodownload noplaybackrate"
                 disablePictureInPicture
@@ -207,11 +208,12 @@ export default function VideoPlayerModal({
         </div>
 
         {(categoryLabel || description) && (
-          <div>
-            {categoryLabel && <p className="text-gray-600 mb-2">{categoryLabel}</p>}
-            {description && <p className="text-gray-700">{description}</p>}
+          <div className="shrink-0 px-4 py-3 sm:px-0 sm:py-0 max-h-[18dvh] sm:max-h-none overflow-y-auto">
+            {categoryLabel && <p className="text-gray-600 mb-2 text-sm sm:text-base">{categoryLabel}</p>}
+            {description && <p className="text-gray-700 text-sm sm:text-base">{description}</p>}
           </div>
         )}
+        </div>
       </div>
     </div>
   );

@@ -60,7 +60,7 @@ describe('VideoPreviewModal', () => {
 
     expect(HTMLElement.prototype.requestFullscreen).toHaveBeenCalled();
     expect(HTMLElement.prototype.requestFullscreen.mock.instances[0]).toBe(
-      container.querySelector('.aspect-video')
+      container.querySelector('[data-testid="video-preview-container"]')
     );
   });
 

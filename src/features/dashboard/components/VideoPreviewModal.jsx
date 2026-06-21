@@ -79,17 +79,20 @@ const VideoPreviewModal = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={title}
+      title={
+        <span className="text-base sm:text-xl font-bold truncate block">{title}</span>
+      }
       size="full"
-      overlayClassName="p-1 sm:p-4"
-      className="w-[calc(100vw-0.5rem)] sm:max-w-4xl max-h-[98dvh] sm:max-h-[90vh] rounded-lg sm:rounded-xl"
-      headerClassName="px-3 py-3 sm:px-6 sm:py-4"
-      contentClassName="px-2 py-2 sm:px-6 sm:py-4"
-      closeButtonClassName="shrink-0"
+      overlayClassName="p-0 sm:p-4 items-end sm:items-center"
+      className="w-full sm:max-w-4xl h-[95dvh] sm:h-auto max-h-[95dvh] sm:max-h-[90vh] rounded-t-2xl sm:rounded-xl rounded-b-none sm:rounded-b-xl shadow-[0_-12px_40px_rgba(0,0,0,0.35)] sm:shadow-xl pb-[env(safe-area-inset-bottom,0px)] animate-slide-up sm:animate-none"
+      headerClassName="px-4 py-2.5 sm:px-6 sm:py-4 gap-2"
+      contentClassName="flex flex-col flex-1 min-h-0 px-0 py-0 sm:px-6 sm:py-4 overflow-hidden sm:overflow-y-auto"
+      closeButtonClassName="shrink-0 p-1.5 sm:p-2"
     >
       <div
         ref={containerRef}
-        className="relative w-full bg-black rounded-lg sm:rounded-xl overflow-hidden aspect-video max-h-[min(72dvh,calc(100vw*9/16))] sm:max-h-none"
+        data-testid="video-preview-container"
+        className="video-preview-container relative w-full flex-1 min-h-[68dvh] sm:min-h-0 sm:aspect-video bg-black rounded-none sm:rounded-xl overflow-hidden sm:max-h-none"
         onContextMenu={(e) => e.preventDefault()}
         onDragStart={(e) => e.preventDefault()}
         style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
@@ -166,7 +169,7 @@ const VideoPreviewModal = ({
         )}
       </div>
       {(video.description_ar || video.description_en) && (
-        <p className={`mt-3 sm:mt-4 text-sm sm:text-base text-[var(--color-text-muted)] ${isRTL ? 'text-end' : 'text-start'}`}>
+        <p className={`shrink-0 px-4 py-3 sm:px-0 sm:py-0 mt-0 sm:mt-4 max-h-[18dvh] sm:max-h-none overflow-y-auto text-sm sm:text-base text-[var(--color-text-muted)] ${isRTL ? 'text-end' : 'text-start'}`}>
           {isRTL ? video.description_ar : video.description_en}
         </p>
       )}
