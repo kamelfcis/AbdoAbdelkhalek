@@ -11,6 +11,17 @@ import { queryKeys } from '../../../shared/lib/queryKeys';
 import { getTranslation } from '../../../utils/translations';
 import { loginPath } from '../../../shared/lib/authRoutes';
 import PackageDetailsModal from '../../../shared/components/PackageDetailsModal';
+import {
+  LandingPackageGrid,
+  LandingPackageCard,
+  LandingPackageHeader,
+  LandingPackageDescription,
+  LandingPackageFeatures,
+  LandingPackageDuration,
+  LandingPackageSubscribeButton,
+  filterAvailableDurations,
+} from '../../../shared/components/LandingPackageCard';
+import { buildPackageColorMap, isPlatinumPackage } from '../../../shared/lib/packageColors';
 
 const SquashPackages = ({ onAlert, userSession, userProfile }) => {
   const { t, isAr, isRTL } = useSquashI18n();
@@ -172,60 +183,7 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
     [subscriptionStates, isAr]
   );
 
-  const packageColors = useMemo(() => {
-    const colorsMap = new Map();
-    packages.forEach((pkg) => {
-      const nameEn = (pkg.name_en || '').toLowerCase();
-      const nameAr = (pkg.name_ar || '').toLowerCase();
-      const isGold = nameEn.includes('gold') || nameAr.includes('ذهبي') || nameAr.includes('جولد');
-      const hasPro = nameAr.includes('برو') || nameEn.includes('pro');
-      const isGoldWithNutritionOrTraining =
-        isGold &&
-        !hasPro &&
-        (nameAr.includes('تغذيه') ||
-          nameAr.includes('تغذية') ||
-          nameAr.includes('تمرين') ||
-          nameEn.includes('nutrition') ||
-          nameEn.includes('training'));
-
-      let colorConfig;
-      if (isGoldWithNutritionOrTraining) {
-        colorConfig = {
-          gradientFrom: 'var(--color-primary-light)',
-          gradientTo: 'var(--color-primary)',
-          solid: 'var(--color-primary)',
-          text: 'text-white',
-        };
-      } else if (isGold) {
-        colorConfig = {
-          gradientFrom: 'rgb(244, 215, 123)',
-          gradientTo: 'rgb(220, 180, 80)',
-          solid: 'rgb(244, 215, 123)',
-          text: 'text-[var(--color-text)]',
-        };
-      } else if (
-        nameEn.includes('platinum') ||
-        nameAr.includes('بلاتيني') ||
-        nameAr.includes('بلاتينوم')
-      ) {
-        colorConfig = {
-          gradientFrom: 'rgb(157 137 255)',
-          gradientTo: 'hsl(250, 73.70%, 70.20%)',
-          solid: 'rgb(157 137 255)',
-          text: 'text-white',
-        };
-      } else {
-        colorConfig = {
-          gradientFrom: 'var(--color-primary-light)',
-          gradientTo: 'var(--color-primary)',
-          solid: 'var(--color-primary)',
-          text: 'text-white',
-        };
-      }
-      colorsMap.set(pkg.id, colorConfig);
-    });
-    return colorsMap;
-  }, [packages]);
+  const packageColors = useMemo(() => buildPackageColorMap(packages), [packages]);
 
   const getPackageColor = useCallback(
     (pkg) =>
@@ -271,26 +229,14 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
           <p className="text-center text-[var(--color-text-muted)]">{t('packages.empty')}</p>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <LandingPackageGrid>
               {packages.map((pkg) => {
                 const features = parseFeatures(pkg);
                 const isSubscribed = subscriptionStates[pkg.id] === 'subscribed';
                 const packageColor = getPackageColor(pkg);
-                const nameEn = (pkg.name_en || '').toLowerCase();
-                const nameAr = (pkg.name_ar || '').toLowerCase();
-                const isPlatinum =
-                  packageColor.text === 'text-white' &&
-                  (nameEn.includes('platinum') || nameAr.includes('بلاتيني') || nameAr.includes('بلاتينوم'));
+                const isPlatinum = isPlatinumPackage(pkg, packageColor);
 
-                const availableDurations = [
-                  { months: 1, labelEn: '1 Mo', labelAr: 'شهر' },
-                  { months: 3, labelEn: '3 Mo', labelAr: '3 أشهر' },
-                  { months: 6, labelEn: '6 Mo', labelAr: '6 أشهر' },
-                ].filter(({ months }) => {
-                  if (months === 1) return (pkg.allow_1_month ?? pkg.allow1Month) !== false;
-                  if (months === 3) return (pkg.allow_3_months ?? pkg.allow3Months) !== false;
-                  return (pkg.allow_6_months ?? pkg.allow6Months) !== false;
-                });
+                const availableDurations = filterAvailableDurations(pkg);
 
                 const defaultDuration = availableDurations[0]?.months ?? 1;
                 const selectedMonths = availableDurations.some(
@@ -301,167 +247,69 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
                 const { egp: displayEgp, usd: displayUsd } = getPackageDurationPrice(pkg, selectedMonths);
 
                 return (
-                  <div
-                    key={pkg.id}
-                    className="flex flex-col bg-[var(--color-surface)] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all hover:-translate-y-2"
-                    dir={isRTL ? 'rtl' : 'ltr'}
-                  >
-                    <div
-                      className={`${packageColor.text} p-6 text-center`}
-                      style={{
-                        background: `linear-gradient(to right, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`,
-                      }}
-                    >
-                      <h3 className="text-2xl font-bold mb-2">
-                        {pickItemField(pkg, isAr, 'name_en', 'name_ar')}
-                      </h3>
-                      <div
-                        className={`text-xl font-semibold ${isPlatinum ? 'text-white' : ''}`}
-                        dangerouslySetInnerHTML={{ __html: formatPrice(displayEgp, displayUsd) }}
-                      />
-                      {pkg.duration_days != null && (
-                        <p className="text-sm opacity-80 mt-1">
-                          {pkg.duration_days} {t('packages.days')}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex flex-col flex-1 p-6">
-                      <p className="text-[var(--color-text-muted)] mb-4">
+                  <LandingPackageCard key={pkg.id} isRTL={isRTL}>
+                    <LandingPackageHeader
+                      packageColor={packageColor}
+                      isPlatinum={isPlatinum}
+                      title={pickItemField(pkg, isAr, 'name_en', 'name_ar')}
+                      priceHtml={formatPrice(displayEgp, displayUsd)}
+                      durationLabel={
+                        pkg.duration_days != null
+                          ? `${pkg.duration_days} ${t('packages.days')}`
+                          : null
+                      }
+                    />
+
+                    <div className="px-6 pt-4">
+                      <LandingPackageDescription>
                         {pickItemField(pkg, isAr, 'description_en', 'description_ar')}
-                      </p>
-                      {features.length > 0 && (
-                        <div className="mb-6 flex-1">
-                          <ul className="space-y-3">
-                            {(expandedFeatures[pkg.id] ? features : features.slice(0, 4)).map((feature, idx) => (
-                              <li key={idx} className="flex items-start group">
-                                <div
-                                  className={`flex-shrink-0 mt-1 ${isRTL ? 'ml-3' : 'mr-3'}`}
-                                  style={{ color: packageColor.solid }}
-                                >
-                                  <i className="fas fa-check-circle text-lg" />
-                                </div>
-                                <span className="text-[var(--color-text)] text-sm leading-relaxed flex-1 group-hover:text-[var(--color-text)] transition-colors">
-                                  {feature}
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-                          {features.length > 4 && (
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setExpandedFeatures((prev) => ({
-                                  ...prev,
-                                  [pkg.id]: !prev[pkg.id],
-                                }))
-                              }
-                              className="mt-4 text-sm font-medium transition-colors hover:opacity-80"
-                              style={{ color: packageColor.solid }}
-                              aria-expanded={!!expandedFeatures[pkg.id]}
-                            >
-                              {expandedFeatures[pkg.id]
-                                ? isAr
-                                  ? 'عرض أقل'
-                                  : 'See Less'
-                                : isAr
-                                  ? 'عرض المزيد'
-                                  : 'See More'}
-                              <i
-                                className={`fas fa-chevron-${expandedFeatures[pkg.id] ? 'up' : 'down'} ${isRTL ? 'mr-2' : 'ml-2'}`}
-                              />
-                            </button>
-                          )}
-                        </div>
-                      )}
-
-                      {!isSubscribed && (
-                        <div className="border-t border-[var(--color-border)] pt-4 mb-4">
-                          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] mb-3">
-                            {isAr ? 'مدة الاشتراك' : 'Duration'}
-                          </p>
-                          {availableDurations.length > 1 ? (
-                            <div
-                              className="grid gap-2 mb-3"
-                              style={{ gridTemplateColumns: `repeat(${availableDurations.length}, minmax(0, 1fr))` }}
-                            >
-                              {availableDurations.map(({ months, labelEn, labelAr }) => {
-                                const isSelected = selectedMonths === months;
-                                const tierPrice = getPackageDurationPrice(pkg, months);
-                                const priceHint = tierPrice.egp
-                                  ? `${tierPrice.egp.toLocaleString()} EGP`
-                                  : tierPrice.usd
-                                    ? `$${tierPrice.usd}`
-                                    : null;
-                                return (
-                                  <button
-                                    key={months}
-                                    type="button"
-                                    onClick={() =>
-                                      setSelectedDurations((prev) => ({ ...prev, [pkg.id]: months }))
-                                    }
-                                    disabled={subscribingPackageId === pkg.id}
-                                    aria-pressed={isSelected}
-                                    style={
-                                      isSelected
-                                        ? {
-                                            background: `linear-gradient(135deg, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`,
-                                            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.15)',
-                                          }
-                                        : {
-                                            background: 'rgba(255,255,255,0.07)',
-                                            border: '1px solid rgba(0,0,0,0.12)',
-                                          }
-                                    }
-                                    className={`py-2.5 rounded-xl text-xs font-bold leading-tight min-h-[44px] flex flex-col items-center justify-center gap-0.5 ${
-                                      isSelected
-                                        ? packageColor.text
-                                        : 'text-[var(--color-text-muted)] hover:text-[var(--color-primary)]'
-                                    }`}
-                                  >
-                                    <span>{isAr ? labelAr : labelEn}</span>
-                                    {priceHint && (
-                                      <span className={`text-[10px] font-semibold ${isSelected ? 'opacity-90' : 'opacity-70'}`}>
-                                        {priceHint}
-                                      </span>
-                                    )}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          ) : (
-                            <p className="text-sm font-semibold mb-3" style={{ color: packageColor.solid }}>
-                              {isAr ? availableDurations[0]?.labelAr ?? 'شهر' : availableDurations[0]?.labelEn ?? '1 Mo'}
-                            </p>
-                          )}
-                        </div>
-                      )}
-
-                      <button
-                        type="button"
-                        onClick={() => (isSubscribed ? handleViewDetails(pkg) : handleSubscribe(pkg))}
-                        disabled={subscribingPackageId === pkg.id}
-                        className={`w-full ${packageColor.text} py-2 px-4 rounded-lg font-semibold hover:shadow-lg transition-all ${
-                          isSubscribed ? 'opacity-75' : ''
-                        }`}
-                        style={{
-                          background: `linear-gradient(to right, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`,
-                        }}
-                        data-package-id={pkg.id}
-                      >
-                        {subscribingPackageId === pkg.id ? (
-                          <>
-                            <i className="fas fa-spinner fa-spin mr-2" aria-hidden="true" />
-                            {isAr ? 'جاري الاشتراك...' : 'Subscribing…'}
-                          </>
-                        ) : (
-                          getSubscribeButtonText(pkg)
-                        )}
-                      </button>
+                      </LandingPackageDescription>
                     </div>
-                  </div>
+
+                    <LandingPackageFeatures
+                      features={features}
+                      expanded={!!expandedFeatures[pkg.id]}
+                      onToggle={() =>
+                        setExpandedFeatures((prev) => ({
+                          ...prev,
+                          [pkg.id]: !prev[pkg.id],
+                        }))
+                      }
+                      isRTL={isRTL}
+                      isAr={isAr}
+                      packageColor={packageColor}
+                    />
+
+                    {!isSubscribed && (
+                      <LandingPackageDuration
+                        isAr={isAr}
+                        pkg={pkg}
+                        availableDurations={availableDurations}
+                        selectedMonths={selectedMonths}
+                        onSelect={(months) =>
+                          setSelectedDurations((prev) => ({ ...prev, [pkg.id]: months }))
+                        }
+                        packageColor={packageColor}
+                        displayEgp={displayEgp}
+                        displayUsd={displayUsd}
+                        disabled={subscribingPackageId === pkg.id}
+                      />
+                    )}
+
+                    <LandingPackageSubscribeButton
+                      packageColor={packageColor}
+                      isSubscribed={isSubscribed}
+                      loading={subscribingPackageId === pkg.id}
+                      loadingLabel={isAr ? 'جاري الاشتراك...' : 'Subscribing…'}
+                      label={getSubscribeButtonText(pkg)}
+                      onClick={() => (isSubscribed ? handleViewDetails(pkg) : handleSubscribe(pkg))}
+                      disabled={subscribingPackageId === pkg.id}
+                      data-package-id={pkg.id}
+                    />
+                  </LandingPackageCard>
                 );
               })}
-            </div>
+            </LandingPackageGrid>
 
             <PackageDetailsModal
               isOpen={showModal && !!selectedPackage}
