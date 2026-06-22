@@ -2,6 +2,11 @@ import { dedupeById, resolveAccessibleContent } from './accessible-content.js';
 import { prisma } from './client.js';
 import { isPoolerError } from './db-errors.js';
 import { toCamelKeys, toSnakeKeys } from '../../common/utils/case-map.js';
+import {
+  assertPackageWriteResult,
+  packageData,
+  packageToRest,
+} from './package-write-utils.js';
 import * as rest from '../supabase-rest/client.js';
 
 async function withWriteFallback<T>(
@@ -19,47 +24,6 @@ async function withWriteFallback<T>(
 
 function normalize(data: Record<string, unknown>) {
   return toCamelKeys(data);
-}
-
-function packageData(data: Record<string, unknown>, mode: 'create' | 'update' = 'create') {
-  const camel = normalize(data);
-  if (camel.type !== undefined && camel.packageType === undefined) {
-    camel.packageType = camel.type;
-    delete camel.type;
-  }
-  if (mode === 'create') {
-    if (camel.priceEgp == null) camel.priceEgp = 0;
-    if (camel.priceUsd == null) camel.priceUsd = 0;
-  }
-  return camel;
-}
-
-function packageToRest(data: Record<string, unknown>, mode: 'create' | 'update' = 'update') {
-  const snake = toSnakeKeys(packageData(data, mode));
-  if (snake.package_type !== undefined) {
-    snake.type = snake.package_type;
-    delete snake.package_type;
-  }
-  const durationPriceAliases: Record<string, string> = {
-    price_egp3m: 'price_egp_3m',
-    price_usd3m: 'price_usd_3m',
-    price_egp6m: 'price_egp_6m',
-    price_usd6m: 'price_usd_6m',
-  };
-  for (const [from, to] of Object.entries(durationPriceAliases)) {
-    if (snake[from] !== undefined) {
-      snake[to] = snake[from];
-      delete snake[from];
-    }
-  }
-  return snake;
-}
-
-function assertPackageWriteResult<T>(row: T | null | undefined, id: string, action: string): T {
-  if (row == null) {
-    throw new Error(`Package ${action} returned no row for id ${id}`);
-  }
-  return row;
 }
 
 function toRest(data: Record<string, unknown>) {

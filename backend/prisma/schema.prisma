@@ -279,8 +279,8 @@ model SquashPackage {
   priceEgp6m            Decimal?      @map("price_egp_6m") @db.Decimal
   priceUsd6m            Decimal?      @map("price_usd_6m") @db.Decimal
   durationDays          Int?          @map("duration_days")
-  level                 PackageLevel  @default(beginner)
-  packageType           PackageType   @default(combined) @map("type")
+  level                 String        @default("beginner") @db.Text
+  packageType           String        @default("combined") @map("type") @db.Text
   featuresEn            Json?         @map("features_en")
   featuresAr            Json?         @map("features_ar")
   includesVideoFeedback Boolean?      @map("includes_video_feedback")

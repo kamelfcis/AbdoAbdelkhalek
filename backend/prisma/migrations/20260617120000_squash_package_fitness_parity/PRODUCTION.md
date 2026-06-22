@@ -19,4 +19,6 @@ project (SQL Editor).
 3. Open the squash dashboard and re-save each package if tier prices look wrong after backfill
 4. Verify `/squash` landing shows duration pills and correct EGP/USD prices
 
-Until step 2 runs, squash package create/update may fail on missing columns.
+Until step 2 runs, squash package create/update uses a **legacy fallback** (single
+`price` + TEXT `features_*`) so coaches can still save basic fields. Tier prices,
+`level`, and JSONB features require the migration.

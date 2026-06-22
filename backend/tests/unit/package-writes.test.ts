@@ -1,45 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { packageUpdateSchema } from '../../src/common/validation/fitness-schemas.js';
-import { toSnakeKeys } from '../../src/common/utils/case-map.js';
-
-function packageData(data: Record<string, unknown>, mode: 'create' | 'update' = 'create') {
-  const camel: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(data)) {
-    if (v === undefined) continue;
-    const key = k.includes('_') ? k.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase()) : k;
-    camel[key] = v;
-  }
-  if (camel.type !== undefined && camel.packageType === undefined) {
-    camel.packageType = camel.type;
-    delete camel.type;
-  }
-  if (mode === 'create') {
-    if (camel.priceEgp == null) camel.priceEgp = 0;
-    if (camel.priceUsd == null) camel.priceUsd = 0;
-  }
-  return camel;
-}
-
-function packageToRest(data: Record<string, unknown>, mode: 'create' | 'update' = 'update') {
-  const snake = toSnakeKeys(packageData(data, mode));
-  if (snake.package_type !== undefined) {
-    snake.type = snake.package_type;
-    delete snake.package_type;
-  }
-  const durationPriceAliases: Record<string, string> = {
-    price_egp3m: 'price_egp_3m',
-    price_usd3m: 'price_usd_3m',
-    price_egp6m: 'price_egp_6m',
-    price_usd6m: 'price_usd_6m',
-  };
-  for (const [from, to] of Object.entries(durationPriceAliases)) {
-    if (snake[from] !== undefined) {
-      snake[to] = snake[from];
-      delete snake[from];
-    }
-  }
-  return snake;
-}
+import {
+  packageData,
+  packageToRest,
+  squashPackageLegacyRest,
+} from '../../src/infrastructure/prisma/package-write-utils.js';
 
 describe('package update pipeline', () => {
   it('accepts dashboard snake_case payload', () => {
@@ -106,5 +71,47 @@ describe('package update pipeline', () => {
     expect(restBody.price_usd_3m).toBe(45);
     expect(restBody.price_egp_6m).toBe(2500);
     expect(restBody.price_usd_6m).toBe(80);
+  });
+
+  it('maps dashboard type field to Prisma packageType', () => {
+    const camel = packageData(
+      {
+        name_en: 'Squash Pro',
+        type: 'training',
+        level: 'intermediate',
+      },
+      'update'
+    );
+
+    expect(camel.packageType).toBe('training');
+    expect(camel.type).toBeUndefined();
+    expect(camel.level).toBe('intermediate');
+  });
+});
+
+describe('squash package legacy REST payload', () => {
+  it('writes legacy price and TEXT features before parity migration', () => {
+    const legacy = squashPackageLegacyRest(
+      {
+        name_en: 'Legacy',
+        name_ar: 'قديم',
+        price_egp: 500,
+        duration_days: 30,
+        features_en: ['Line A', 'Line B'],
+        is_active: true,
+      },
+      'update'
+    );
+
+    expect(legacy).toMatchObject({
+      name_en: 'Legacy',
+      name_ar: 'قديم',
+      price: 500,
+      duration_days: 30,
+      features_en: 'Line A\nLine B',
+      is_active: true,
+    });
+    expect(legacy.price_egp).toBeUndefined();
+    expect(legacy.level).toBeUndefined();
   });
 });

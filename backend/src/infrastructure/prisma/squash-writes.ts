@@ -2,6 +2,13 @@ import { dedupeById, resolveAccessibleContent } from './accessible-content.js';
 import { prisma } from './client.js';
 import { isPoolerError } from './db-errors.js';
 import { toCamelKeys, toSnakeKeys } from '../../common/utils/case-map.js';
+import {
+  assertPackageWriteResult,
+  isSchemaMismatchError,
+  packageData,
+  packageToRest,
+  squashPackageLegacyRest,
+} from './package-write-utils.js';
 import * as rest from '../supabase-rest/client.js';
 
 const T = {
@@ -33,6 +40,86 @@ function normalize(data: Record<string, unknown>) {
 
 function toRest(data: Record<string, unknown>) {
   return toSnakeKeys(normalize(data));
+}
+
+async function restPatchSquashPackage(
+  id: string,
+  data: Record<string, unknown>,
+  mode: 'create' | 'update'
+) {
+  const restPayload = packageToRest(data, mode);
+  if (mode === 'update' && data.updatedAt instanceof Date) {
+    restPayload.updated_at = data.updatedAt.toISOString();
+  }
+  try {
+    return assertPackageWriteResult(
+      await rest.restPatch<Record<string, unknown>>(T.packages, id, restPayload),
+      id,
+      mode
+    );
+  } catch (e) {
+    if (!isSchemaMismatchError(e)) throw e;
+    return assertPackageWriteResult(
+      await rest.restPatch<Record<string, unknown>>(
+        T.packages,
+        id,
+        squashPackageLegacyRest(data, mode)
+      ),
+      id,
+      mode
+    );
+  }
+}
+
+async function restCreateSquashPackage(data: Record<string, unknown>, mode: 'create' | 'update') {
+  const restPayload = packageToRest(data, mode);
+  try {
+    return assertPackageWriteResult(
+      await rest.restCreate<Record<string, unknown>>(T.packages, restPayload),
+      'new',
+      mode
+    );
+  } catch (e) {
+    if (!isSchemaMismatchError(e)) throw e;
+    return assertPackageWriteResult(
+      await rest.restCreate<Record<string, unknown>>(
+        T.packages,
+        squashPackageLegacyRest(data, mode)
+      ),
+      'new',
+      mode
+    );
+  }
+}
+
+async function writeSquashPackage(
+  id: string | null,
+  data: Record<string, unknown>,
+  mode: 'create' | 'update'
+) {
+  const camel = packageData(data, mode);
+  if (mode === 'update') {
+    camel.updatedAt = new Date();
+  }
+
+  const prismaFn = () =>
+    mode === 'create'
+      ? prisma.squashPackage.create({ data: camel as never })
+      : prisma.squashPackage.update({ where: { id: id! }, data: camel as never });
+
+  const restFn = () =>
+    mode === 'create'
+      ? restCreateSquashPackage(camel, mode)
+      : restPatchSquashPackage(id!, camel, mode);
+
+  try {
+    return await prismaFn();
+  } catch (e) {
+    if (isPoolerError(e) || isSchemaMismatchError(e)) {
+      return restFn();
+    }
+    throw e;
+  }
 }
 
 export async function createSquashCategory(data: Record<string, unknown>) {
@@ -107,17 +194,11 @@ export async function deleteSquashVideo(id: string) {
 }
 
 export async function createSquashPackage(data: Record<string, unknown>) {
-  return withWriteFallback(
-    () => prisma.squashPackage.create({ data: normalize(data) as never }),
-    () => rest.restCreate(T.packages, toRest(data))
-  );
+  return writeSquashPackage(null, data, 'create');
 }
 
 export async function updateSquashPackage(id: string, data: Record<string, unknown>) {
-  return withWriteFallback(
-    () => prisma.squashPackage.update({ where: { id }, data: normalize(data) as never }),
-    () => rest.restPatch(T.packages, id, toRest(data))
-  );
+  return writeSquashPackage(id, data, 'update');
 }
 
 export async function deleteSquashPackage(id: string) {
