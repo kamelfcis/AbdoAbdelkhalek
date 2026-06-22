@@ -5,18 +5,6 @@ import { getDashboardTranslation } from '../../../shared/i18n/dashboard';
 import { Modal, Input, Textarea, Select, toastWarning, toastSuccess, toastError } from '../../../shared/ui';
 import { ModalFormFooter, CheckboxField } from './modalHelpers';
 
-const EMPTY_SQUASH_PACKAGE_FORM = {
-  name_en: '',
-  name_ar: '',
-  description_en: '',
-  description_ar: '',
-  price: '',
-  duration_days: '',
-  features_en: '',
-  features_ar: '',
-  is_active: true,
-};
-
 const EMPTY_PACKAGE_FORM = {
   name_en: '',
   name_ar: '',
@@ -38,6 +26,7 @@ const EMPTY_PACKAGE_FORM = {
   allow_1_month: true,
   allow_3_months: true,
   allow_6_months: true,
+  is_active: true,
 };
 
 function splitFeaturesLines(value) {
@@ -52,72 +41,38 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
   const tr = t || ((key) => getDashboardTranslation(domain, currentLanguage, key));
   const contentService = getContentService(domain);
   const isSquash = domain === 'squash';
-  const [formData, setFormData] = useState({
-    name_en: '',
-    name_ar: '',
-    description_en: '',
-    description_ar: '',
-    price_egp: '',
-    price_usd: '',
-    price_egp_3m: '',
-    price_usd_3m: '',
-    price_egp_6m: '',
-    price_usd_6m: '',
-    duration_days: '',
-    level: 'beginner',
-    type: 'training',
-    features_en: '',
-    features_ar: '',
-    includes_video_feedback: false,
-    daily_support: false,
-    allow_1_month: true,
-    allow_3_months: true,
-    allow_6_months: true,
-  });
+  const [formData, setFormData] = useState(EMPTY_PACKAGE_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (pack) {
-      if (isSquash) {
-        setFormData({
-          name_en: pack.name_en || '',
-          name_ar: pack.name_ar || '',
-          description_en: pack.description_en || '',
-          description_ar: pack.description_ar || '',
-          price: pack.price ?? '',
-          duration_days: pack.duration_days ?? '',
-          features_en: Array.isArray(pack.features_en) ? pack.features_en.join('\n') : (pack.features_en || ''),
-          features_ar: Array.isArray(pack.features_ar) ? pack.features_ar.join('\n') : (pack.features_ar || ''),
-          is_active: (pack.is_active ?? pack.isActive) !== false,
-        });
-      } else {
-        setFormData({
-          name_en: pack.name_en || '',
-          name_ar: pack.name_ar || '',
-          description_en: pack.description_en || '',
-          description_ar: pack.description_ar || '',
-          price_egp: pack.price_egp ?? '',
-          price_usd: pack.price_usd ?? '',
-          price_egp_3m: pack.price_egp_3m ?? pack.priceEgp3m ?? '',
-          price_usd_3m: pack.price_usd_3m ?? pack.priceUsd3m ?? '',
-          price_egp_6m: pack.price_egp_6m ?? pack.priceEgp6m ?? '',
-          price_usd_6m: pack.price_usd_6m ?? pack.priceUsd6m ?? '',
-          duration_days: pack.duration_days ?? '',
-          level: pack.level || 'beginner',
-          type: pack.type || 'training',
-          features_en: Array.isArray(pack.features_en) ? pack.features_en.join('\n') : (pack.features_en || ''),
-          features_ar: Array.isArray(pack.features_ar) ? pack.features_ar.join('\n') : (pack.features_ar || ''),
-          includes_video_feedback: Boolean(pack.includes_video_feedback),
-          daily_support: Boolean(pack.daily_support),
-          allow_1_month: (pack.allow_1_month ?? pack.allow1Month) !== false,
-          allow_3_months: (pack.allow_3_months ?? pack.allow3Months) !== false,
-          allow_6_months: (pack.allow_6_months ?? pack.allow6Months) !== false,
-        });
-      }
+      setFormData({
+        name_en: pack.name_en || '',
+        name_ar: pack.name_ar || '',
+        description_en: pack.description_en || '',
+        description_ar: pack.description_ar || '',
+        price_egp: pack.price_egp ?? '',
+        price_usd: pack.price_usd ?? '',
+        price_egp_3m: pack.price_egp_3m ?? pack.priceEgp3m ?? '',
+        price_usd_3m: pack.price_usd_3m ?? pack.priceUsd3m ?? '',
+        price_egp_6m: pack.price_egp_6m ?? pack.priceEgp6m ?? '',
+        price_usd_6m: pack.price_usd_6m ?? pack.priceUsd6m ?? '',
+        duration_days: pack.duration_days ?? '',
+        level: pack.level || 'beginner',
+        type: pack.type || 'training',
+        features_en: Array.isArray(pack.features_en) ? pack.features_en.join('\n') : (pack.features_en || ''),
+        features_ar: Array.isArray(pack.features_ar) ? pack.features_ar.join('\n') : (pack.features_ar || ''),
+        includes_video_feedback: Boolean(pack.includes_video_feedback),
+        daily_support: Boolean(pack.daily_support),
+        allow_1_month: (pack.allow_1_month ?? pack.allow1Month) !== false,
+        allow_3_months: (pack.allow_3_months ?? pack.allow3Months) !== false,
+        allow_6_months: (pack.allow_6_months ?? pack.allow6Months) !== false,
+        is_active: (pack.is_active ?? pack.isActive) !== false,
+      });
     } else {
-      setFormData(isSquash ? EMPTY_SQUASH_PACKAGE_FORM : EMPTY_PACKAGE_FORM);
+      setFormData(EMPTY_PACKAGE_FORM);
     }
-  }, [pack, isOpen, isSquash]);
+  }, [pack, isOpen]);
 
   const handleInputChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -137,39 +92,6 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
 
     if (!formData.duration_days) {
       toastWarning(tr('package-duration-required'));
-      return;
-    }
-
-    if (isSquash) {
-      const payload = {
-        name_en: formData.name_en,
-        name_ar: formData.name_ar,
-        description_en: formData.description_en,
-        description_ar: formData.description_ar,
-        price: formData.price ? Number(formData.price) : null,
-        duration_days: Number(formData.duration_days),
-        features_en: splitFeaturesLines(formData.features_en),
-        features_ar: splitFeaturesLines(formData.features_ar),
-        is_active: formData.is_active,
-      };
-
-      setIsSubmitting(true);
-      try {
-        let saved;
-        if (pack) {
-          saved = await contentService.updatePackage(pack.id, payload);
-          toastSuccess(tr('package-updated'));
-        } else {
-          saved = await contentService.createPackage(payload);
-          toastSuccess(tr('package-added'));
-        }
-        onSaved?.(saved ?? { ...payload, id: pack?.id }, { isCreate: !pack });
-        onClose?.();
-      } catch (error) {
-        toastError(error.message || 'Error');
-      } finally {
-        setIsSubmitting(false);
-      }
       return;
     }
 
@@ -210,17 +132,14 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
       duration_days: Number(formData.duration_days),
       level: formData.level,
       type: formData.type,
-      features_en: formData.features_en
-        ? formData.features_en.split('\n').map((item) => item.trim()).filter(Boolean)
-        : [],
-      features_ar: formData.features_ar
-        ? formData.features_ar.split('\n').map((item) => item.trim()).filter(Boolean)
-        : [],
+      features_en: splitFeaturesLines(formData.features_en),
+      features_ar: splitFeaturesLines(formData.features_ar),
       includes_video_feedback: formData.includes_video_feedback,
       daily_support: formData.daily_support,
       allow1Month: formData.allow_1_month,
       allow3Months: formData.allow_3_months,
       allow6Months: formData.allow_6_months,
+      ...(isSquash ? { is_active: formData.is_active } : {}),
     };
 
     setIsSubmitting(true);
@@ -287,43 +206,6 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
           <Textarea label={tr('package-form-desc-ar')} name="description_ar" value={formData.description_ar} onChange={handleInputChange} rows={4} />
         </div>
         <Input label={tr('package-form-duration')} type="number" min="1" name="duration_days" value={formData.duration_days} onChange={handleInputChange} required />
-        {isSquash && (
-          <>
-            <Input
-              label={currentLanguage === 'ar' ? 'السعر' : 'Price'}
-              type="number"
-              min="0"
-              step="0.01"
-              name="price"
-              value={formData.price}
-              onChange={handleInputChange}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Textarea
-                label={tr('package-form-features-en')}
-                name="features_en"
-                value={formData.features_en}
-                onChange={handleInputChange}
-                rows={4}
-              />
-              <Textarea
-                label={tr('package-form-features-ar')}
-                name="features_ar"
-                value={formData.features_ar}
-                onChange={handleInputChange}
-                rows={4}
-              />
-            </div>
-            <CheckboxField
-              label={currentLanguage === 'ar' ? 'نشط' : 'Active'}
-              name="is_active"
-              checked={formData.is_active}
-              onChange={handleInputChange}
-            />
-          </>
-        )}
-        {!isSquash && (
-        <>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Select label={tr('package-form-level')} name="level" value={formData.level} onChange={handleInputChange} options={levelOptions} />
           <Select label={tr('package-form-type')} name="type" value={formData.type} onChange={handleInputChange} options={typeOptions} />
@@ -415,7 +297,13 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
             onChange={handleInputChange}
           />
         </div>
-        </>
+        {isSquash && (
+          <CheckboxField
+            label={currentLanguage === 'ar' ? 'نشط' : 'Active'}
+            name="is_active"
+            checked={formData.is_active}
+            onChange={handleInputChange}
+          />
         )}
       </form>
     </Modal>

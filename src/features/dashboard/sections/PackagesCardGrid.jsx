@@ -200,6 +200,11 @@ function PackageCard({ pkg, isAr, t, onEdit, onDelete, isMutating, priority = fa
 
         {/* Extra boolean badges */}
         <div className="mt-auto flex flex-wrap gap-1.5 pb-1">
+          {pkg.is_active === false && (
+            <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+              {tr('pkg-inactive') || 'Inactive'}
+            </span>
+          )}
           {pkg.includes_video_feedback && (
             <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-info)]/15 px-2 py-0.5 text-[10px] font-medium text-[var(--color-info)]">
               <i className="fas fa-video" aria-hidden="true" />

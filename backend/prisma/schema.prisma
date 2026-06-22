@@ -267,17 +267,31 @@ model SquashVideo {
 }
 
 model SquashPackage {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  nameEn        String   @map("name_en")
-  nameAr        String   @map("name_ar")
-  descriptionEn String?  @map("description_en")
-  descriptionAr String?  @map("description_ar")
-  price         Decimal? @db.Decimal
-  durationDays  Int?     @map("duration_days")
-  featuresEn    String?  @map("features_en")
-  featuresAr    String?  @map("features_ar")
-  isActive      Boolean  @default(true) @map("is_active")
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  id                    String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nameEn                String        @map("name_en")
+  nameAr                String        @map("name_ar")
+  descriptionEn         String?       @map("description_en")
+  descriptionAr         String?       @map("description_ar")
+  priceEgp              Decimal?      @map("price_egp") @db.Decimal
+  priceUsd              Decimal?      @map("price_usd") @db.Decimal
+  priceEgp3m            Decimal?      @map("price_egp_3m") @db.Decimal
+  priceUsd3m            Decimal?      @map("price_usd_3m") @db.Decimal
+  priceEgp6m            Decimal?      @map("price_egp_6m") @db.Decimal
+  priceUsd6m            Decimal?      @map("price_usd_6m") @db.Decimal
+  durationDays          Int?          @map("duration_days")
+  level                 PackageLevel  @default(beginner)
+  packageType           PackageType   @default(combined) @map("type")
+  featuresEn            Json?         @map("features_en")
+  featuresAr            Json?         @map("features_ar")
+  includesVideoFeedback Boolean?      @map("includes_video_feedback")
+  dailySupport          Boolean?      @map("daily_support")
+  allow1Month           Boolean       @default(true) @map("allow_1_month")
+  allow3Months          Boolean       @default(true) @map("allow_3_months")
+  allow6Months          Boolean       @default(true) @map("allow_6_months")
+  isActive              Boolean       @default(true) @map("is_active")
+  createdAt             DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime?     @map("updated_at") @db.Timestamptz(6)
+  price                 Decimal?      @db.Decimal
 
   @@map("squash_packages")
 }

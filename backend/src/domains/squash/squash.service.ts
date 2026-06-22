@@ -25,7 +25,14 @@ export async function listVideos(
   return repo.listSquashAccessibleVideos(user.sub);
 }
 
-export async function listPackages(pagination?: PaginationParams, filters?: ListQueryFilters) {
+export async function listPackages(
+  user?: TokenPayload,
+  pagination?: PaginationParams,
+  filters?: ListQueryFilters
+) {
+  if (!user) return repo.listSquashPackagesActive(pagination, filters);
+  const dbUser = await findUserById(user.sub);
+  if (dbUser?.isCoach) return repo.listSquashPackagesAll(pagination, filters);
   return repo.listSquashPackagesActive(pagination, filters);
 }
 

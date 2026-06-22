@@ -192,17 +192,11 @@ const packageConfigFitness = {
 const packageConfigSquash = {
   ...packageConfigFitness,
   fields: [
-    ...bilingualName,
-    ...bilingualDesc,
-    { name: 'price', type: 'number', labelEn: 'Price', labelAr: 'السعر' },
-    { name: 'duration_days', type: 'number', labelEn: 'Duration (days)', labelAr: 'المدة (أيام)' },
-    { name: 'features_en', type: 'textarea', labelEn: 'Features (EN)', labelAr: 'المميزات (إنجليزي)' },
-    { name: 'features_ar', type: 'textarea', labelEn: 'Features (AR)', labelAr: 'المميزات (عربي)' },
+    ...packageConfigFitness.fields,
     { name: 'is_active', type: 'checkbox', labelEn: 'Active', labelAr: 'نشط', default: true },
   ],
   columns: [
-    { key: 'name', type: 'bilingualName' },
-    { key: 'duration_days', type: 'text', headerEn: 'Days', headerAr: 'أيام' },
+    ...packageConfigFitness.columns,
     { key: 'is_active', type: 'booleanBadge', labelEn: 'Active', labelAr: 'نشط' },
   ],
 };

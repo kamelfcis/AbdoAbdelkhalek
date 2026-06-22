@@ -215,6 +215,36 @@ export async function listSquashPackagesActive(
   pagination?: PaginationParams,
   filters?: ListQueryFilters
 ) {
+  const baseWhere = applyListFilters({ isActive: true }, filters, {
+    searchFields: [{ en: 'nameEn', ar: 'nameAr' }],
+  });
+  const page = prismaPage(pagination);
+  const paginated = pagination?.limit != null;
+  try {
+    if (paginated) {
+      const [items, total] = await Promise.all([
+        prisma.squashPackage.findMany({ where: baseWhere, orderBy: { createdAt: 'desc' }, ...page }),
+        prisma.squashPackage.count({ where: baseWhere }),
+      ]);
+      return toListResponse(items, total, pagination);
+    }
+    return await prisma.squashPackage.findMany({ where: baseWhere, orderBy: { createdAt: 'desc' } });
+  } catch (e) {
+    if (!isPoolerError(e)) throw e;
+    const base = `?is_active=eq.true&order=created_at.desc${restFilterSuffix(filters, ['name_en', 'name_ar'])}`;
+    if (paginated) {
+      const items = await rest.restList(T.packages, `${base}${restPaginationSuffix(pagination, base)}`);
+      const total = await restCount(T.packages, `?is_active=eq.true${restFilterSuffix(filters, ['name_en', 'name_ar'])}`);
+      return toListResponse(items, total, pagination);
+    }
+    return rest.restList(T.packages, base);
+  }
+}
+
+export async function listSquashPackagesAll(
+  pagination?: PaginationParams,
+  filters?: ListQueryFilters
+) {
   const baseWhere = applyListFilters({}, filters, {
     searchFields: [{ en: 'nameEn', ar: 'nameAr' }],
   });

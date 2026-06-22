@@ -90,3 +90,33 @@ describe('package schemas (dashboard snake_case payload)', () => {
     ).toThrow(/priceEgp3m and priceUsd3m/);
   });
 });
+
+describe('squash package schemas (fitness parity + is_active)', () => {
+  const squashCreatePayload = {
+    ...baseCreatePayload,
+    is_active: true,
+  };
+
+  it('accepts squash create payload with tier prices and is_active', async () => {
+    const { packageCreateSchema: squashPackageCreateSchema } = await import(
+      '../../src/common/validation/squash-schemas.js'
+    );
+    const result = squashPackageCreateSchema.parse(squashCreatePayload);
+
+    expect(result).toMatchObject({
+      nameEn: 'Silver',
+      priceEgp: 11000,
+      priceUsd: 280,
+      isActive: true,
+    });
+  });
+
+  it('accepts squash update with is_active only', async () => {
+    const { packageUpdateSchema: squashPackageUpdateSchema } = await import(
+      '../../src/common/validation/squash-schemas.js'
+    );
+    const result = squashPackageUpdateSchema.parse({ is_active: false });
+
+    expect(result).toMatchObject({ isActive: false });
+  });
+});

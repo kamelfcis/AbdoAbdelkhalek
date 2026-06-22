@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { formatPrice } from '../../../shared/lib/currency';
+import { getPackageDurationPrice } from '../../../shared/lib/packageDurationPricing';
 import { useSquashContent } from '../../../shared/hooks/useSquashContent';
 import { useSquashI18n } from '../hooks/useSquashI18n';
 import { pickItemField } from '../utils/localize';
@@ -19,9 +20,10 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [confirmingSubscription, setConfirmingSubscription] = useState(false);
-  const [subscribing, setSubscribing] = useState(false);
+  const [subscribingPackageId, setSubscribingPackageId] = useState(null);
   const [subscriptionStates, setSubscriptionStates] = useState({});
   const [expandedFeatures, setExpandedFeatures] = useState({});
+  const [selectedDurations, setSelectedDurations] = useState({});
 
   const packages = useMemo(() => {
     return [...packagesData].sort((a, b) => {
@@ -31,6 +33,25 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
       return (parseFloat(a.price_usd) || 0) - (parseFloat(b.price_usd) || 0);
     });
   }, [packagesData]);
+
+  useEffect(() => {
+    if (packages.length === 0) return;
+    setSelectedDurations((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      packages.forEach((pkg) => {
+        if (next[pkg.id] == null) {
+          const avail =
+            Array.isArray(pkg.available_durations) && pkg.available_durations.length > 0
+              ? [...pkg.available_durations].sort((a, b) => a - b)
+              : [1, 3, 6];
+          next[pkg.id] = avail[0];
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [packages]);
 
   const parseFeatures = (pkg) => {
     const raw = isAr ? pkg.features_ar : pkg.features_en;
@@ -79,16 +100,25 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
   const handleConfirmSubscription = useCallback(async () => {
     if (!selectedPackage || !userSession) return;
 
-    setSubscribing(true);
+    const durationMonths =
+      selectedDurations[selectedPackage.id] ??
+      (Array.isArray(selectedPackage.available_durations) && selectedPackage.available_durations.length > 0
+        ? selectedPackage.available_durations[0]
+        : 1);
+
+    setSubscribingPackageId(selectedPackage.id);
     try {
+      const startDate = new Date();
+      const endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + durationMonths);
+
       await squashService.createSubscription({
         userId: userSession.user.id,
         packageId: selectedPackage.id,
         status: 'active',
-        startDate: new Date().toISOString(),
-        endDate: new Date(
-          Date.now() + (selectedPackage.duration_days || selectedPackage.durationDays) * 24 * 60 * 60 * 1000
-        ).toISOString(),
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        durationMonths,
       });
       onAlert?.(isAr ? 'تم الاشتراك بنجاح!' : 'Subscription successful!');
       closeModal();
@@ -98,10 +128,11 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
       console.error('Error subscribing:', err);
       onAlert?.(isAr ? 'حدث خطأ أثناء الاشتراك' : 'Error subscribing to package');
     } finally {
-      setSubscribing(false);
+      setSubscribingPackageId(null);
     }
   }, [
     selectedPackage,
+    selectedDurations,
     userSession,
     isAr,
     onAlert,
@@ -209,6 +240,13 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
 
   const lang = isAr ? 'ar' : 'en';
 
+  const selectedDurationMonths = selectedPackage
+    ? selectedDurations[selectedPackage.id] ??
+      (Array.isArray(selectedPackage.available_durations) && selectedPackage.available_durations.length > 0
+        ? selectedPackage.available_durations[0]
+        : 1)
+    : 1;
+
   return (
     <section id="packages" className="section-py relative overflow-hidden">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }} aria-hidden="true" />
@@ -244,10 +282,29 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
                   packageColor.text === 'text-white' &&
                   (nameEn.includes('platinum') || nameAr.includes('بلاتيني') || nameAr.includes('بلاتينوم'));
 
+                const availableDurations = [
+                  { months: 1, labelEn: '1 Mo', labelAr: 'شهر' },
+                  { months: 3, labelEn: '3 Mo', labelAr: '3 أشهر' },
+                  { months: 6, labelEn: '6 Mo', labelAr: '6 أشهر' },
+                ].filter(({ months }) => {
+                  if (months === 1) return (pkg.allow_1_month ?? pkg.allow1Month) !== false;
+                  if (months === 3) return (pkg.allow_3_months ?? pkg.allow3Months) !== false;
+                  return (pkg.allow_6_months ?? pkg.allow6Months) !== false;
+                });
+
+                const defaultDuration = availableDurations[0]?.months ?? 1;
+                const selectedMonths = availableDurations.some(
+                  (d) => d.months === (selectedDurations[pkg.id] || defaultDuration)
+                )
+                  ? selectedDurations[pkg.id] || defaultDuration
+                  : defaultDuration;
+                const { egp: displayEgp, usd: displayUsd } = getPackageDurationPrice(pkg, selectedMonths);
+
                 return (
                   <div
                     key={pkg.id}
-                    className="bg-[var(--color-surface)] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all hover:-translate-y-2"
+                    className="flex flex-col bg-[var(--color-surface)] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all hover:-translate-y-2"
+                    dir={isRTL ? 'rtl' : 'ltr'}
                   >
                     <div
                       className={`${packageColor.text} p-6 text-center`}
@@ -258,25 +315,22 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
                       <h3 className="text-2xl font-bold mb-2">
                         {pickItemField(pkg, isAr, 'name_en', 'name_ar')}
                       </h3>
-                      <p className="text-xl font-semibold">
-                        <span
-                          className="text-2xl"
-                          style={{ color: isPlatinum ? 'white' : 'inherit' }}
-                          dangerouslySetInnerHTML={{ __html: formatPrice(pkg.price_egp, pkg.price_usd) }}
-                        />
-                      </p>
+                      <div
+                        className={`text-xl font-semibold ${isPlatinum ? 'text-white' : ''}`}
+                        dangerouslySetInnerHTML={{ __html: formatPrice(displayEgp, displayUsd) }}
+                      />
                       {pkg.duration_days != null && (
                         <p className="text-sm opacity-80 mt-1">
                           {pkg.duration_days} {t('packages.days')}
                         </p>
                       )}
                     </div>
-                    <div className="p-6">
+                    <div className="flex flex-col flex-1 p-6">
                       <p className="text-[var(--color-text-muted)] mb-4">
                         {pickItemField(pkg, isAr, 'description_en', 'description_ar')}
                       </p>
                       {features.length > 0 && (
-                        <div className="mb-6">
+                        <div className="mb-6 flex-1">
                           <ul className="space-y-3">
                             {(expandedFeatures[pkg.id] ? features : features.slice(0, 4)).map((feature, idx) => (
                               <li key={idx} className="flex items-start group">
@@ -294,6 +348,7 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
                           </ul>
                           {features.length > 4 && (
                             <button
+                              type="button"
                               onClick={() =>
                                 setExpandedFeatures((prev) => ({
                                   ...prev,
@@ -318,8 +373,73 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
                           )}
                         </div>
                       )}
+
+                      {!isSubscribed && (
+                        <div className="border-t border-[var(--color-border)] pt-4 mb-4">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] mb-3">
+                            {isAr ? 'مدة الاشتراك' : 'Duration'}
+                          </p>
+                          {availableDurations.length > 1 ? (
+                            <div
+                              className="grid gap-2 mb-3"
+                              style={{ gridTemplateColumns: `repeat(${availableDurations.length}, minmax(0, 1fr))` }}
+                            >
+                              {availableDurations.map(({ months, labelEn, labelAr }) => {
+                                const isSelected = selectedMonths === months;
+                                const tierPrice = getPackageDurationPrice(pkg, months);
+                                const priceHint = tierPrice.egp
+                                  ? `${tierPrice.egp.toLocaleString()} EGP`
+                                  : tierPrice.usd
+                                    ? `$${tierPrice.usd}`
+                                    : null;
+                                return (
+                                  <button
+                                    key={months}
+                                    type="button"
+                                    onClick={() =>
+                                      setSelectedDurations((prev) => ({ ...prev, [pkg.id]: months }))
+                                    }
+                                    disabled={subscribingPackageId === pkg.id}
+                                    aria-pressed={isSelected}
+                                    style={
+                                      isSelected
+                                        ? {
+                                            background: `linear-gradient(135deg, ${packageColor.gradientFrom}, ${packageColor.gradientTo})`,
+                                            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.15)',
+                                          }
+                                        : {
+                                            background: 'rgba(255,255,255,0.07)',
+                                            border: '1px solid rgba(0,0,0,0.12)',
+                                          }
+                                    }
+                                    className={`py-2.5 rounded-xl text-xs font-bold leading-tight min-h-[44px] flex flex-col items-center justify-center gap-0.5 ${
+                                      isSelected
+                                        ? packageColor.text
+                                        : 'text-[var(--color-text-muted)] hover:text-[var(--color-primary)]'
+                                    }`}
+                                  >
+                                    <span>{isAr ? labelAr : labelEn}</span>
+                                    {priceHint && (
+                                      <span className={`text-[10px] font-semibold ${isSelected ? 'opacity-90' : 'opacity-70'}`}>
+                                        {priceHint}
+                                      </span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p className="text-sm font-semibold mb-3" style={{ color: packageColor.solid }}>
+                              {isAr ? availableDurations[0]?.labelAr ?? 'شهر' : availableDurations[0]?.labelEn ?? '1 Mo'}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
                       <button
+                        type="button"
                         onClick={() => (isSubscribed ? handleViewDetails(pkg) : handleSubscribe(pkg))}
+                        disabled={subscribingPackageId === pkg.id}
                         className={`w-full ${packageColor.text} py-2 px-4 rounded-lg font-semibold hover:shadow-lg transition-all ${
                           isSubscribed ? 'opacity-75' : ''
                         }`}
@@ -328,7 +448,14 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
                         }}
                         data-package-id={pkg.id}
                       >
-                        {getSubscribeButtonText(pkg)}
+                        {subscribingPackageId === pkg.id ? (
+                          <>
+                            <i className="fas fa-spinner fa-spin mr-2" aria-hidden="true" />
+                            {isAr ? 'جاري الاشتراك...' : 'Subscribing…'}
+                          </>
+                        ) : (
+                          getSubscribeButtonText(pkg)
+                        )}
                       </button>
                     </div>
                   </div>
@@ -355,8 +482,9 @@ const SquashPackages = ({ onAlert, userSession, userProfile }) => {
               domain="squash"
               language={lang}
               isRTL={isRTL}
+              durationMonths={selectedDurationMonths}
               confirmingSubscription={confirmingSubscription}
-              subscribing={subscribing}
+              subscribing={subscribingPackageId === selectedPackage?.id}
               onConfirm={handleConfirmSubscription}
             />
           </>

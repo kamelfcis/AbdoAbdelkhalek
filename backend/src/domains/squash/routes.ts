@@ -63,10 +63,10 @@ router.get('/videos', optionalAuth, async (req: AuthRequest, res, next) => {
   }
 });
 
-router.get('/packages', async (req, res, next) => {
+router.get('/packages', optionalAuth, async (req: AuthRequest, res, next) => {
   try {
     const q = req.query as Record<string, unknown>;
-    res.json(await squash.listPackages(parsePagination(q), parseListFilters(q)));
+    res.json(await squash.listPackages(req.user, parsePagination(q), parseListFilters(q)));
   } catch (e) {
     next(e);
   }
