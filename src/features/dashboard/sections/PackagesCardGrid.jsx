@@ -59,6 +59,7 @@ function PackageCard({ pkg, isAr, t, onEdit, onDelete, isMutating, priority = fa
   }
   const priceEgp = pkg.price_egp != null ? Number(pkg.price_egp) : null;
   const priceUsd = pkg.price_usd != null ? Number(pkg.price_usd) : null;
+  const legacyPrice = pkg.price != null ? Number(pkg.price) : null;
 
   const typeLabel =
     type === 'training'
@@ -140,6 +141,11 @@ function PackageCard({ pkg, isAr, t, onEdit, onDelete, isMutating, priority = fa
           {priceUsd != null && priceUsd > 0 && (
             <div className="flex flex-col leading-tight">
               <span className="text-sm font-medium text-muted-foreground">${priceUsd} USD</span>
+            </div>
+          )}
+          {legacyPrice != null && legacyPrice > 0 && priceEgp == null && priceUsd == null && (
+            <div className="flex flex-col leading-tight">
+              <span className="text-lg font-bold text-foreground">{legacyPrice.toLocaleString()}</span>
             </div>
           )}
         </div>

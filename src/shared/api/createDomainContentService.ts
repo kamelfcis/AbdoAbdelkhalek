@@ -107,6 +107,7 @@ export function mapPackage(row: Record<string, unknown>) {
     description_ar: pkg.description_ar ?? pkg.descriptionAr,
     price_egp: coercePrice(pkg.price_egp ?? pkg.priceEgp),
     price_usd: coercePrice(pkg.price_usd ?? pkg.priceUsd),
+    price: coercePrice(pkg.price),
     price_egp_3m: coercePrice(pkg.price_egp_3m ?? pkg.priceEgp3m ?? pkg.price_egp3m),
     price_usd_3m: coercePrice(pkg.price_usd_3m ?? pkg.priceUsd3m ?? pkg.price_usd3m),
     price_egp_6m: coercePrice(pkg.price_egp_6m ?? pkg.priceEgp6m ?? pkg.price_egp6m),
@@ -125,6 +126,7 @@ export function mapPackage(row: Record<string, unknown>) {
     level: pkg.level ?? pkg.packageLevel,
     type: packageType,
     packageType,
+    is_active: pkg.is_active ?? pkg.isActive,
   };
 }
 

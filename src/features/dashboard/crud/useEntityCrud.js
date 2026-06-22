@@ -21,6 +21,7 @@ import { selectRangeIds } from './selectRangeIds';
 
 function isPackageLikeRow(row) {
   return (
+    row.price != null ||
     row.price_egp != null ||
     row.priceEgp != null ||
     row.price_usd != null ||
