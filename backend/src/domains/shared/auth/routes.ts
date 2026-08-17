@@ -63,6 +63,9 @@ router.post('/login', authRateLimit, validateBody(loginSchema), async (req, res,
     const payload = { sub: user.id, email: user.email, isCoach: user.isCoach };
     const accessToken = signAccessToken(payload);
     const refreshToken = signRefreshToken(user.id, refreshDays);
+    // Refresh stays httpOnly. Access JWT is still returned in JSON for the SPA
+    // (localStorage). TODO(wave-b): move access token to memory + httpOnly cookie
+    // in a dedicated auth rewrite — too invasive to mix with this change.
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

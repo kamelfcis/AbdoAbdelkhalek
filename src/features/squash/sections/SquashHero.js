@@ -4,7 +4,7 @@ import { useSquashI18n } from '../hooks/useSquashI18n';
 import { useSquashThreeBackground } from '../hooks/useSquashThreeBackground';
 import { getUnsplashUrl, getSquashImageFallback } from '../assets/unsplashImages';
 
-function HeroSlideBackground({ src, alt }) {
+function HeroSlideBackground({ src, alt, priority = false }) {
   const fallback = getSquashImageFallback();
   const [imgSrc, setImgSrc] = useState(src);
 
@@ -21,6 +21,8 @@ function HeroSlideBackground({ src, alt }) {
         className="absolute inset-0 w-full h-full object-cover object-center"
         onError={handleError}
         decoding="async"
+        fetchPriority={priority ? 'high' : 'low'}
+        loading={priority ? 'eager' : 'lazy'}
       />
       <div className="hero-overlay absolute inset-0" aria-hidden="true" />
       <span className="sr-only">{alt}</span>
@@ -95,7 +97,7 @@ const SquashHero = () => {
 
       <div className="relative" style={{ zIndex: 2 }}>
         <LazySplide options={splideOptions} aria-label="Hero image slider">
-          {slides.map((slide) => (
+          {slides.map((slide, index) => (
             <LazySplideSlide key={slide.section}>
               <div
                 className="relative w-full h-screen"
@@ -103,7 +105,7 @@ const SquashHero = () => {
                 role="img"
                 aria-label={slide.title}
               >
-                <HeroSlideBackground src={slide.image} alt={slide.title} />
+                <HeroSlideBackground src={slide.image} alt={slide.title} priority={index === 0} />
                 <div className="relative z-10 h-full flex items-center justify-center text-center px-4">
                   <div className="max-w-3xl animate-slide-up">
                     <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white">{slide.title}</h1>

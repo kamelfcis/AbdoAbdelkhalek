@@ -8,6 +8,7 @@ import authRoutes from '../domains/shared/auth/routes.js';
 import fitnessRoutes from '../domains/fitness/routes.js';
 import mediaRoutes from '../domains/shared/media/routes.js';
 import squashRoutes from '../domains/squash/routes.js';
+import favoritesRoutes from '../domains/shared/favorites/routes.js';
 import { errorHandler } from '../common/errors/handler.js';
 import {
   requestIdMiddleware,
@@ -53,6 +54,7 @@ export function createApp(): express.Application {
   });
 
   app.use('/api/auth', authRoutes);
+  app.use('/api/favorites', favoritesRoutes);
   app.use('/api', fitnessRoutes);
   app.use('/api/uploads', mediaRoutes);
   app.use('/api/squash', squashRoutes);

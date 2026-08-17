@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken, type TokenPayload } from '../../domains/shared/auth/jwt.js';
+import { findUserById } from '../../domains/shared/auth/user.repository.js';
 
 export interface AuthRequest extends Request {
   user?: TokenPayload;
@@ -33,12 +34,27 @@ export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction
   next();
 }
 
-export function requireCoach(req: AuthRequest, res: Response, next: NextFunction): void {
-  if (!req.user?.isCoach) {
-    res.status(403).json({ error: 'Coach access required' });
+/** Re-reads `is_coach` from the database so JWT claims cannot stale-grant coach access. */
+export async function requireCoach(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  if (!req.user?.sub) {
+    res.status(401).json({ error: 'Unauthorized' });
     return;
   }
-  next();
+  try {
+    const dbUser = await findUserById(req.user.sub);
+    if (!dbUser?.isCoach) {
+      res.status(403).json({ error: 'Coach access required' });
+      return;
+    }
+    req.user.isCoach = true;
+    next();
+  } catch (err) {
+    next(err);
+  }
 }
 
 /** Coaches may subscribe any user; trainees may only subscribe themselves. */

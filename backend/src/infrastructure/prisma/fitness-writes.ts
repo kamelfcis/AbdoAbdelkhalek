@@ -17,7 +17,6 @@ async function withWriteFallback<T>(
     return await prismaFn();
   } catch (e) {
     if (!isPoolerError(e)) throw e;
-    console.error('[withWriteFallback] Prisma pooler error, falling back to REST:', e);
     return restFn();
   }
 }
@@ -34,6 +33,7 @@ export async function deleteTrainee(userId: string) {
   return prisma.$transaction([
     prisma.userVideoAccess.deleteMany({ where: { userId } }),
     prisma.userCategoryAccess.deleteMany({ where: { userId } }),
+    prisma.userVideoFavorite.deleteMany({ where: { userId } }),
     prisma.subscription.deleteMany({ where: { userId } }),
     prisma.passwordResetToken.deleteMany({ where: { userId } }),
     prisma.user.delete({ where: { id: userId } }),

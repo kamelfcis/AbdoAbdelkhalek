@@ -1,18 +1,46 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { getTranslation } from '../../../utils/translations';
+import { loadThreeJSOnIntersect } from '../../../shared/lib/threeLoader';
 
 const WhyChooseMe = React.memo(() => {
   const { currentLanguage } = useLanguage();
   const canvasRef = useRef(null);
-  const THREE = window?.THREE;
+  const [threeReady, setThreeReady] = useState(
+    () => typeof window !== 'undefined' && Boolean(window.THREE)
+  );
 
   useEffect(() => {
-    if (!canvasRef.current || !THREE) {
-      return;
+    if (!canvasRef.current) return undefined;
+    const cleanup = loadThreeJSOnIntersect(canvasRef.current, {
+      rootMargin: '200px',
+      threshold: 0.1,
+      once: true,
+    });
+    const check = setInterval(() => {
+      if (window.THREE) {
+        clearInterval(check);
+        setThreeReady(true);
+      }
+    }, 200);
+    const timeout = setTimeout(() => clearInterval(check), 10000);
+    return () => {
+      cleanup?.();
+      clearInterval(check);
+      clearTimeout(timeout);
+    };
+  }, []);
+
+  useEffect(() => {
+    const THREE = typeof window !== 'undefined' ? window.THREE : null;
+    if (!canvasRef.current || !THREE || !threeReady) {
+      return undefined;
     }
 
     const canvas = canvasRef.current;
+    if (canvas.threeInitialized) return undefined;
+    canvas.threeInitialized = true;
+
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
       60,
@@ -79,8 +107,9 @@ const WhyChooseMe = React.memo(() => {
       geometry.dispose();
       material.dispose();
       renderer.dispose();
+      canvas.threeInitialized = false;
     };
-  }, [THREE]);
+  }, [threeReady]);
 
   const featureCards = [
     {

@@ -1,6 +1,19 @@
 # Security — Phase 1
 
-**Last updated:** 2026-06-04
+**Last updated:** 2026-08-17
+
+---
+
+## P0 — Rotate leaked Supabase access tokens
+
+If a Supabase personal access token (`sbp_…`) was pasted into chat, committed, or logged, treat it as **compromised**. This project **cannot revoke** that token for you.
+
+1. Open [Supabase Account → Access Tokens](https://supabase.com/dashboard/account/tokens)
+2. **Revoke** the leaked token immediately
+3. Create a new token only if you still need CLI / Management API access
+4. Store the new token in a password manager or CI secret — **never** commit it, paste it in chat, or put it in `PRODUCTION.md`
+
+Also rotate anything that may have been exposed alongside it (`DATABASE_URL`, service-role keys). Do not paste those values into chat either.
 
 ---
 
@@ -67,4 +80,5 @@ Target: `0` before removing legacy login support.
 ## Related docs
 
 - [DATA_LAYER.md](./DATA_LAYER.md) — database dual-path, connection strings
+- [PRODUCTION.md](./PRODUCTION.md) — SQL Editor runbook for indexes and schema
 - [cloudflare-cdn.md](./cloudflare-cdn.md) — R2 / CDN credentials

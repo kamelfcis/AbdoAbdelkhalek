@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useDebounceValue } from '../../../shared/lib/debounce';
 import { useTraineeVideos } from '../../../shared/hooks/useTraineeVideos';
@@ -7,6 +7,7 @@ import { getContentService } from '../../../shared/lib/getContentService';
 import { queryKeys } from '../../../shared/lib/queryKeys';
 import { resolveVideoPlayUrl } from '../../../shared/lib/resolveVideoPlayUrl';
 import { getDashboardTranslation } from '../../../shared/i18n/dashboard';
+import { useVideoFavorites } from '../../../shared/hooks/useVideoFavorites';
 import {
   VISIBILITY_ALL,
   filterVideosByVisibility,
@@ -51,30 +52,10 @@ export function useDashboardTraineeExperience(
   const [previewVideoLoading, setPreviewVideoLoading] = useState(false);
   const [previewVideoError, setPreviewVideoError] = useState('');
 
-  const [favoriteVideoIds, setFavoriteVideoIds] = useState(() => {
-    try {
-      const saved = localStorage.getItem('traineeFavoriteVideos');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  const favoriteVideoIdsRef = useRef(favoriteVideoIds);
-  useEffect(() => {
-    favoriteVideoIdsRef.current = favoriteVideoIds;
-  }, [favoriteVideoIds]);
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      try {
-        localStorage.setItem('traineeFavoriteVideos', JSON.stringify(favoriteVideoIdsRef.current));
-      } catch {
-        /* ignore */
-      }
-    }, 500);
-    return () => clearTimeout(timeoutId);
-  }, [favoriteVideoIds]);
+  const { favoriteVideoIds, toggleFavorite, isFavorite } = useVideoFavorites(
+    adminDomain === 'squash' ? 'squash' : 'fitness',
+    Boolean(isTrainee)
+  );
 
   useEffect(() => {
     if (!isTrainee) return;
@@ -90,18 +71,6 @@ export function useDashboardTraineeExperience(
       }
     },
     [setCurrentSection]
-  );
-
-  const toggleFavorite = useCallback((videoId) => {
-    setFavoriteVideoIds((prev) => {
-      const videoIdStr = String(videoId);
-      return prev.includes(videoIdStr) ? prev.filter((id) => id !== videoIdStr) : [...prev, videoIdStr];
-    });
-  }, []);
-
-  const isFavorite = useCallback(
-    (videoId) => favoriteVideoIds.includes(String(videoId)),
-    [favoriteVideoIds]
   );
 
   const filteredTraineeVideos = useMemo(() => {

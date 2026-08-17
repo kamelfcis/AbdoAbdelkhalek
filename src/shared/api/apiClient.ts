@@ -25,6 +25,10 @@ function resolveApiBase(): string {
 const API_BASE = resolveApiBase();
 const TOKEN_KEY = 'abk_access_token';
 
+// Access JWT remains in localStorage so existing Bearer clients keep working.
+// Refresh is already an httpOnly cookie (see auth/routes.ts). TODO(wave-b):
+// move the access token to memory + httpOnly cookie in a dedicated rewrite.
+
 let refreshPromise: Promise<string> | null = null;
 let authTokenChangeHandler: ((event: string) => void) | null = null;
 

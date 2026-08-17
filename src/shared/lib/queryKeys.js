@@ -89,6 +89,8 @@ export const queryKeys = {
   trainee: {
     videos: (domain = 'fitness') =>
       domain === 'squash' ? ['trainee', 'squash', 'videos'] : ['trainee', 'videos'],
+    favorites: (domain = 'fitness') =>
+      domain === 'squash' ? ['trainee', 'squash', 'favorites'] : ['trainee', 'favorites'],
   },
 };
 

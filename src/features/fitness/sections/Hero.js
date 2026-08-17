@@ -212,9 +212,8 @@ const Hero = () => {
         <LazySplide options={splideOptions} aria-label="Hero image slider">
           <LazySplideSlide>
             <div
-              className="w-full h-screen bg-cover bg-center"
+              className="relative w-full h-screen"
               style={{
-                backgroundImage: `url('${heroImages[0]}')`,
                 backgroundColor: '#0f172a',
                 minHeight: '100vh',
                 width: '100%',
@@ -222,6 +221,14 @@ const Hero = () => {
               role="img"
               aria-label="Hero image - Training and performance"
             >
+              <img
+                src={heroImages[0]}
+                alt=""
+                fetchPriority="high"
+                loading="eager"
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-cover object-center"
+              />
               <div className="hero-overlay"></div>
               <div className="relative z-10 h-full flex items-center justify-center text-center px-4">
                 <div className="max-w-3xl animate-slide-up">

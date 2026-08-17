@@ -57,10 +57,14 @@ function SquashHomeContent({
 
   return (
     <div
-      className="App font-['Open_Sans',_sans-serif] surface-page"
+      className={`App surface-page ${
+        currentLanguage === 'ar' ? "font-['Tajawal',_sans-serif]" : "font-['Open_Sans',_sans-serif]"
+      }`}
       data-theme={themeIds.SQUASH}
-      role="main"
     >
+      <a href="#main-content" className="skip-link">
+        {currentLanguage === 'ar' ? 'تخطي إلى المحتوى الرئيسي' : 'Skip to main content'}
+      </a>
       {pageAlert && (
         <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded z-50">
           {pageAlert}
@@ -84,7 +88,7 @@ function SquashHomeContent({
         onShowProfile={() => setShowProfileModal(true)}
       />
 
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <ErrorBoundary fallbackTitle="Hero" fallbackMessage="Unable to load hero section.">
           <Suspense fallback={<ComponentLoader message="Loading hero..." />}>
             <SquashHero />

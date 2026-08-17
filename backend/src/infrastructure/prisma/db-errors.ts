@@ -1,4 +1,6 @@
-export function isPoolerError(err: unknown): boolean {
+import { logger } from '../logging/logger.js';
+
+function matchesPoolerError(err: unknown): boolean {
   if (err instanceof Error) {
     if (
       err.name === 'PrismaClientInitializationError' ||
@@ -25,4 +27,18 @@ export function isPoolerError(err: unknown): boolean {
     msg.includes('P1008') ||
     msg.includes('P1017')
   );
+}
+
+/** True when Prisma should fall back to PostgREST. Logs a warning; does not throw. */
+export function isPoolerError(err: unknown): boolean {
+  const matched = matchesPoolerError(err);
+  if (matched) {
+    logger.warn({
+      event: 'prisma_rest_fallback',
+      message: 'Prisma write/read falling back to REST after pooler error',
+      error: err instanceof Error ? err.message : String(err),
+      name: err instanceof Error ? err.name : undefined,
+    });
+  }
+  return matched;
 }

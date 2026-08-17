@@ -11,10 +11,12 @@ import { resolveVideoPlayUrl } from '../../../shared/lib/resolveVideoPlayUrl';
 import { prefetchVideoUrl, warmVideoUrl } from '../../../shared/lib/prefetchVideo';
 import { prefetchImageUrls } from '../../../shared/lib/prefetchImages';
 import { getVideoThumbSrc } from '../../../shared/lib/videoThumb';
+import { useVideoFavorites } from '../../../shared/hooks/useVideoFavorites';
 
 const Videos = ({ onAlert, userSession }) => {
   const { currentLanguage } = useLanguage();
   const { data: allVideos = [], isLoading: loading, isFetching, error } = useVideos('fitness');
+  const { favoriteVideoIds } = useVideoFavorites('fitness', Boolean(userSession));
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categoryName, setCategoryName] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -145,15 +147,6 @@ const Videos = ({ onAlert, userSession }) => {
     setSelectedVideo(null);
     setPlayUrl('');
   };
-
-  const favoriteVideoIds = useMemo(() => {
-    try {
-      const saved = localStorage.getItem('traineeFavoriteVideos');
-      return saved ? JSON.parse(saved).map(String) : [];
-    } catch {
-      return [];
-    }
-  }, [showFavoritesOnly, allVideos]);
 
   const filteredVideos = useMemo(() => {
     let result = [...allVideos];
