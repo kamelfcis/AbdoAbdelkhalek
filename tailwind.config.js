@@ -10,7 +10,7 @@ module.exports = {
       colors: {
         border: 'var(--color-border, #e5e7eb)',
         input: 'var(--color-border, #e5e7eb)',
-        ring: 'var(--color-primary, #0074b7)',
+        ring: 'var(--color-ring, var(--color-primary, #0074b7))',
         background: 'var(--color-bg, #f3f4f6)',
         foreground: 'var(--color-text, #1f2937)',
         primary: {
@@ -36,7 +36,7 @@ module.exports = {
           foreground: 'var(--color-primary-dark, #005a8a)',
         },
         card: {
-          DEFAULT: 'var(--color-surface, #ffffff)',
+          DEFAULT: 'var(--color-surface-raised, var(--color-surface, #ffffff))',
           foreground: 'var(--color-text, #1f2937)',
         },
         surface: 'var(--color-surface, #ffffff)',
@@ -66,4 +66,4 @@ module.exports = {
     preflight: true,
   },
 };
-
+

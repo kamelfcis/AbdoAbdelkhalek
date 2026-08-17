@@ -1,4 +1,5 @@
 import { apiFetch } from './apiClient';
+import type { ApiError } from './apiClient';
 import { rewriteMediaUrls } from '../lib/cdn';
 import { fetchList } from './fetchList';
 import { mapFaq } from './mapFaq';
@@ -31,6 +32,7 @@ function mapVideo(v: Record<string, unknown> | null | undefined): Video | null {
     is_public: (row.is_public ?? row.isPublic) as boolean,
     title_en: (row.title_en ?? row.titleEn) as string,
     title_ar: (row.title_ar ?? row.titleAr) as string,
+    canPlay: (row.canPlay ?? row.can_play) !== false,
   };
 }
 
@@ -166,6 +168,34 @@ export function createDomainContentService(apiPrefix: string) {
       fetchList(p('/categories'), params, mapCategory),
     getVideos: (params?: Record<string, unknown>) =>
       fetchList(p('/videos'), params, mapVideo),
+    getVideo: async (id: string | number) => {
+      try {
+        const row = await apiFetch<Record<string, unknown>>(p(`/videos/${id}`));
+        return mapVideo(row);
+      } catch (err) {
+        const apiErr = err as ApiError;
+        const data = (apiErr.data || {}) as Record<string, unknown>;
+        if (apiErr.status === 403) {
+          const mapped = mapVideo({
+            ...data,
+            title_en: data.title_en ?? data.titleEn ?? data.title,
+            title_ar: data.title_ar ?? data.titleAr ?? data.title,
+            thumbnail_url: data.thumbnail_url ?? data.thumbnailUrl ?? data.thumb,
+          });
+          return { ...mapped, canPlay: false, locked: true };
+        }
+        if (apiErr.status === 401) {
+          const requiresAuth = data.requiresAuth !== false;
+          if (requiresAuth) {
+            return { requiresAuth: true, canPlay: false };
+          }
+        }
+        if (apiErr.status === 404) {
+          return { notFound: true, canPlay: false };
+        }
+        throw err;
+      }
+    },
     getPackages: (params?: Record<string, unknown>) =>
       fetchList(p('/packages'), params, mapPackage as (row: Record<string, unknown>) => unknown),
     getReviews: (params?: Record<string, unknown>) =>

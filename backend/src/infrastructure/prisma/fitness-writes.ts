@@ -469,6 +469,11 @@ export async function listAccessibleCategories(userId: string) {
   });
 }
 
+export async function userCanPlayVideo(userId: string, videoId: string): Promise<boolean> {
+  const { videoIds } = await getAccessibleVideoIds(userId);
+  return videoIds.includes(videoId);
+}
+
 export async function listAccessibleVideos(userId: string) {
   const { videoIds, categoryIds } = await getAccessibleVideoIds(userId);
   const hasExplicitAccess = categoryIds.length > 0 || videoIds.length > 0;

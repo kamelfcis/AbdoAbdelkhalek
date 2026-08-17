@@ -10,10 +10,11 @@ import {
 } from 'components/ui/card';
 import { AspectRatio } from 'components/ui/aspect-ratio';
 import { cn } from 'lib/utils';
-import { EmptyState } from '../../../shared/ui';
+import { EmptyState, toastSuccess } from '../../../shared/ui';
 import DashboardThumb from '../../../shared/ui/DashboardThumb';
 import { CardGridSkeleton } from '../../fitness/components/Skeletons';
 import { VIDEOS_PAGE_SIZE } from '../constants/pagination';
+import { buildWatchPath, buildWatchUrl } from '../../../shared/lib/watchRoutes';
 
 function VideoCard({
   video,
@@ -27,6 +28,7 @@ function VideoCard({
   onEdit,
   onAccess,
   onDelete,
+  adminDomain,
 }) {
   const title = isAr ? video.title_ar || video.title_en : video.title_en || video.title_ar;
   const { src: thumbSrc, fallbackSrc: thumbFallbackSrc } = thumb || {};
@@ -34,8 +36,8 @@ function VideoCard({
   return (
     <Card
       className={cn(
-        'group overflow-hidden transition-all duration-300',
-        'hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md'
+        'dashboard-video-card group overflow-hidden transition-all duration-200',
+        'hover:-translate-y-0.5 hover:border-primary/40'
       )}
       onMouseEnter={() => onWarmPreview?.(video)}
     >
@@ -96,6 +98,33 @@ function VideoCard({
       )}
 
       <CardFooter className="mt-auto gap-2 border-t border-border/60 pt-4">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(buildWatchUrl(adminDomain, video.id));
+                toastSuccess(t('watch-link-copied'));
+              } catch {
+                /* ignore */
+              }
+            }}
+            aria-label={t('btn-copy-watch-link')}
+            title={t('btn-copy-watch-link')}
+          >
+            <i className="fas fa-link text-muted-foreground" aria-hidden="true" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => window.open(buildWatchPath(adminDomain, video.id), '_blank', 'noopener,noreferrer')}
+            aria-label={t('btn-open-watch-page')}
+            title={t('btn-open-watch-page')}
+          >
+            <i className="fas fa-external-link-alt text-muted-foreground" aria-hidden="true" />
+          </Button>
+        </div>
         <div className="ml-auto flex items-center gap-2">
           <Button
             variant="ghost"
@@ -144,6 +173,7 @@ export function VideosCardGrid({
   onDelete,
   emptyTitle,
   emptyDescription,
+  adminDomain,
 }) {
   const showDataSkeleton = isLoading && videos.length === 0;
 
@@ -179,6 +209,7 @@ export function VideosCardGrid({
             onEdit={onEdit}
             onAccess={onAccess}
             onDelete={onDelete}
+            adminDomain={adminDomain}
           />
         ))}
       </div>

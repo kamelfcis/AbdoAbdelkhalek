@@ -22,10 +22,10 @@ const Footer = React.memo(() => {
               {getTranslation('footer-links-title', currentLanguage)}
             </h3>
             <ul className="space-y-2">
-              <li><a href="#home" className="text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)] transition">Home</a></li>
-              <li><a href="#categories" className="text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)] transition">Categories</a></li>
-              <li><a href="#packages" className="text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)] transition">Packages</a></li>
-              <li><a href="#about" className="text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)] transition">About</a></li>
+              <li><a href="/fitness#home" className="text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)] transition">Home</a></li>
+              <li><a href="/fitness#categories" className="text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)] transition">Categories</a></li>
+              <li><a href="/fitness#packages" className="text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)] transition">Packages</a></li>
+              <li><a href="/fitness#about" className="text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)] transition">About</a></li>
             </ul>
           </div>
           <div>

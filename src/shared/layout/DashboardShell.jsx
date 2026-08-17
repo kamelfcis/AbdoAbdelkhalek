@@ -47,7 +47,7 @@ const DashboardShell = ({
       <div className="flex items-center gap-3 min-w-0">
         <img src="/logo.png" alt="Logo" className="w-12 h-12 rounded-lg object-cover shadow-md shrink-0" />
         <div className="min-w-0">
-          <h2 className="text-lg font-bold text-[var(--color-text)] truncate">{sidebarTitle}</h2>
+          <h2 className="dashboard-display text-lg font-bold text-[var(--color-text)] truncate">{sidebarTitle}</h2>
           {sidebarSubtitle && (
             <p className="text-sm text-[var(--color-text-muted)] truncate">{sidebarSubtitle}</p>
           )}
@@ -93,7 +93,7 @@ const DashboardShell = ({
   return (
     <div
       className={cn(
-        'min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] font-[var(--font-display,inherit)]',
+        'dashboard-shell min-h-screen bg-[var(--color-bg-canvas)] text-[var(--color-text)]',
         className
       )}
       {...(squashDashboard ? { 'data-squash-dashboard': 'true' } : {})}
@@ -105,6 +105,7 @@ const DashboardShell = ({
         isRTL={isRTL}
         header={sidebarHeader}
         footer={sidebarFooter}
+        className="dashboard-sidebar"
       >
         {sidebarExtra}
         <ul className="space-y-1">
@@ -128,6 +129,7 @@ const DashboardShell = ({
         <Navbar
           isRTL={isRTL}
           title={pageTitle}
+          className="dashboard-navbar py-2.5"
           leftActions={
             <button
               type="button"
@@ -146,7 +148,7 @@ const DashboardShell = ({
                 <button
                   type="button"
                   onClick={theme.toggleMode}
-                  className="p-2 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-text)] transition"
+                  className="dashboard-theme-toggle"
                   aria-label={theme.isDark ? 'Switch to light mode' : 'Switch to dark mode'}
                   title={theme.isDark ? 'Light mode' : 'Dark mode'}
                 >
@@ -156,7 +158,7 @@ const DashboardShell = ({
               {userDisplayName && (
                 <div className="flex items-center gap-2 text-[var(--color-text-muted)]">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[var(--color-primary-light)] to-[var(--color-primary)] flex items-center justify-center">
-                    <i className="fas fa-user text-white text-sm" aria-hidden="true" />
+                    <i className="fas fa-user text-[var(--color-text-inverse)] text-sm" aria-hidden="true" />
                   </div>
                   <span className="hidden md:block font-medium truncate max-w-[180px]">{userDisplayName}</span>
                 </div>
@@ -165,7 +167,7 @@ const DashboardShell = ({
           }
         />
 
-        <main className={cn('flex-1 p-4 sm:p-6', squashDashboard && 'dashboard-shell-main')}>
+        <main className="dashboard-shell-main flex-1 p-4 sm:p-6">
           {children}
         </main>
       </div>

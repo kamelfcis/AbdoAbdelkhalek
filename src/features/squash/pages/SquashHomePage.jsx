@@ -201,6 +201,15 @@ export default function SquashHomePage() {
   useSquashLandingDocumentLocale();
 
   useEffect(() => {
+    const id = location.hash?.replace('#', '');
+    if (!id) return undefined;
+    const timer = window.setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'auto', block: 'start' });
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [location.hash]);
+
+  useEffect(() => {
     const authMessage = location.state?.authMessage;
     const authMessageAr = location.state?.authMessageAr;
     if (authMessage || authMessageAr) {

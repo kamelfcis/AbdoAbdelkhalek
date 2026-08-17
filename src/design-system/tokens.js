@@ -112,6 +112,7 @@ export const shadows = {
   xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
   inner: 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)',
   glass: '0 25px 45px rgba(0, 0, 0, 0.1)',
+  glow: '0 0 40px rgba(0, 116, 183, 0.12)',
 };
 
 export const zIndex = {

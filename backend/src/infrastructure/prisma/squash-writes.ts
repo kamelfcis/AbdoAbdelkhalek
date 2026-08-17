@@ -563,6 +563,11 @@ export async function listSquashAccessibleCategories(userId: string) {
   });
 }
 
+export async function userCanPlaySquashVideo(userId: string, videoId: string): Promise<boolean> {
+  const { videoIds } = await getSquashAccessibleVideoIds(userId);
+  return videoIds.includes(videoId);
+}
+
 export async function listSquashAccessibleVideos(userId: string) {
   const { videoIds, categoryIds } = await getSquashAccessibleVideoIds(userId);
   const hasExplicitAccess = categoryIds.length > 0 || videoIds.length > 0;

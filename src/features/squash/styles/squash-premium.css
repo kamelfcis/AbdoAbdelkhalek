@@ -5,17 +5,21 @@ html[data-mode='light'] [data-squash-dashboard='true'] {
   --color-primary-light: #d7ff3f;
   --color-primary-dark: #4d8a00;
   --color-bg: #f9fafb;
+  --color-bg-canvas: #f9fafb;
   --color-bg-elevated: #ffffff;
   --color-bg-muted: #f3f4f6;
   --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
   --color-text: #1f2937;
   --color-text-muted: #6b7280;
-  --color-border: #e5e7eb;
+  --color-border: #dce6d4;
+  --color-ring: #6bb800;
+  --shadow-glow: 0 0 32px rgba(155, 234, 0, 0.12);
   --gradient-brand: linear-gradient(to right, #d7ff3f, #9bea00);
 }
 
 html[data-mode='light'] [data-squash-dashboard='true'] .dashboard-shell-main {
-  background: linear-gradient(180deg, #f9fafb 0%, #ecfccb 100%);
+  background: transparent;
 }
 
 html[data-mode='dark'] [data-squash-dashboard='true'] {
@@ -23,18 +27,22 @@ html[data-mode='dark'] [data-squash-dashboard='true'] {
   --color-primary-light: #dfff4a;
   --color-primary-dark: #9bea00;
   --color-bg: #0b1220;
-  --color-bg-elevated: #111827;
-  --color-bg-muted: #050816;
-  --color-surface: #0b1220;
+  --color-bg-canvas: #0b1220;
+  --color-bg-elevated: #162033;
+  --color-bg-muted: #080d18;
+  --color-surface: #111827;
+  --color-surface-raised: #162033;
   --color-text: #f4fce8;
   --color-text-muted: #9ca89a;
   --color-text-inverse: #050816;
-  --color-border: rgba(155, 234, 0, 0.2);
+  --color-border: rgba(155, 234, 0, 0.12);
+  --color-ring: #d7ff3f;
+  --shadow-glow: 0 0 36px rgba(155, 234, 0, 0.08);
   --gradient-brand: linear-gradient(to right, #dfff4a, #9bea00);
 }
 
 html[data-mode='dark'] [data-squash-dashboard='true'] .dashboard-shell-main {
-  background: linear-gradient(180deg, var(--color-bg) 0%, #0a1208 100%);
+  background: transparent;
 }
 
 /* Squash landing — hero slider (lime green, no fitness blue) */

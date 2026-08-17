@@ -89,8 +89,9 @@ const StatCard = ({
           : undefined
       }
       className={cn(
-        'rounded-xl shadow-md p-6 border transition-all duration-300',
-        onClick && 'cursor-pointer hover:shadow-xl hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]',
+        'dashboard-stat-card rounded-xl p-6 border transition-all duration-200',
+        'bg-[var(--color-surface-raised)]',
+        onClick && 'cursor-pointer hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]',
         scheme.card,
         className
       )}
@@ -98,7 +99,7 @@ const StatCard = ({
       <div className="flex items-center justify-between gap-4">
         <div className="flex-1 min-w-0">
           <p className={cn('text-sm font-medium mb-1 truncate', scheme.label)}>{label}</p>
-          <p className={cn('text-3xl font-bold', scheme.value)}>{value}</p>
+          <p className={cn('dashboard-display text-3xl font-bold', scheme.value)}>{value}</p>
         </div>
         {icon && (
           <div
@@ -107,7 +108,7 @@ const StatCard = ({
               scheme.icon
             )}
           >
-            <i className={cn('fas text-white text-xl', icon)} aria-hidden="true" />
+            <i className={cn('fas text-[var(--color-text-inverse)] text-xl', icon)} aria-hidden="true" />
           </div>
         )}
       </div>

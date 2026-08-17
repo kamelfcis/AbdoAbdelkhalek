@@ -1,8 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AspectRatio } from 'components/ui/aspect-ratio';
 import DashboardThumb from '../../../shared/ui/DashboardThumb';
 import { getVideoThumbSrc } from '../crud/entityImageUtils';
 import { useDashboardCoach } from '../context/DashboardCoachContext';
+import { buildWatchPath } from '../../../shared/lib/watchRoutes';
 
 function formatDuration(seconds) {
   if (seconds === null || seconds === undefined || Number.isNaN(Number(seconds))) return '';
@@ -13,6 +15,7 @@ function formatDuration(seconds) {
 }
 
 function TraineeVideoCard({ video, c }) {
+  const navigate = useNavigate();
   const isAr = c.currentLanguage === 'ar';
   const title = isAr ? video.title_ar || video.title_en : video.title_en || video.title_ar;
   const categoryLabel = isAr
@@ -25,7 +28,7 @@ function TraineeVideoCard({ video, c }) {
   );
 
   return (
-    <div className="bg-[var(--color-surface)] rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all video-card relative">
+    <div className="dashboard-video-card overflow-hidden video-card relative">
       <button
         type="button"
         onClick={(e) => {
@@ -35,7 +38,7 @@ function TraineeVideoCard({ video, c }) {
         className={`absolute top-2 ${c.isRTL ? 'left-2' : 'right-2'} z-10 p-2 rounded-full transition-all ${
           c.isFavorite(video.id)
             ? 'bg-[var(--color-warning)] text-[var(--color-text)] hover:opacity-90'
-            : 'bg-[var(--color-surface)] bg-opacity-80 text-[var(--color-text-muted)] hover:bg-opacity-100 hover:text-[var(--color-warning)]'
+            : 'bg-[var(--color-surface-raised)]/80 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-raised)] hover:text-[var(--color-warning)]'
         }`}
         title={
           c.isFavorite(video.id)
@@ -52,7 +55,7 @@ function TraineeVideoCard({ video, c }) {
 
       <button
         type="button"
-        onClick={() => c.handlePreviewVideo(video)}
+        onClick={() => navigate(buildWatchPath(c.adminDomain, video.id))}
         className="block w-full text-left cursor-pointer"
       >
         <AspectRatio ratio={16 / 9} className="relative overflow-hidden bg-[var(--color-bg-muted)]">
@@ -66,7 +69,7 @@ function TraineeVideoCard({ video, c }) {
                 imgClassName="object-cover object-center"
               />
               <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <span className="w-16 h-16 bg-[var(--color-surface)] bg-opacity-80 rounded-full flex items-center justify-center">
+                <span className="w-16 h-16 bg-[var(--color-surface-raised)]/80 rounded-full flex items-center justify-center">
                   <i className="fas fa-play text-[var(--color-primary)] text-2xl" />
                 </span>
               </span>

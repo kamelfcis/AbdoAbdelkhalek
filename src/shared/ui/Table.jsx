@@ -36,13 +36,13 @@ const Table = ({
   return (
     <div
       className={cn(
-        'overflow-hidden rounded-xl border border-border bg-card shadow-sm',
+        'dashboard-table overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] shadow-sm',
         className
       )}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       <ShadcnTable>
-        <TableHeader className="sticky top-0 z-10 bg-muted/80 backdrop-blur-sm">
+        <TableHeader className="sticky top-0 z-10 bg-[var(--color-bg-muted)]/80 backdrop-blur-sm">
           <TableRow className="border-primary/20 hover:bg-transparent">
             {columns.map((col) => {
               const isSortable = col.sortable && onSort;

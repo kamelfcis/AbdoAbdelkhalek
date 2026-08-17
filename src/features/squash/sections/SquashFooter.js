@@ -5,10 +5,10 @@ const SquashFooter = React.memo(() => {
   const { t } = useSquashI18n();
 
   const links = [
-    { href: '#home', label: t('nav.home') },
-    { href: '#categories', label: t('nav.categories') },
-    { href: '#packages', label: t('nav.packages') },
-    { href: '#about-me', label: t('nav.about') },
+    { href: '/squash#home', label: t('nav.home') },
+    { href: '/squash#categories', label: t('nav.categories') },
+    { href: '/squash#packages', label: t('nav.packages') },
+    { href: '/squash#about-me', label: t('nav.about') },
   ];
 
   return (
@@ -33,7 +33,7 @@ const SquashFooter = React.memo(() => {
           </div>
           <div>
             <h3 className="text-xl font-bold mb-4">{t('footer.support')}</h3>
-            <a href="#faq" className="text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)] transition block">
+            <a href="/squash#faq" className="text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)] transition block">
               {t('nav.faq')}
             </a>
           </div>

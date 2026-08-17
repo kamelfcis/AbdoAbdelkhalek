@@ -48,9 +48,9 @@ export function DomainSwitcher({ isRTL, t }) {
 
           adminDomain === 'fitness'
 
-            ? 'bg-[var(--color-primary)] text-white'
+            ? 'bg-[var(--color-primary)] text-[var(--color-text-inverse)]'
 
-            : 'text-[var(--color-text-muted)] hover:bg-white/50'
+            : 'text-[var(--color-text-muted)] hover:bg-[var(--color-surface-raised)]'
 
         }`}
 
@@ -70,9 +70,9 @@ export function DomainSwitcher({ isRTL, t }) {
 
           adminDomain === 'squash'
 
-            ? 'bg-[var(--color-primary)] text-white'
+            ? 'bg-[var(--color-primary)] text-[var(--color-text-inverse)]'
 
-            : 'text-[var(--color-text-muted)] hover:bg-white/50'
+            : 'text-[var(--color-text-muted)] hover:bg-[var(--color-surface-raised)]'
 
         }`}
 

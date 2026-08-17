@@ -27,7 +27,7 @@ export function EntityPaginationBar({
   const ghostBtnClass =
     'min-w-[2.25rem] px-3 py-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] hover:bg-[var(--color-bg-muted)]';
   const activeBtnClass =
-    'min-w-[2.25rem] px-3 py-1 rounded-lg border bg-[var(--color-primary)] text-white border-[var(--color-primary)]';
+    'min-w-[2.25rem] px-3 py-1 rounded-lg border bg-[var(--color-primary)] text-[var(--color-text-inverse)] border-[var(--color-primary)]';
 
   return (
     <div className="flex items-center justify-between flex-wrap gap-3 mt-4">

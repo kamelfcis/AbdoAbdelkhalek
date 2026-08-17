@@ -6,6 +6,46 @@ import type { TokenPayload } from '../shared/auth/jwt.js';
 
 import type { ListQueryFilters, PaginationParams } from '../../common/utils/pagination.js';
 
+import {
+  formatWatchVideoResponse,
+  isVideoPublic,
+} from '../shared/video/watch-response.js';
+
+export type GetVideoResult =
+  | { kind: 'not_found' }
+  | { kind: 'requires_auth' }
+  | { kind: 'forbidden'; body: Record<string, unknown> }
+  | { kind: 'ok'; body: Record<string, unknown> };
+
+export async function getVideo(id: string, user?: TokenPayload): Promise<GetVideoResult> {
+  const row = await repo.getVideoById(id);
+  if (!row) return { kind: 'not_found' };
+
+  const videoRow = row as Record<string, unknown>;
+  const isPublic = isVideoPublic(videoRow);
+
+  if (!user) {
+    if (!isPublic) return { kind: 'requires_auth' };
+    return { kind: 'ok', body: formatWatchVideoResponse(videoRow, true) };
+  }
+
+  const dbUser = await findUserById(user.sub);
+  if (dbUser?.isCoach || user.isCoach) {
+    return { kind: 'ok', body: formatWatchVideoResponse(videoRow, true) };
+  }
+
+  if (isPublic) {
+    return { kind: 'ok', body: formatWatchVideoResponse(videoRow, true) };
+  }
+
+  const canPlay = await repo.userCanPlayVideo(user.sub, id);
+  if (canPlay) {
+    return { kind: 'ok', body: formatWatchVideoResponse(videoRow, true) };
+  }
+
+  return { kind: 'forbidden', body: formatWatchVideoResponse(videoRow, false) };
+}
+
 
 
 export async function listCategories(

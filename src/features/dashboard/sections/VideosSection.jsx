@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDashboardCoach } from '../context/DashboardCoachContext';
 import { SectionHeader } from '../../../shared/layout';
-import { Button, Input, Select, Table, Badge, EmptyState } from '../../../shared/ui';
+import { Button, Input, Select, Table, Badge, EmptyState, toastSuccess } from '../../../shared/ui';
 import DashboardThumb from '../../../shared/ui/DashboardThumb';
 import { VideosTableSkeleton } from '../../fitness/components/Skeletons';
 import { EntityPaginationBar } from '../crud/EntityPaginationBar';
@@ -9,6 +9,7 @@ import { ViewModeToggle } from '../crud/ViewModeToggle';
 import { useViewMode } from '../crud/useViewMode';
 import { TABLE_THUMB } from '../crud/entityImageUtils';
 import { VideosCardGrid } from './VideosCardGrid';
+import { buildWatchPath, buildWatchUrl } from '../../../shared/lib/watchRoutes';
 
 export function VideosSection() {
   const c = useDashboardCoach();
@@ -97,6 +98,31 @@ export function VideosSection() {
       header: c.t('th-actions'),
       render: (video) => (
         <div className="flex items-center justify-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(buildWatchUrl(c.adminDomain, video.id));
+                toastSuccess(c.t('watch-link-copied'));
+              } catch {
+                /* ignore */
+              }
+            }}
+            aria-label={c.t('btn-copy-watch-link')}
+            title={c.t('btn-copy-watch-link')}
+          >
+            <i className="fas fa-link text-[var(--color-text-muted)]" aria-hidden="true" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => window.open(buildWatchPath(c.adminDomain, video.id), '_blank', 'noopener,noreferrer')}
+            aria-label={c.t('btn-open-watch-page')}
+            title={c.t('btn-open-watch-page')}
+          >
+            <i className="fas fa-external-link-alt text-[var(--color-text-muted)]" aria-hidden="true" />
+          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -209,6 +235,7 @@ export function VideosSection() {
           onDelete={c.handleDeleteVideo}
           emptyTitle={c.t('videos-empty')}
           emptyDescription={c.t('videos-empty-desc')}
+          adminDomain={c.adminDomain}
         />
       ) : showSkeleton ? (
         <VideosTableSkeleton rows={c.videosPageSize} />

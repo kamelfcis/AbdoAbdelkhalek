@@ -63,6 +63,27 @@ router.get('/videos', optionalAuth, async (req: AuthRequest, res, next) => {
   }
 });
 
+router.get('/videos/:id', optionalAuth, async (req: AuthRequest, res, next) => {
+  try {
+    const result = await squash.getVideo(req.params.id, req.user);
+    if (result.kind === 'not_found') {
+      res.status(404).json({ error: 'Video not found' });
+      return;
+    }
+    if (result.kind === 'requires_auth') {
+      res.status(401).json({ requiresAuth: true });
+      return;
+    }
+    if (result.kind === 'forbidden') {
+      res.status(403).json(result.body);
+      return;
+    }
+    res.json(result.body);
+  } catch (e) {
+    next(e);
+  }
+});
+
 router.get('/packages', optionalAuth, async (req: AuthRequest, res, next) => {
   try {
     const q = req.query as Record<string, unknown>;

@@ -1,22 +1,24 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import OptimizedImage from '../../fitness/sections/OptimizedImage';
 import { useSquashContent } from '../../../shared/hooks/useSquashContent';
 import { useSquashI18n } from '../hooks/useSquashI18n';
 import { pickItemField } from '../utils/localize';
-import VideoPlayerModal from '../../../shared/components/VideoPlayerModal';
+import { useAuth } from '../../../contexts/AuthContext';
+import { loginPath } from '../../../shared/lib/authRoutes';
+import { buildWatchPath } from '../../../shared/lib/watchRoutes';
 import { resolveVideoPlayUrl } from '../../../shared/lib/resolveVideoPlayUrl';
 import { prefetchVideoUrl, warmVideoUrl } from '../../../shared/lib/prefetchVideo';
 import { prefetchImageUrls } from '../../../shared/lib/prefetchImages';
 import { getVideoThumbSrc } from '../../../shared/lib/videoThumb';
 
 const SquashVideos = () => {
+  const navigate = useNavigate();
+  const { session } = useAuth();
   const { t, isAr, isRTL } = useSquashI18n();
   const { data: allVideos = [], isLoading, error } = useSquashContent('videos');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categoryName, setCategoryName] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState(null);
-  const [playUrl, setPlayUrl] = useState('');
   const [visibleCount, setVisibleCount] = useState(6);
 
   useEffect(() => {
@@ -37,19 +39,6 @@ const SquashVideos = () => {
     }
     return () => window.removeEventListener('categorySelected', handleCategorySelected);
   }, [isAr]);
-
-  const videoT = useCallback(
-    (key) => {
-      const map = {
-        'video-fullscreen': 'videos.fullscreen',
-        'video-exit-fullscreen': 'videos.exitFullscreen',
-        'video-loading': 'videos.loading',
-        'video-not-available': 'videos.unavailable',
-      };
-      return t(map[key] || key);
-    },
-    [t]
-  );
 
   const handleVideoWarmup = useCallback((video, immediate = false) => {
     const url = resolveVideoPlayUrl(video, 'squash');
@@ -74,24 +63,13 @@ const SquashVideos = () => {
     return undefined;
   }, [visibleVideos, isLoading]);
 
-  const selectedPosterUrl = useMemo(() => {
-    if (!selectedVideo) return '';
-    return getVideoThumbSrc(selectedVideo, 'squash', 'card').src || '';
-  }, [selectedVideo]);
-
   const handleVideoClick = (video) => {
-    const url = resolveVideoPlayUrl(video, 'squash');
-    if (!url) return;
-    warmVideoUrl(url);
-    setPlayUrl(url);
-    setSelectedVideo(video);
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-    setSelectedVideo(null);
-    setPlayUrl('');
+    const watchPath = buildWatchPath('squash', video.id);
+    if (!session && !video.is_public) {
+      navigate(loginPath('squash', watchPath));
+      return;
+    }
+    navigate(watchPath);
   };
 
   const showAllVideos = () => {
@@ -198,20 +176,6 @@ const SquashVideos = () => {
             )}
           </>
         )}
-
-        <VideoPlayerModal
-          isOpen={showModal && !!selectedVideo}
-          onClose={closeModal}
-          title={selectedVideo ? pickItemField(selectedVideo, isAr, 'title_en', 'title_ar') : ''}
-          playUrl={playUrl}
-          posterUrl={selectedPosterUrl}
-          description={
-            selectedVideo ? pickItemField(selectedVideo, isAr, 'description_en', 'description_ar') : ''
-          }
-          isRTL={isRTL}
-          getLabel={videoT}
-          notAvailableLabel={t('videos.unavailable')}
-        />
       </div>
     </section>
   );

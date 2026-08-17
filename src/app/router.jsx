@@ -47,6 +47,10 @@ const Login = lazy(() =>
 
 );
 
+const WatchVideoPage = lazy(() =>
+  import(/* webpackChunkName: "watch-video" */ '../features/watch/WatchVideoPage')
+);
+
 const ResetPasswordPage = lazy(() =>
   import(/* webpackChunkName: "reset-password" */ '../features/auth/login/ResetPasswordPage')
 );
@@ -112,6 +116,22 @@ export function AppRouter() {
           element={
             <Suspense fallback={<ComponentLoader message="Loading..." />}>
               <DomainPortalPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/fitness/watch/:videoId"
+          element={
+            <Suspense fallback={<ComponentLoader message="Loading video..." />}>
+              <WatchVideoPage domain="fitness" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/squash/watch/:videoId"
+          element={
+            <Suspense fallback={<ComponentLoader message="Loading video..." />}>
+              <WatchVideoPage domain="squash" />
             </Suspense>
           }
         />

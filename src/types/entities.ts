@@ -34,6 +34,7 @@ export interface Video {
   is_public?: boolean;
   duration_seconds?: number;
   categories?: Category;
+  canPlay?: boolean;
 }
 
 export interface Package {

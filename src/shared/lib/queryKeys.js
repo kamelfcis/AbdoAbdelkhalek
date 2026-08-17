@@ -16,6 +16,10 @@ function withPageParams(baseKey, pageParams = {}) {
 export const queryKeys = {
   categories: (domain = 'fitness') => (domain === 'squash' ? ['squash', 'categories'] : ['categories']),
   videos: (domain = 'fitness') => (domain === 'squash' ? ['squash', 'videos'] : ['videos']),
+  video: (domain = 'fitness', id) => {
+    const base = domain === 'squash' ? ['squash', 'video'] : ['video'];
+    return id != null && id !== '' ? [...base, String(id)] : base;
+  },
   packages: (domain = 'fitness') => (domain === 'squash' ? ['squash', 'packages'] : ['packages']),
   reviews: (domain = 'fitness') => (domain === 'squash' ? ['squash', 'reviews'] : ['reviews']),
   successStories: (domain = 'fitness') =>
@@ -201,6 +205,9 @@ export async function invalidateContentCrud(queryClient, entity, domain = 'fitne
     queryKeyList.push(queryKeys.dashboard.categoriesAll(domain));
   }
   queryKeyList.push(keys.public(domain), queryKeys.dashboard.stats(domain));
+  if (entity === 'videos') {
+    queryKeyList.push(queryKeys.video(domain));
+  }
   if (domain === 'fitness') {
     queryKeyList.push(queryKeys.recentActivities.all());
   }
@@ -227,6 +234,7 @@ export function invalidateAccessCrud(queryClient, domain = 'fitness') {
   queryClient.invalidateQueries({ queryKey: queryKeys.trainees(domain) });
   queryClient.invalidateQueries({ queryKey: queryKeys.trainee.videos(domain) });
   queryClient.invalidateQueries({ queryKey: queryKeys.videos(domain) });
+  queryClient.invalidateQueries({ queryKey: queryKeys.video(domain) });
   queryClient.invalidateQueries({ queryKey: queryKeys.categories(domain) });
   queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.stats(domain) });
   if (domain === 'fitness') {

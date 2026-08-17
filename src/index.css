@@ -1,5 +1,6 @@
 @import './shared/styles/site-header.css';
 @import './shared/styles/landing-sidebar.css';
+@import './features/dashboard/styles/dashboard-premium.css';
 
 @tailwind base;
 @tailwind components;
@@ -13,15 +14,18 @@
   --color-secondary: #10b981;
   --color-accent: #3b82f6;
   --color-bg: #f3f4f6;
+  --color-bg-canvas: #f3f4f6;
   --color-bg-elevated: #ffffff;
   --color-bg-muted: #f9fafb;
   --color-surface: #ffffff;
-  --color-surface-glass: rgba(255, 255, 255, 0.1);
+  --color-surface-raised: #ffffff;
+  --color-surface-glass: rgba(255, 255, 255, 0.72);
   --color-text: #1f2937;
   --color-text-muted: #6b7280;
   --color-text-inverse: #ffffff;
-  --color-border: #e5e7eb;
+  --color-border: #dbe4ee;
   --color-border-focus: #0074b7;
+  --color-ring: #0074b7;
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
@@ -40,6 +44,7 @@
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
   --shadow-glass: 0 25px 45px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 32px rgba(0, 116, 183, 0.08);
   --sidebar-width: 16rem;
   --radius: 0.5rem;
 }

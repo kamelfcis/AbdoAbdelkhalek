@@ -56,6 +56,7 @@ const Sidebar = ({
         className={cn(
           'fixed top-0 h-[100dvh] md:h-full z-[1310] flex flex-col',
           'bg-[var(--color-surface)] shadow-xl border-[var(--color-border)]',
+          'dashboard-sidebar',
           isRTL ? 'border-l right-0' : 'border-r left-0',
           'transition-transform duration-300 ease-in-out',
           isOpen ? 'translate-x-0' : closedTransform,
@@ -68,7 +69,7 @@ const Sidebar = ({
         )}
         <nav className="flex-1 overflow-y-auto overscroll-contain p-4">{children}</nav>
         {footer && (
-          <div className="p-4 border-t border-[var(--color-border)] bg-[var(--color-surface)] shrink-0">
+          <div className="p-4 border-t border-[var(--color-border)] bg-transparent shrink-0">
             {footer}
           </div>
         )}
@@ -101,11 +102,11 @@ export const SidebarNavItem = ({ icon, label, active, onClick, iconClassName, is
     type="button"
     onClick={onClick}
     className={cn(
-      'w-full text-start px-4 py-3 rounded-lg transition flex items-center gap-3',
+      'dashboard-nav-item w-full text-start px-4 py-3 rounded-lg transition flex items-center gap-3',
       'hover:bg-[var(--color-bg-muted)]',
       active
-        ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary-dark)] font-semibold'
-        : 'text-[var(--color-primary)]'
+        ? 'dashboard-nav-item-active text-[var(--color-primary)] font-semibold'
+        : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
     )}
   >
     {icon && (

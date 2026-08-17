@@ -92,7 +92,8 @@ const Modal = ({
         aria-modal="true"
         aria-labelledby={title ? 'modal-title' : undefined}
         className={cn(
-          'w-full bg-[var(--color-surface)] rounded-xl shadow-xl max-h-[90vh] overflow-hidden flex flex-col',
+          'w-full bg-[var(--color-surface-raised)] rounded-xl shadow-xl max-h-[90vh] overflow-hidden flex flex-col',
+          'ring-1 ring-[var(--color-border)]',
           sizes[size] || sizes.md,
           className
         )}

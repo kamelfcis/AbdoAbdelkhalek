@@ -1,0 +1,145 @@
+/* Luxury athletic control room — Fitness + Squash dashboard chrome */
+
+.dashboard-shell {
+  background-color: var(--color-bg-canvas);
+  color: var(--color-text);
+}
+
+.dashboard-shell-main {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+}
+
+.dashboard-shell-main::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 80% 46% at 0% -8%, color-mix(in srgb, var(--color-primary) 16%, transparent) 0%, transparent 58%),
+    radial-gradient(ellipse 52% 36% at 100% 0%, color-mix(in srgb, var(--color-primary) 8%, transparent) 0%, transparent 52%);
+}
+
+html[data-theme='fitness'][data-mode='dark'] .dashboard-shell-main::before {
+  background:
+    radial-gradient(ellipse 80% 50% at 0% -10%, rgba(0, 116, 183, 0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 100% 0%, rgba(96, 165, 250, 0.08) 0%, transparent 50%);
+}
+
+html[data-theme='squash'][data-mode='dark'] .dashboard-shell-main::before {
+  background:
+    radial-gradient(ellipse 70% 45% at 0% 0%, rgba(155, 234, 0, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 35% at 100% 10%, rgba(215, 255, 63, 0.05) 0%, transparent 50%);
+}
+
+.dashboard-sidebar {
+  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  box-shadow: var(--shadow-lg);
+}
+
+html[data-mode='dark'] .dashboard-sidebar {
+  background: color-mix(in srgb, var(--color-surface) 78%, transparent);
+  box-shadow: var(--shadow-xl), var(--shadow-glow);
+}
+
+.dashboard-navbar {
+  background: color-mix(in srgb, var(--color-surface) 86%, transparent);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: none;
+}
+
+html[data-mode='dark'] .dashboard-navbar {
+  background: color-mix(in srgb, var(--color-surface) 74%, transparent);
+}
+
+.dashboard-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+  transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, color 180ms ease;
+}
+
+.dashboard-theme-toggle:hover {
+  border-color: var(--color-ring);
+  box-shadow: var(--shadow-glow);
+  color: var(--color-primary);
+}
+
+.dashboard-theme-toggle:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+.dashboard-nav-item {
+  position: relative;
+  border-radius: 0.75rem;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.dashboard-nav-item-active {
+  background: color-mix(in srgb, var(--color-primary) 14%, var(--color-surface));
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.dashboard-nav-item-active::before {
+  content: '';
+  position: absolute;
+  inset-block: 0.45rem;
+  inset-inline-start: 0;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  box-shadow: var(--shadow-glow);
+}
+
+.dashboard-panel,
+.dashboard-stat-card,
+.dashboard-table,
+.dashboard-video-card {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 0.875rem;
+  box-shadow: var(--shadow-sm);
+}
+
+html[data-mode='dark'] .dashboard-stat-card,
+html[data-mode='dark'] .dashboard-panel,
+html[data-mode='dark'] .dashboard-video-card {
+  box-shadow: var(--shadow-sm), var(--shadow-glow);
+}
+
+.dashboard-video-card {
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.dashboard-video-card:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+.dashboard-table thead {
+  background: color-mix(in srgb, var(--color-bg-muted) 88%, transparent);
+}
+
+.dashboard-shell .bg-card {
+  background-color: var(--color-surface-raised);
+}
+
+.dashboard-display {
+  font-family: var(--font-display, inherit);
+  letter-spacing: 0.02em;
+}

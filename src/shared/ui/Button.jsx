@@ -5,7 +5,7 @@ import Spinner from './Spinner';
 
 const variants = {
   primary:
-    'bg-[var(--color-primary)] text-[var(--color-text-inverse)] hover:opacity-90 focus-visible:ring-[var(--color-primary)]',
+    'bg-[var(--color-primary)] text-[var(--color-text-inverse)] hover:opacity-90 focus-visible:ring-[var(--color-ring)]',
   secondary:
     'bg-[var(--color-bg-muted)] text-[var(--color-text)] border border-[var(--color-border)] hover:bg-[var(--color-bg-elevated)]',
   ghost:
@@ -43,7 +43,7 @@ const Button = ({
       disabled={isDisabled}
       className={cn(
         'inline-flex items-center justify-center font-semibold transition-all duration-200',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-canvas)]',
         'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
         variants[variant] || variants.primary,
         sizes[size] || sizes.md,

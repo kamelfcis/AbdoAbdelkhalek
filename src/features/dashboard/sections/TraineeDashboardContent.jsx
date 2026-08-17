@@ -152,7 +152,7 @@ function TraineeFilterPanel({ c, isFavorites, filteredCount, totalCount }) {
                     onClick={() => c.setTraineeVideoCategoryFilter('all')}
                     className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200 ${
                       c.traineeVideoCategoryFilter === 'all'
-                        ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-sm'
+                        ? 'bg-[var(--color-primary)] text-[var(--color-text-inverse)] border-[var(--color-primary)] shadow-sm'
                         : 'bg-[var(--color-surface)] text-[var(--color-text-muted)] border-[var(--color-border)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)]'
                     }`}
                   >
@@ -170,7 +170,7 @@ function TraineeFilterPanel({ c, isFavorites, filteredCount, totalCount }) {
                         onClick={() => c.setTraineeVideoCategoryFilter(String(category.id))}
                         className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200 ${
                           isActive
-                            ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-sm'
+                            ? 'bg-[var(--color-primary)] text-[var(--color-text-inverse)] border-[var(--color-primary)] shadow-sm'
                             : 'bg-[var(--color-surface)] text-[var(--color-text-muted)] border-[var(--color-border)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)]'
                         }`}
                       >

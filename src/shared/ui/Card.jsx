@@ -31,11 +31,11 @@ const Card = ({
       }
       className={cn(
         'rounded-xl overflow-hidden transition-all duration-200',
-        variant === 'elevated' && 'bg-[var(--color-surface)] shadow-md border border-[var(--color-border)]',
+        variant === 'elevated' && 'bg-[var(--color-surface-raised)] shadow-md border border-[var(--color-border)]',
         variant === 'outline' && 'bg-transparent border-2 border-[var(--color-border)]',
         variant === 'glass' &&
           'bg-[var(--color-surface-glass)] backdrop-blur-md border border-white/20 shadow-[var(--shadow-glass)]',
-        isInteractive && 'cursor-pointer hover:shadow-lg hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]',
+        isInteractive && 'cursor-pointer hover:shadow-lg hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]',
         className
       )}
       {...props}

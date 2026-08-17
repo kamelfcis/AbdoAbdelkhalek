@@ -49,10 +49,10 @@ const Input = ({
           aria-invalid={Boolean(error)}
           aria-describedby={[errorId, hintId].filter(Boolean).join(' ') || undefined}
           className={cn(
-            'w-full rounded-lg border bg-[var(--color-surface)] text-[var(--color-text)]',
+            'w-full rounded-lg border bg-[var(--color-surface-raised)] text-[var(--color-text)]',
             'placeholder:text-[var(--color-text-muted)]',
             'transition-colors duration-200',
-            'focus:outline-none focus:ring-2 focus:ring-[var(--color-border-focus)] focus:border-[var(--color-border-focus)]',
+            'focus:outline-none focus:ring-2 focus:ring-[var(--color-ring)] focus:border-[var(--color-ring)]',
             'disabled:opacity-50 disabled:cursor-not-allowed',
             error ? 'border-[var(--color-danger)]' : 'border-[var(--color-border)]',
             leftIcon ? 'ps-10' : 'ps-4',

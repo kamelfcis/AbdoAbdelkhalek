@@ -5,8 +5,6 @@ import { useTraineeVideos } from '../../../shared/hooks/useTraineeVideos';
 import { useAuthQueryOptions } from '../../../shared/hooks/useAuthQuery';
 import { getContentService } from '../../../shared/lib/getContentService';
 import { queryKeys } from '../../../shared/lib/queryKeys';
-import { resolveVideoPlayUrl } from '../../../shared/lib/resolveVideoPlayUrl';
-import { getDashboardTranslation } from '../../../shared/i18n/dashboard';
 import { useVideoFavorites } from '../../../shared/hooks/useVideoFavorites';
 import {
   VISIBILITY_ALL,
@@ -45,12 +43,6 @@ export function useDashboardTraineeExperience(
   const [filtersExpanded, setFiltersExpanded] = useState(true);
   const [traineeVideosPage, setTraineeVideosPage] = useState(1);
   const [favoriteVideosPage, setFavoriteVideosPage] = useState(1);
-
-  const [previewVideo, setPreviewVideo] = useState(null);
-  const [showVideoModal, setShowVideoModal] = useState(false);
-  const [previewVideoUrl, setPreviewVideoUrl] = useState('');
-  const [previewVideoLoading, setPreviewVideoLoading] = useState(false);
-  const [previewVideoError, setPreviewVideoError] = useState('');
 
   const { favoriteVideoIds, toggleFavorite, isFavorite } = useVideoFavorites(
     adminDomain === 'squash' ? 'squash' : 'fitness',
@@ -255,34 +247,6 @@ export function useDashboardTraineeExperience(
     return currentLanguage === 'ar' ? `منذ ${days} يوم` : `${days} day${days > 1 ? 's' : ''} ago`;
   };
 
-  const handlePreviewVideo = useCallback(
-    (video) => {
-      if (!video) return;
-      setPreviewVideo(video);
-      setPreviewVideoError('');
-      setPreviewVideoLoading(false);
-      setShowVideoModal(true);
-      const url = resolveVideoPlayUrl(video, adminDomain);
-      if (url) {
-        setPreviewVideoUrl(url);
-      } else {
-        setPreviewVideoUrl('');
-        setPreviewVideoError(
-          getDashboardTranslation(adminDomain, currentLanguage, 'video-preview-error-load')
-        );
-      }
-    },
-    [adminDomain, currentLanguage]
-  );
-
-  const closeVideoPreview = useCallback(() => {
-    setPreviewVideo(null);
-    setPreviewVideoUrl('');
-    setPreviewVideoError('');
-    setPreviewVideoLoading(false);
-    setShowVideoModal(false);
-  }, []);
-
   return {
     traineeVideos,
     traineeVideosLoading,
@@ -318,12 +282,5 @@ export function useDashboardTraineeExperience(
     traineeNavItems,
     viewAllLabel,
     getTimeAgo,
-    previewVideo,
-    previewVideoUrl,
-    previewVideoLoading,
-    previewVideoError,
-    showVideoModal,
-    handlePreviewVideo,
-    closeVideoPreview,
   };
 }

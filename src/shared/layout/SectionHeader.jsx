@@ -12,7 +12,7 @@ const SectionHeader = ({ title, subtitle, actions, className, size = 'md' }) => 
     <div>
       <h2
         className={cn(
-          'font-bold text-[var(--color-text)]',
+          'dashboard-display font-bold text-[var(--color-text)]',
           size === 'lg' ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl'
         )}
       >

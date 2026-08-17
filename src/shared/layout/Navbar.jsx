@@ -20,8 +20,8 @@ const Navbar = ({
   <header
     ref={headerRef}
     className={cn(
-      'bg-[var(--color-surface)] shadow-sm border-b border-[var(--color-border)]',
-      'px-4 sm:px-6 py-3 flex items-center justify-between gap-4',
+      'bg-[var(--color-surface)]/80 backdrop-blur-md shadow-none border-b border-[var(--color-border)]',
+      'px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4',
       sticky && 'site-header',
       className
     )}
@@ -37,7 +37,7 @@ const Navbar = ({
         />
       )}
       {title && (
-        <h1 className="text-xl md:text-2xl font-bold text-[var(--color-text)] truncate">
+        <h1 className="dashboard-display text-xl md:text-2xl font-bold text-[var(--color-text)] truncate">
           {title}
         </h1>
       )}

@@ -5,7 +5,7 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 import { authService } from '../../../services/authService';
 import { prefetchDashboardData } from '../../../shared/lib/prefetchDashboard';
 import { getDefaultDashboardPath } from '../../../features/dashboard/config/dashboardRoutes';
-import { parseSignupDomain, traineeHomePath } from '../../../shared/lib/authRoutes';
+import { parseSignupDomain, resolvePostLoginPath } from '../../../shared/lib/authRoutes';
 import { getLoginTranslation } from '../../../shared/i18n';
 
 const REMEMBER_EMAIL_KEY = 'loginRememberEmail';
@@ -15,11 +15,24 @@ export function useLoginAuth() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const signupDomain = parseSignupDomain(searchParams.get('domain'));
+  const nextParam = searchParams.get('next');
   const { currentLanguage } = useLanguage();
   const { login, isCoach, isAuthenticated, isLoading } = useAuth();
 
   const t = useCallback((key) => getLoginTranslation(currentLanguage, key), [currentLanguage]);
   const isRTL = currentLanguage === 'ar';
+
+  const resolveDestination = useCallback(
+    (coach) =>
+      resolvePostLoginPath({
+        signupDomain,
+        nextParam,
+        fromLocation: location.state?.from,
+        isCoach: coach,
+        coachDashboardPath: getDefaultDashboardPath(),
+      }),
+    [signupDomain, nextParam, location.state]
+  );
 
   const [showSignup, setShowSignup] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
@@ -52,18 +65,20 @@ export function useLoginAuth() {
   useEffect(() => {
     if (isLoading || !isAuthenticated) return;
 
+    const destination = resolveDestination(isCoach);
     if (isCoach) {
-      navigate(getDefaultDashboardPath(), { replace: true });
-    } else {
-      navigate(traineeHomePath(signupDomain), {
-        replace: true,
-        state: {
-          authMessage: t('trainee-welcome'),
-          authMessageAr: getLoginTranslation('ar', 'trainee-welcome'),
-        },
-      });
+      navigate(destination, { replace: true });
+      return;
     }
-  }, [isLoading, isAuthenticated, isCoach, navigate, signupDomain, t]);
+
+    navigate(destination, {
+      replace: true,
+      state: {
+        authMessage: t('trainee-welcome'),
+        authMessageAr: getLoginTranslation('ar', 'trainee-welcome'),
+      },
+    });
+  }, [isLoading, isAuthenticated, isCoach, navigate, resolveDestination, t]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -91,11 +106,12 @@ export function useLoginAuth() {
       setSuccess(t('success-text'));
       setLoading(false);
 
+      const destination = resolveDestination(Boolean(profile?.is_coach));
       if (profile?.is_coach) {
         prefetchDashboardData('fitness');
-        navigate(getDefaultDashboardPath());
+        navigate(destination);
       } else {
-        navigate(traineeHomePath(signupDomain), {
+        navigate(destination, {
           state: {
             authMessage: t('trainee-welcome'),
             authMessageAr: getLoginTranslation('ar', 'trainee-welcome'),
@@ -153,7 +169,7 @@ export function useLoginAuth() {
         setSuccess(t('account-created'));
         setLoading(false);
 
-        navigate(traineeHomePath(signupDomain), {
+        navigate(resolveDestination(false), {
           state: {
             authMessage: t('trainee-welcome'),
             authMessageAr: getLoginTranslation('ar', 'trainee-welcome'),

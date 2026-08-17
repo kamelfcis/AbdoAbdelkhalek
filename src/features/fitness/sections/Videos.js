@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { getTranslation } from '../../../utils/translations';
 import { useVideos } from '../../../shared/hooks/useVideos';
@@ -6,7 +7,7 @@ import { useCategories } from '../../../shared/hooks/useCategories';
 import { VideoSkeletonGrid } from '../components/Skeletons';
 import OptimizedImage from './OptimizedImage';
 import { loginPath } from '../../../shared/lib/authRoutes';
-import VideoPlayerModal from '../../../shared/components/VideoPlayerModal';
+import { buildWatchPath } from '../../../shared/lib/watchRoutes';
 import { resolveVideoPlayUrl } from '../../../shared/lib/resolveVideoPlayUrl';
 import { prefetchVideoUrl, warmVideoUrl } from '../../../shared/lib/prefetchVideo';
 import { prefetchImageUrls } from '../../../shared/lib/prefetchImages';
@@ -14,14 +15,12 @@ import { getVideoThumbSrc } from '../../../shared/lib/videoThumb';
 import { useVideoFavorites } from '../../../shared/hooks/useVideoFavorites';
 
 const Videos = ({ onAlert, userSession }) => {
+  const navigate = useNavigate();
   const { currentLanguage } = useLanguage();
   const { data: allVideos = [], isLoading: loading, isFetching, error } = useVideos('fitness');
   const { favoriteVideoIds } = useVideoFavorites('fitness', Boolean(userSession));
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categoryName, setCategoryName] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState(null);
-  const [playUrl, setPlayUrl] = useState('');
   const [visibleCount, setVisibleCount] = useState(6);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -124,28 +123,16 @@ const Videos = ({ onAlert, userSession }) => {
   }, []);
 
   const handleVideoClick = (video) => {
+    const watchPath = buildWatchPath('fitness', video.id);
     if (!userSession && !video.is_public) {
       onAlert?.(currentLanguage === 'ar' ? 'يرجى تسجيل الدخول للوصول لهذا الفيديو' : 'Please login to access this video');
-      setTimeout(() => { window.location.href = loginPath('fitness'); }, 1200);
+      setTimeout(() => {
+        navigate(loginPath('fitness', watchPath));
+      }, 1200);
       return;
     }
 
-    const url = resolveVideoPlayUrl(video, 'fitness');
-    if (!url) {
-      onAlert?.(getTranslation('video-not-available', currentLanguage));
-      return;
-    }
-
-    warmVideoUrl(url);
-    setPlayUrl(url);
-    setSelectedVideo(video);
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-    setSelectedVideo(null);
-    setPlayUrl('');
+    navigate(watchPath);
   };
 
   const filteredVideos = useMemo(() => {
@@ -189,11 +176,6 @@ const Videos = ({ onAlert, userSession }) => {
     prefetchImageUrls(urls).catch(() => {});
     return undefined;
   }, [visibleVideos, loading]);
-
-  const selectedPosterUrl = useMemo(() => {
-    if (!selectedVideo) return '';
-    return getVideoThumbSrc(selectedVideo, 'fitness', 'card').src || '';
-  }, [selectedVideo]);
 
   const showAllVideos = () => {
     setSelectedCategory(null);
@@ -417,29 +399,6 @@ const Videos = ({ onAlert, userSession }) => {
               </div>
             )}
 
-            <VideoPlayerModal
-              isOpen={showModal && !!selectedVideo}
-              onClose={closeModal}
-              title={selectedVideo ? (currentLanguage === 'ar' ? selectedVideo.title_ar : selectedVideo.title_en) : ''}
-              playUrl={playUrl}
-              posterUrl={selectedPosterUrl}
-              categoryLabel={
-                selectedVideo
-                  ? currentLanguage === 'ar'
-                    ? selectedVideo.category_name_ar
-                    : selectedVideo.category_name_en
-                  : ''
-              }
-              description={
-                selectedVideo
-                  ? currentLanguage === 'ar'
-                    ? selectedVideo.description_ar
-                    : selectedVideo.description_en
-                  : ''
-              }
-              isRTL={currentLanguage === 'ar'}
-              getLabel={(key) => getTranslation(key, currentLanguage)}
-            />
           </>
         )}
       </div>

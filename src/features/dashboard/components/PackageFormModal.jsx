@@ -211,7 +211,7 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
           <Select label={tr('package-form-type')} name="type" value={formData.type} onChange={handleInputChange} options={typeOptions} />
         </div>
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">
+          <p className="text-sm font-medium text-[var(--color-text)] mb-2">
             {currentLanguage === 'ar' ? 'مدد الاشتراك المتاحة' : 'Available Subscription Durations'}
           </p>
           <div className="flex flex-wrap gap-4 mb-4">
@@ -236,12 +236,12 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
           </div>
         </div>
         <div className="space-y-4 rounded-lg border border-border/60 p-4">
-          <p className="text-sm font-semibold text-gray-800">
+          <p className="text-sm font-semibold text-[var(--color-text)]">
             {currentLanguage === 'ar' ? 'الأسعار حسب المدة' : 'Pricing by Duration'}
           </p>
           {(formData.allow_1_month || (!formData.allow_3_months && !formData.allow_6_months)) && (
             <div>
-              <p className="text-xs font-medium text-gray-600 mb-2">{priceLabel(currentLanguage === 'ar' ? 'شهر واحد' : '1 Month')}</p>
+              <p className="text-xs font-medium text-[var(--color-text-muted)] mb-2">{priceLabel(currentLanguage === 'ar' ? 'شهر واحد' : '1 Month')}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input label={tr('package-form-price-egp')} type="number" min="0" step="0.01" name="price_egp" value={formData.price_egp} onChange={handleInputChange} />
                 <Input label={tr('package-form-price-usd')} type="number" min="0" step="0.01" name="price_usd" value={formData.price_usd} onChange={handleInputChange} />
@@ -250,7 +250,7 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
           )}
           {formData.allow_3_months && (
             <div>
-              <p className="text-xs font-medium text-gray-600 mb-2">{priceLabel(currentLanguage === 'ar' ? '3 أشهر' : '3 Months')}</p>
+              <p className="text-xs font-medium text-[var(--color-text-muted)] mb-2">{priceLabel(currentLanguage === 'ar' ? '3 أشهر' : '3 Months')}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input label={tr('package-form-price-egp')} type="number" min="0" step="0.01" name="price_egp_3m" value={formData.price_egp_3m} onChange={handleInputChange} />
                 <Input label={tr('package-form-price-usd')} type="number" min="0" step="0.01" name="price_usd_3m" value={formData.price_usd_3m} onChange={handleInputChange} />
@@ -259,7 +259,7 @@ const PackageFormModal = ({ isOpen, onClose, pack, onSaved, currentLanguage = 'e
           )}
           {formData.allow_6_months && (
             <div>
-              <p className="text-xs font-medium text-gray-600 mb-2">{priceLabel(currentLanguage === 'ar' ? '6 أشهر' : '6 Months')}</p>
+              <p className="text-xs font-medium text-[var(--color-text-muted)] mb-2">{priceLabel(currentLanguage === 'ar' ? '6 أشهر' : '6 Months')}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input label={tr('package-form-price-egp')} type="number" min="0" step="0.01" name="price_egp_6m" value={formData.price_egp_6m} onChange={handleInputChange} />
                 <Input label={tr('package-form-price-usd')} type="number" min="0" step="0.01" name="price_usd_6m" value={formData.price_usd_6m} onChange={handleInputChange} />

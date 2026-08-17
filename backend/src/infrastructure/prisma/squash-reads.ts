@@ -922,3 +922,24 @@ export async function getSquashDashboardStats() {
     };
   }
 }
+
+const VIDEO_ID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export async function getSquashVideoById(id: string) {
+  if (!VIDEO_ID_RE.test(id)) return null;
+  try {
+    return await prisma.squashVideo.findUnique({
+      where: { id },
+      include: { category: true },
+    });
+  } catch (e) {
+    if (!isPoolerError(e)) throw e;
+    const row = await rest.restOne<Record<string, unknown>>(
+      T.videos,
+      `?select=*,squash_categories(*)&id=eq.${encodeURIComponent(id)}`
+    );
+    if (!row) return null;
+    return { ...row, category: row.squash_categories };
+  }
+}

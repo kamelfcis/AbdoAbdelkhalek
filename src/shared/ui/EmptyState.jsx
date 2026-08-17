@@ -7,7 +7,7 @@ const EmptyState = ({ icon = 'fa-inbox', title, description, actionLabel, onActi
   <div
     className={cn(
       'flex flex-col items-center justify-center text-center py-12 px-6',
-      'rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-bg-muted)]',
+      'rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface)]',
       className
     )}
   >

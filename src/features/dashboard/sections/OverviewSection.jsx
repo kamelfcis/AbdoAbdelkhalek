@@ -100,7 +100,7 @@ export function OverviewSection() {
 
               {/* Video Statistics */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="bg-[var(--color-surface)] rounded-lg shadow p-6">
+                <div className="dashboard-panel p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-[var(--color-text)]">{c.t('total-videos-label')}</h3>
                     <button
@@ -123,10 +123,10 @@ export function OverviewSection() {
                 </div>
 
                 {/* Quick Shortcuts */}
-                <div className="bg-gradient-to-br from-[var(--color-bg-muted)] to-[var(--color-surface)] rounded-xl shadow-lg p-6 border border-[var(--color-border)]">
+                <div className="dashboard-panel p-6">
                   <div className="flex items-center mb-4">
                     <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center mr-3">
-                      <i className="fas fa-bolt text-white"></i>
+                      <i className="fas fa-bolt text-[var(--color-text-inverse)]"></i>
                     </div>
                     <h3 className="text-lg font-bold text-[var(--color-text)]">{c.t('quick-shortcuts-title')}</h3>
                   </div>
@@ -139,7 +139,7 @@ export function OverviewSection() {
                       className="group flex flex-col items-center justify-center p-4 bg-[var(--color-info)]/10 hover:bg-[var(--color-info)]/20 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg border border-[var(--color-info)]/25"
                     >
                       <div className="w-12 h-12 rounded-lg bg-[var(--color-info)] flex items-center justify-center mb-2 shadow-md group-hover:shadow-lg transition-shadow">
-                        <i className="fas fa-folder-plus text-white text-lg"></i>
+                        <i className="fas fa-folder-plus text-[var(--color-text-inverse)] text-lg"></i>
                       </div>
                       <span className="text-sm font-semibold text-[var(--color-info)]">{c.t('add-category-text')}</span>
                     </button>
@@ -151,7 +151,7 @@ export function OverviewSection() {
                       className="group flex flex-col items-center justify-center p-4 bg-[var(--color-success)]/10 hover:bg-[var(--color-success)]/20 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg border border-[var(--color-success)]/25"
                     >
                       <div className="w-12 h-12 rounded-lg bg-[var(--color-success)] flex items-center justify-center mb-2 shadow-md group-hover:shadow-lg transition-shadow">
-                        <i className="fas fa-video text-white text-lg"></i>
+                        <i className="fas fa-video text-[var(--color-text-inverse)] text-lg"></i>
                       </div>
                       <span className="text-sm font-semibold text-[var(--color-success)]">{c.t('add-video-text')}</span>
                     </button>
@@ -163,7 +163,7 @@ export function OverviewSection() {
                       className="group flex flex-col items-center justify-center p-4 bg-[var(--color-accent)]/10 hover:bg-[var(--color-accent)]/20 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg border border-[var(--color-accent)]/25"
                     >
                       <div className="w-12 h-12 rounded-lg bg-[var(--color-accent)] flex items-center justify-center mb-2 shadow-md group-hover:shadow-lg transition-shadow">
-                        <i className="fas fa-box text-white text-lg"></i>
+                        <i className="fas fa-box text-[var(--color-text-inverse)] text-lg"></i>
                       </div>
                       <span className="text-sm font-semibold text-[var(--color-accent)]">{c.t('add-package-text')}</span>
                     </button>
@@ -175,7 +175,7 @@ export function OverviewSection() {
                       className="group flex flex-col items-center justify-center p-4 bg-[var(--color-warning)]/10 hover:bg-[var(--color-warning)]/20 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg border border-[var(--color-warning)]/25"
                     >
                       <div className="w-12 h-12 rounded-lg bg-[var(--color-warning)] flex items-center justify-center mb-2 shadow-md group-hover:shadow-lg transition-shadow">
-                        <i className="fas fa-star text-white text-lg"></i>
+                        <i className="fas fa-star text-[var(--color-text-inverse)] text-lg"></i>
                       </div>
                       <span className="text-sm font-semibold text-[var(--color-warning)]">{c.t('add-story-text')}</span>
                     </button>
@@ -184,12 +184,12 @@ export function OverviewSection() {
               </div>
 
               {/* Recent Activity */}
-              <div className="bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-bg-muted)] rounded-xl shadow-lg border border-[var(--color-border)]">
+              <div className="dashboard-panel overflow-hidden">
                 <div className="p-6 border-b border-[var(--color-border)]">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center mr-3">
-                        <i className="fas fa-clock text-white"></i>
+                        <i className="fas fa-clock text-[var(--color-text-inverse)]"></i>
                       </div>
                       <h3 className="text-lg font-bold text-[var(--color-text)]">{c.t('recent-activity-title')}</h3>
                     </div>
@@ -213,9 +213,9 @@ export function OverviewSection() {
                         const iconColorClass = iconColorClasses[activity.color] || iconColorClasses.blue;
 
                         return (
-                          <div key={activity.id} className="flex items-start p-4 bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] hover:shadow-md transition-all duration-200">
+                          <div key={activity.id} className="flex items-start p-4 bg-[var(--color-surface-raised)] rounded-lg border border-[var(--color-border)] hover:shadow-md transition-all duration-200">
                             <div className={`w-12 h-12 rounded-xl ${iconColorClass} flex items-center justify-center shadow-md flex-shrink-0 ${c.isRTL ? 'ml-4' : 'mr-4'}`}>
-                              <i className={`fas fa-${activity.icon} text-white text-lg`}></i>
+                              <i className={`fas fa-${activity.icon} text-[var(--color-text-inverse)] text-lg`}></i>
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between">
