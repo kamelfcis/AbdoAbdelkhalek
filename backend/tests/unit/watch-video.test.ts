@@ -10,6 +10,11 @@ import * as fitnessRepo from '../../src/domains/fitness/fitness.repository.js';
 import * as squashRepo from '../../src/domains/squash/squash.repository.js';
 import { getVideo } from '../../src/domains/fitness/fitness.service.js';
 import { getVideo as getSquashVideo } from '../../src/domains/squash/squash.service.js';
+import {
+  applyWatchPlayableCacheControl,
+  shouldCacheWatchVideo,
+  WATCH_PLAYABLE_CACHE_CONTROL,
+} from '../../src/domains/shared/video/watch-response.js';
 
 const baseVideo = {
   id: 'vid-1',
@@ -142,5 +147,32 @@ describe('squash getVideo access', () => {
       expect(result.body.canPlay).toBe(true);
       expect(result.body.video_url).toBe('https://x/squash.mp4');
     }
+  });
+});
+
+describe('watch playable cache control', () => {
+  it('applies private max-age=30 only for 200 + canPlay', () => {
+    expect(shouldCacheWatchVideo({ kind: 'ok', body: { canPlay: true } })).toBe(true);
+    expect(shouldCacheWatchVideo({ kind: 'ok', body: { canPlay: false } })).toBe(false);
+    expect(shouldCacheWatchVideo({ kind: 'requires_auth' })).toBe(false);
+    expect(shouldCacheWatchVideo({ kind: 'forbidden', body: { canPlay: false } })).toBe(false);
+    expect(shouldCacheWatchVideo({ kind: 'not_found' })).toBe(false);
+
+    const headers = {};
+    const res = {
+      setHeader(name, value) {
+        headers[name] = value;
+      },
+    };
+
+    applyWatchPlayableCacheControl(res, { kind: 'ok', body: { canPlay: true } });
+    expect(headers['Cache-Control']).toBe(WATCH_PLAYABLE_CACHE_CONTROL);
+
+    const denied = {};
+    applyWatchPlayableCacheControl(
+      { setHeader(name, value) { denied[name] = value; } },
+      { kind: 'forbidden', body: { canPlay: false } }
+    );
+    expect(denied['Cache-Control']).toBeUndefined();
   });
 });

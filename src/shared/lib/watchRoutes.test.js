@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { buildWatchPath, buildWatchUrl, isSafeWatchNext, isWatchVideoId } from './watchRoutes';
+import {
+  buildWatchPath,
+  buildWatchUrl,
+  isSafeWatchNext,
+  isWatchVideoId,
+  buildWatchLocationState,
+  readWatchLocationState,
+} from './watchRoutes';
 
 const UUID = '550e8400-e29b-41d4-a716-446655440000';
 
@@ -25,6 +32,31 @@ describe('isWatchVideoId', () => {
     expect(isWatchVideoId(UUID)).toBe(true);
     expect(isWatchVideoId('not-a-uuid')).toBe(false);
     expect(isWatchVideoId('')).toBe(false);
+  });
+});
+
+describe('watch location snapshot', () => {
+  it('omits play URLs and restores poster fields', () => {
+    const state = buildWatchLocationState({
+      id: UUID,
+      title_en: 'Sprint',
+      title_ar: 'سرعة',
+      thumbnail_url: 'https://cdn/thumb.jpg',
+      video_url: 'https://cdn/secret.mp4',
+      is_public: true,
+    });
+    expect(state).toEqual({
+      id: UUID,
+      title_en: 'Sprint',
+      title_ar: 'سرعة',
+      thumb: 'https://cdn/thumb.jpg',
+      is_public: true,
+    });
+    expect(state).not.toHaveProperty('video_url');
+
+    const restored = readWatchLocationState(state, UUID);
+    expect(restored.thumbnail_url).toBe('https://cdn/thumb.jpg');
+    expect(readWatchLocationState(state, 'other-id')).toBeNull();
   });
 });
 

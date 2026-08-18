@@ -30,14 +30,6 @@ function clearStaleServiceWorkersInDev() {
 
 clearStaleServiceWorkersInDev();
 
-if (document.body) {
-  document.body.classList.add('loaded');
-} else {
-  document.addEventListener('DOMContentLoaded', () => {
-    document.body.classList.add('loaded');
-  });
-}
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

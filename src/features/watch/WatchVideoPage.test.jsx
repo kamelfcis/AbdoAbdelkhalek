@@ -53,6 +53,7 @@ vi.mock('./WatchLandingChrome', () => ({
 }));
 
 import { useVideo } from '../../shared/hooks/useVideo';
+import { useVideos } from '../../shared/hooks/useVideos';
 
 function renderWatchPage() {
   return render(
@@ -127,5 +128,68 @@ describe('WatchVideoPage', () => {
 
     expect(screen.getByText('Video not found')).toBeInTheDocument();
     expect(screen.queryByTestId('video-player')).not.toBeInTheDocument();
+  });
+
+  it('does not attach a play URL while loading a location snapshot', () => {
+    useVideo.mockReturnValue({
+      isLoading: true,
+      error: null,
+      data: undefined,
+    });
+
+    render(
+      <MemoryRouter
+        initialEntries={[
+          {
+            pathname: `/fitness/watch/${UUID}`,
+            state: {
+              id: UUID,
+              title_en: 'Warm start',
+              thumb: 'https://cdn/thumb.jpg',
+              is_public: true,
+            },
+          },
+        ]}
+      >
+        <Routes>
+          <Route path="/fitness/watch/:videoId" element={<WatchVideoPage domain="fitness" />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByTestId('video-player')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Warm start' })).toBeInTheDocument();
+    expect(useVideos).toHaveBeenCalledWith('fitness', { enabled: false });
+  });
+
+  it('shows login instead of the player on 401', () => {
+    useVideo.mockReturnValue({
+      isLoading: false,
+      error: { status: 401, data: { requiresAuth: true } },
+      data: { requiresAuth: true, canPlay: false },
+    });
+
+    renderWatchPage();
+
+    expect(screen.queryByTestId('video-player')).not.toBeInTheDocument();
+    expect(screen.getByText('Log in to watch')).toBeInTheDocument();
+  });
+
+  it('shows locked instead of the player on 403', () => {
+    useVideo.mockReturnValue({
+      isLoading: false,
+      error: { status: 403, data: { title_en: 'Locked workout', canPlay: false } },
+      data: {
+        id: UUID,
+        title_en: 'Locked workout',
+        canPlay: false,
+        locked: true,
+      },
+    });
+
+    renderWatchPage();
+
+    expect(screen.queryByTestId('video-player')).not.toBeInTheDocument();
+    expect(screen.getByText('This video is locked')).toBeInTheDocument();
   });
 });

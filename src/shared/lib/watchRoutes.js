@@ -31,3 +31,30 @@ export function buildWatchUrl(domain, id, origin) {
   const base = origin ?? (typeof window !== 'undefined' ? window.location.origin : '');
   return `${base}${path}`;
 }
+
+/**
+ * Compact navigation state so the watch page can paint the poster/title
+ * before GET /videos/:id returns. Never include play URLs.
+ */
+export function buildWatchLocationState(video) {
+  if (!video?.id) return undefined;
+  return {
+    id: video.id,
+    title_en: video.title_en || video.titleEn || video.title || '',
+    title_ar: video.title_ar || video.titleAr || video.title || '',
+    thumb: video.thumbnail_url || video.thumbnailUrl || video.thumb || '',
+    is_public: Boolean(video.is_public ?? video.isPublic),
+  };
+}
+
+export function readWatchLocationState(state, videoId) {
+  if (!state || String(state.id) !== String(videoId)) return null;
+  return {
+    id: state.id,
+    title_en: state.title_en,
+    title_ar: state.title_ar,
+    thumbnail_url: state.thumb || state.thumbnail_url || '',
+    thumb: state.thumb || state.thumbnail_url || '',
+    is_public: Boolean(state.is_public),
+  };
+}

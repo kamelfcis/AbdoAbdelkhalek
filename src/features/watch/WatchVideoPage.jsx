@@ -9,7 +9,7 @@ import { useVideos } from '../../shared/hooks/useVideos';
 import { useVideoFavorites } from '../../shared/hooks/useVideoFavorites';
 import { resolveVideoPlayUrl } from '../../shared/lib/resolveVideoPlayUrl';
 import { getVideoThumbSrc } from '../../shared/lib/videoThumb';
-import { buildWatchPath, isWatchVideoId } from '../../shared/lib/watchRoutes';
+import { buildWatchPath, isWatchVideoId, readWatchLocationState } from '../../shared/lib/watchRoutes';
 import { loginPath } from '../../shared/lib/authRoutes';
 import VideoPlayer from '../../shared/components/VideoPlayer';
 import OptimizedImage from '../fitness/sections/OptimizedImage';
@@ -100,8 +100,10 @@ export default function WatchVideoPage({ domain: domainProp }) {
   );
 
   const validId = isWatchVideoId(String(videoId || ''));
+  const snapshot = readWatchLocationState(location.state, videoId);
   const videoQuery = useVideo(domain, validId ? videoId : undefined);
-  const { data: catalog = [] } = useVideos(domain);
+  const [catalogEnabled, setCatalogEnabled] = useState(false);
+  const { data: catalog = [] } = useVideos(domain, { enabled: catalogEnabled });
   const { toggleFavorite, isFavorite } = useVideoFavorites(domain, isAuthenticated);
 
   const error = videoQuery.error;
@@ -111,13 +113,14 @@ export default function WatchVideoPage({ domain: domainProp }) {
     : lockedVideoFromError(error);
   const requiresAuth = Boolean(payload?.requiresAuth) || error?.status === 401 || Boolean(error?.data?.requiresAuth);
   const notFound = !validId || Boolean(payload?.notFound) || error?.status === 404;
-  const video = requiresAuth || notFound ? lockedVideo : payload || lockedVideo;
+  const video = requiresAuth || notFound ? lockedVideo : payload || lockedVideo || snapshot;
   const canPlay = Boolean(payload) && payload.canPlay !== false && !payload.requiresAuth && !payload.notFound && !requiresAuth && !notFound;
   const playUrl = canPlay ? resolveVideoPlayUrl(payload, domain) : '';
-  const posterUrl = getVideoThumbSrc(video, domain, 'card').src || video?.thumb || '';
-  const title = pickTitle(video, isAr);
-  const description = pickDescription(video, isAr);
-  const categoryLabel = pickCategory(video, isAr);
+  const displayVideo = video || snapshot;
+  const posterUrl = getVideoThumbSrc(displayVideo, domain, 'card').src || displayVideo?.thumb || '';
+  const title = pickTitle(displayVideo, isAr);
+  const description = pickDescription(displayVideo, isAr);
+  const categoryLabel = pickCategory(displayVideo, isAr);
   const durationLabel = formatDuration(video?.duration_seconds ?? video?.durationSeconds);
   const loginHref = loginPath(domain, buildWatchPath(domain, videoId));
 
@@ -128,6 +131,32 @@ export default function WatchVideoPage({ domain: domainProp }) {
       document.title = prev;
     };
   }, [title]);
+
+  useEffect(() => {
+    if (videoQuery.isLoading || !validId) {
+      setCatalogEnabled(false);
+      return undefined;
+    }
+    if (typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function') {
+      const idleId = window.requestIdleCallback(() => setCatalogEnabled(true), { timeout: 2000 });
+      return () => window.cancelIdleCallback(idleId);
+    }
+    const timeoutId = window.setTimeout(() => setCatalogEnabled(true), 1);
+    return () => window.clearTimeout(timeoutId);
+  }, [videoQuery.isLoading, validId]);
+
+  useEffect(() => {
+    if (!posterUrl || typeof document === 'undefined') return undefined;
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = posterUrl;
+    link.fetchPriority = 'high';
+    document.head.appendChild(link);
+    return () => {
+      link.remove();
+    };
+  }, [posterUrl]);
 
   const related = useMemo(() => {
     if (!video) return [];
@@ -172,8 +201,21 @@ export default function WatchVideoPage({ domain: domainProp }) {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 min-w-0">
-              {videoQuery.isLoading && validId ? (
-                <div className="aspect-video w-full rounded-lg bg-[var(--color-surface)] animate-pulse" />
+              {videoQuery.isLoading && validId && !canPlay ? (
+                <div className="aspect-video w-full rounded-lg bg-[var(--color-surface)] overflow-hidden relative">
+                  {posterUrl ? (
+                    <img
+                      src={posterUrl}
+                      alt=""
+                      width={1280}
+                      height={720}
+                      fetchPriority="high"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full animate-pulse bg-[var(--color-surface)]" />
+                  )}
+                </div>
               ) : notFound ? (
                 stateBlock(
                   'fa-circle-exclamation',

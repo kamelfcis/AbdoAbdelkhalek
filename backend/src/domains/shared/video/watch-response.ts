@@ -45,3 +45,23 @@ export function formatWatchVideoResponse(row: VideoRow, canPlay: boolean) {
     video_path: row.videoPath ?? row.video_path,
   };
 }
+
+export const WATCH_PLAYABLE_CACHE_CONTROL = 'private, max-age=30';
+
+type WatchResultKind = {
+  kind: string;
+  body?: { canPlay?: boolean };
+};
+
+export function shouldCacheWatchVideo(result: WatchResultKind): boolean {
+  return result.kind === 'ok' && result.body?.canPlay === true;
+}
+
+export function applyWatchPlayableCacheControl(
+  res: { setHeader(name: string, value: string): unknown },
+  result: WatchResultKind
+) {
+  if (shouldCacheWatchVideo(result)) {
+    res.setHeader('Cache-Control', WATCH_PLAYABLE_CACHE_CONTROL);
+  }
+}

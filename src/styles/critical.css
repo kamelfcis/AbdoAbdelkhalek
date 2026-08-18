@@ -29,15 +29,6 @@ body {
   line-height: 1.6;
 }
 
-/* Prevent FOUC (Flash of Unstyled Content) */
-body:not(.loaded) {
-  visibility: hidden;
-}
-
-body.loaded {
-  visibility: visible;
-}
-
 /* Root Container */
 #root {
   min-height: 100vh;

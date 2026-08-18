@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AspectRatio } from 'components/ui/aspect-ratio';
 import DashboardThumb from '../../../shared/ui/DashboardThumb';
 import { getVideoThumbSrc } from '../crud/entityImageUtils';
 import { useDashboardCoach } from '../context/DashboardCoachContext';
-import { buildWatchPath } from '../../../shared/lib/watchRoutes';
+import { buildWatchPath, buildWatchLocationState } from '../../../shared/lib/watchRoutes';
+import { resolveVideoPlayUrl } from '../../../shared/lib/resolveVideoPlayUrl';
+import { prefetchVideoUrl, warmVideoUrl, prefetchWatchPageChunk } from '../../../shared/lib/prefetchVideo';
 
 function formatDuration(seconds) {
   if (seconds === null || seconds === undefined || Number.isNaN(Number(seconds))) return '';
@@ -26,6 +28,24 @@ function TraineeVideoCard({ video, c }) {
     c.adminDomain,
     'card'
   );
+
+  const handleWarm = useCallback(
+    (immediate = false) => {
+      prefetchWatchPageChunk();
+      const url = resolveVideoPlayUrl(video, c.adminDomain);
+      if (!url) return;
+      if (immediate) warmVideoUrl(url);
+      else prefetchVideoUrl(url);
+    },
+    [video, c.adminDomain]
+  );
+
+  const handleOpen = useCallback(() => {
+    handleWarm(true);
+    navigate(buildWatchPath(c.adminDomain, video.id), {
+      state: buildWatchLocationState(video),
+    });
+  }, [handleWarm, navigate, c.adminDomain, video]);
 
   return (
     <div className="dashboard-video-card overflow-hidden video-card relative">
@@ -55,7 +75,10 @@ function TraineeVideoCard({ video, c }) {
 
       <button
         type="button"
-        onClick={() => navigate(buildWatchPath(c.adminDomain, video.id))}
+        onClick={handleOpen}
+        onPointerDown={() => handleWarm(true)}
+        onMouseEnter={() => handleWarm(false)}
+        onFocus={() => handleWarm(false)}
         className="block w-full text-left cursor-pointer"
       >
         <AspectRatio ratio={16 / 9} className="relative overflow-hidden bg-[var(--color-bg-muted)]">

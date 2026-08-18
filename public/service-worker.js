@@ -1,6 +1,6 @@
 // Service Worker for aggressive caching and offline support
 // Optimized for better performance
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const CACHE_NAME = `abdelrhman-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const IMAGE_CACHE = `images-${CACHE_VERSION}`;
@@ -8,7 +8,6 @@ const STATIC_CACHE = `static-${CACHE_VERSION}`;
 
 // Assets to cache immediately (critical resources)
 const PRECACHE_ASSETS = [
-  '/',
   '/logo.png',
   '/favicon.ico',
 ];
@@ -68,6 +67,23 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
+  // Skip API — always network (stale cached API is a common "stuck" bug)
+  if (url.pathname === '/api' || url.pathname.startsWith('/api/')) {
+    return;
+  }
+
+  // Skip HTML / navigations — never cache index.html
+  if (
+    event.request.mode === 'navigate' ||
+    event.request.destination === 'document' ||
+    url.pathname === '/' ||
+    url.pathname === '/index.html' ||
+    url.pathname.endsWith('/index.html')
+  ) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   // Skip Supabase API requests (they need to be fresh)
   if (url.hostname.includes('supabase.co')) {
     return;
@@ -78,7 +94,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Strategy: Cache First for static assets, Network First for HTML
+  // Strategy: Cache First for images and hashed static assets
   if (
     event.request.destination === 'image' ||
     url.pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i)
@@ -127,7 +143,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // HTML and API: Network First, fallback to cache
+  // Other GET requests: Network First, fallback to cache (never HTML/API — skipped above)
   event.respondWith(
     fetch(event.request)
       .then((response) => {

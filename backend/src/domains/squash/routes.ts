@@ -39,6 +39,7 @@ import * as squash from './squash.service.js';
 import * as fitness from '../fitness/fitness.service.js';
 import * as landingSettings from '../shared/landing-settings/landing-settings.service.js';
 import { parseListFilters, parsePagination } from '../../common/utils/pagination.js';
+import { applyWatchPlayableCacheControl } from '../shared/video/watch-response.js';
 
 const router = Router();
 router.use(cdnUrlResponseMiddleware);
@@ -80,6 +81,7 @@ router.get('/videos/:id', optionalAuth, async (req: AuthRequest, res, next) => {
       res.status(403).json(result.body);
       return;
     }
+    applyWatchPlayableCacheControl(res, result);
     res.json(result.body);
   } catch (e) {
     next(e);

@@ -6,9 +6,9 @@ import { useSquashI18n } from '../hooks/useSquashI18n';
 import { pickItemField } from '../utils/localize';
 import { useAuth } from '../../../contexts/AuthContext';
 import { loginPath } from '../../../shared/lib/authRoutes';
-import { buildWatchPath } from '../../../shared/lib/watchRoutes';
+import { buildWatchPath, buildWatchLocationState } from '../../../shared/lib/watchRoutes';
 import { resolveVideoPlayUrl } from '../../../shared/lib/resolveVideoPlayUrl';
-import { prefetchVideoUrl, warmVideoUrl } from '../../../shared/lib/prefetchVideo';
+import { prefetchVideoUrl, warmVideoUrl, prefetchWatchPageChunk } from '../../../shared/lib/prefetchVideo';
 import { prefetchImageUrls } from '../../../shared/lib/prefetchImages';
 import { getVideoThumbSrc } from '../../../shared/lib/videoThumb';
 
@@ -41,6 +41,7 @@ const SquashVideos = () => {
   }, [isAr]);
 
   const handleVideoWarmup = useCallback((video, immediate = false) => {
+    prefetchWatchPageChunk();
     const url = resolveVideoPlayUrl(video, 'squash');
     if (!url) return;
     if (immediate) warmVideoUrl(url);
@@ -64,12 +65,13 @@ const SquashVideos = () => {
   }, [visibleVideos, isLoading]);
 
   const handleVideoClick = (video) => {
+    handleVideoWarmup(video, true);
     const watchPath = buildWatchPath('squash', video.id);
     if (!session && !video.is_public) {
       navigate(loginPath('squash', watchPath));
       return;
     }
-    navigate(watchPath);
+    navigate(watchPath, { state: buildWatchLocationState(video) });
   };
 
   const showAllVideos = () => {

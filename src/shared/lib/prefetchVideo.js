@@ -59,6 +59,18 @@ export function warmVideoUrl(url) {
   warmup(url);
 }
 
+let watchPageChunk;
+
+/** Prefetch the lazy watch-page JS chunk (same webpack name as the route). */
+export function prefetchWatchPageChunk() {
+  if (!watchPageChunk) {
+    watchPageChunk = import(
+      /* webpackChunkName: "watch-video" */ '../../features/watch/WatchVideoPage'
+    );
+  }
+  return watchPageChunk;
+}
+
 /** @internal test helper */
 export function _resetPrefetchState() {
   warmed.clear();

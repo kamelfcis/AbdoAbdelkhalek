@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { LandingSectionsProvider } from '../../shared/contexts/LandingSectionsContext';
 import TraineeProfileModal from '../../shared/components/TraineeProfileModal';
-import RouteGuardLoader from '../../components/RouteGuardLoader';
+import MediaPreconnect from '../../shared/layout/MediaPreconnect';
 import { themeIds } from '../../design-system/themes';
 import Navbar from '../fitness/sections/Navbar';
 import Sidebar from '../fitness/sections/Sidebar';
@@ -26,7 +26,7 @@ function landingPath(domain, section) {
 function WatchLandingChromeInner({ domain, children }) {
   const isSquash = domain === 'squash';
   const navigate = useNavigate();
-  const { user, session, isLoading, logout } = useAuth();
+  const { user, session, logout } = useAuth();
   const { currentLanguage } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -48,10 +48,6 @@ function WatchLandingChromeInner({ domain, children }) {
     await logout();
   }, [logout]);
 
-  if (isLoading) {
-    return <RouteGuardLoader message="Loading..." />;
-  }
-
   const fontClass =
     currentLanguage === 'ar'
       ? "font-['Tajawal',_sans-serif]"
@@ -62,6 +58,7 @@ function WatchLandingChromeInner({ domain, children }) {
       className={`App surface-page ${fontClass}`}
       data-theme={isSquash ? themeIds.SQUASH : undefined}
     >
+      <MediaPreconnect />
       <a href="#main-content" className="skip-link">
         {currentLanguage === 'ar' ? 'تخطي إلى المحتوى الرئيسي' : 'Skip to main content'}
       </a>

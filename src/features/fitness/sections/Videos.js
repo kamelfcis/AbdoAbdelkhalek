@@ -7,9 +7,9 @@ import { useCategories } from '../../../shared/hooks/useCategories';
 import { VideoSkeletonGrid } from '../components/Skeletons';
 import OptimizedImage from './OptimizedImage';
 import { loginPath } from '../../../shared/lib/authRoutes';
-import { buildWatchPath } from '../../../shared/lib/watchRoutes';
+import { buildWatchPath, buildWatchLocationState } from '../../../shared/lib/watchRoutes';
 import { resolveVideoPlayUrl } from '../../../shared/lib/resolveVideoPlayUrl';
-import { prefetchVideoUrl, warmVideoUrl } from '../../../shared/lib/prefetchVideo';
+import { prefetchVideoUrl, warmVideoUrl, prefetchWatchPageChunk } from '../../../shared/lib/prefetchVideo';
 import { prefetchImageUrls } from '../../../shared/lib/prefetchImages';
 import { getVideoThumbSrc } from '../../../shared/lib/videoThumb';
 import { useVideoFavorites } from '../../../shared/hooks/useVideoFavorites';
@@ -116,6 +116,7 @@ const Videos = ({ onAlert, userSession }) => {
   }, [error, onAlert]);
 
   const handleVideoWarmup = useCallback((video, immediate = false) => {
+    prefetchWatchPageChunk();
     const url = resolveVideoPlayUrl(video, 'fitness');
     if (!url) return;
     if (immediate) warmVideoUrl(url);
@@ -123,6 +124,7 @@ const Videos = ({ onAlert, userSession }) => {
   }, []);
 
   const handleVideoClick = (video) => {
+    handleVideoWarmup(video, true);
     const watchPath = buildWatchPath('fitness', video.id);
     if (!userSession && !video.is_public) {
       onAlert?.(currentLanguage === 'ar' ? 'يرجى تسجيل الدخول للوصول لهذا الفيديو' : 'Please login to access this video');
@@ -132,7 +134,7 @@ const Videos = ({ onAlert, userSession }) => {
       return;
     }
 
-    navigate(watchPath);
+    navigate(watchPath, { state: buildWatchLocationState(video) });
   };
 
   const filteredVideos = useMemo(() => {
