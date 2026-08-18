@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  adminResetTraineePasswordSchema,
   forgotPasswordSchema,
   loginSchema,
   resetPasswordSchema,
@@ -95,6 +96,24 @@ describe('resetPasswordSchema', () => {
   it('rejects short password', () => {
     expect(() =>
       resetPasswordSchema.parse({ token: 'a'.repeat(64), password: '123' })
+    ).toThrow();
+  });
+});
+
+describe('adminResetTraineePasswordSchema', () => {
+  it('accepts a password between 6 and 128 characters', () => {
+    expect(adminResetTraineePasswordSchema.parse({ password: 'secret1' }).password).toBe(
+      'secret1'
+    );
+  });
+
+  it('rejects a short password', () => {
+    expect(() => adminResetTraineePasswordSchema.parse({ password: '12345' })).toThrow();
+  });
+
+  it('rejects a password longer than 128 characters', () => {
+    expect(() =>
+      adminResetTraineePasswordSchema.parse({ password: 'a'.repeat(129) })
     ).toThrow();
   });
 });

@@ -15,6 +15,8 @@ export function useDashboardAccessModals({
   const isAr = currentLanguage === 'ar';
   const [showTraineeAccessModal, setShowTraineeAccessModal] = useState(false);
   const [activeTrainee, setActiveTrainee] = useState(null);
+  const [showResetTraineePasswordModal, setShowResetTraineePasswordModal] = useState(false);
+  const [traineeForPasswordReset, setTraineeForPasswordReset] = useState(null);
   const [showConvertToSubscriptionModal, setShowConvertToSubscriptionModal] = useState(false);
   const [traineeForConversion, setTraineeForConversion] = useState(null);
 
@@ -86,6 +88,10 @@ export function useDashboardAccessModals({
     setShowTraineeAccessModal,
     activeTrainee,
     setActiveTrainee,
+    showResetTraineePasswordModal,
+    setShowResetTraineePasswordModal,
+    traineeForPasswordReset,
+    setTraineeForPasswordReset,
     showConvertToSubscriptionModal,
     setShowConvertToSubscriptionModal,
     traineeForConversion,

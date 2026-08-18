@@ -213,6 +213,11 @@ export function createDomainContentService(apiPrefix: string) {
     getTrainees: (params?: Record<string, unknown>) => fetchList(p('/trainees'), params),
     deleteTrainee: (id: string | number) =>
       apiFetch(p(`/trainees/${id}`), { method: 'DELETE' }),
+    resetTraineePassword: (id: string | number, password: string) =>
+      apiFetch(p(`/trainees/${id}/password`), {
+        method: 'POST',
+        body: JSON.stringify({ password }),
+      }),
     getCoaches: (params?: Record<string, unknown>) =>
       fetchList(p('/coaches'), params, mapEntity as (row: Record<string, unknown>) => unknown),
     getPrograms: (params?: Record<string, unknown>) =>

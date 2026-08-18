@@ -396,6 +396,20 @@ export function TraineesSection() {
                       <i className="fas fa-key text-green-600 me-1" aria-hidden="true" />
                       {c.t('btn-access')}
                     </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        c.setTraineeForPasswordReset({
+                          ...trainee,
+                          full_name: traineeName(trainee, c.t),
+                        });
+                        c.setShowResetTraineePasswordModal(true);
+                      }}
+                    >
+                      <i className="fas fa-unlock-alt text-amber-600 me-1" aria-hidden="true" />
+                      {c.t('btn-reset-password')}
+                    </Button>
                     {c.adminDomain === 'fitness' && (
                       <Button
                         variant="ghost"

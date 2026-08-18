@@ -12,6 +12,8 @@ import VideoFormModal from './components/VideoFormModal';
 
 import TraineeAccessModal from './components/TraineeAccessModal';
 
+import ResetTraineePasswordModal from './components/ResetTraineePasswordModal';
+
 import VideoAccessModal from './components/VideoAccessModal';
 
 import VideoPreviewModal from './components/VideoPreviewModal';
@@ -77,6 +79,30 @@ export function CoachDashboardModals() {
         domain={c.adminDomain}
 
         onSaved={() => invalidateAccessCrud(queryClient, c.adminDomain)}
+
+        currentLanguage={c.currentLanguage}
+
+        t={c.t}
+
+      />
+
+
+
+      <ResetTraineePasswordModal
+
+        isOpen={c.showResetTraineePasswordModal}
+
+        onClose={() => {
+
+          c.setShowResetTraineePasswordModal(false);
+
+          c.setTraineeForPasswordReset(null);
+
+        }}
+
+        trainee={c.traineeForPasswordReset}
+
+        domain={c.adminDomain}
 
         currentLanguage={c.currentLanguage}
 

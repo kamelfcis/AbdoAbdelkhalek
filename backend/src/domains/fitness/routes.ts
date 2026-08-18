@@ -27,6 +27,8 @@ import {
   videoAccessSchema,
   traineeAccessSchema,
 } from '../../common/validation/fitness-schemas.js';
+import { adminResetTraineePasswordSchema } from '../../common/validation/auth-schemas.js';
+import { resetTraineePassword } from '../shared/auth/reset-trainee-password.js';
 import * as fitness from './fitness.service.js';
 import * as landingSettings from '../shared/landing-settings/landing-settings.service.js';
 import { parseListFilters, parsePagination } from '../../common/utils/pagination.js';
@@ -173,6 +175,21 @@ router.delete('/trainees/:id', requireAuth, requireCoach, async (req, res, next)
     next(e);
   }
 });
+
+router.post(
+  '/trainees/:id/password',
+  requireAuth,
+  requireCoach,
+  validateBody(adminResetTraineePasswordSchema),
+  async (req, res, next) => {
+    try {
+      await resetTraineePassword(req.params.id, req.body.password);
+      res.json({ ok: true });
+    } catch (e) {
+      next(e);
+    }
+  }
+);
 
 router.post(
   '/categories',
