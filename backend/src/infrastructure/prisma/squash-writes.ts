@@ -330,12 +330,12 @@ type SquashAccessPrisma = {
   squashUserVideoAccess: {
     findMany: (args: unknown) => Promise<{ userId: string; videoId?: string }[]>;
     deleteMany: (args: unknown) => Promise<unknown>;
-    create: (args: unknown) => Promise<unknown>;
+    createMany: (args: unknown) => Promise<unknown>;
   };
   squashUserCategoryAccess: {
     findMany: (args: unknown) => Promise<{ userId: string; categoryId: string }[]>;
     deleteMany: (args: unknown) => Promise<unknown>;
-    create: (args: unknown) => Promise<unknown>;
+    createMany: (args: unknown) => Promise<unknown>;
   };
   $transaction: (ops: unknown[]) => Promise<unknown>;
 };
@@ -377,9 +377,13 @@ export async function setSquashVideoAccessUserIds(videoId: string, userIds: stri
     async () => {
       await squashAccessDb.$transaction([
         squashAccessDb.squashUserVideoAccess.deleteMany({ where: { videoId } }),
-        ...userIds.map((userId) =>
-          squashAccessDb.squashUserVideoAccess.create({ data: { userId, videoId } })
-        ),
+        ...(userIds.length > 0
+          ? [
+              squashAccessDb.squashUserVideoAccess.createMany({
+                data: userIds.map((userId) => ({ userId, videoId })),
+              }),
+            ]
+          : []),
       ]);
       return { ok: true };
     },
@@ -398,15 +402,21 @@ export async function getSquashTraineeAccess(userId: string) {
   return withWriteFallback(
     async () => {
       const [categories, videos] = await Promise.all([
-        squashAccessDb.squashUserCategoryAccess.findMany({ where: { userId } }),
-        squashAccessDb.squashUserVideoAccess.findMany({ where: { userId } }),
+        squashAccessDb.squashUserCategoryAccess.findMany({
+          where: { userId },
+          select: { userId: true, categoryId: true },
+        }),
+        squashAccessDb.squashUserVideoAccess.findMany({
+          where: { userId },
+          select: { userId: true, videoId: true },
+        }),
       ]);
       return { categories, videos };
     },
     async () => {
       const [categories, videos] = await Promise.all([
-        rest.restList('squash_user_category_access', `?user_id=eq.${encodeURIComponent(userId)}`),
-        rest.restList('squash_user_video_access', `?user_id=eq.${encodeURIComponent(userId)}`),
+        rest.restList('squash_user_category_access', `?user_id=eq.${encodeURIComponent(userId)}&select=user_id,category_id`),
+        rest.restList('squash_user_video_access', `?user_id=eq.${encodeURIComponent(userId)}&select=user_id,video_id`),
       ]);
       return { categories, videos };
     }
@@ -423,24 +433,42 @@ export async function setSquashTraineeAccess(
       await squashAccessDb.$transaction([
         squashAccessDb.squashUserCategoryAccess.deleteMany({ where: { userId } }),
         squashAccessDb.squashUserVideoAccess.deleteMany({ where: { userId } }),
-        ...categoryIds.map((categoryId) =>
-          squashAccessDb.squashUserCategoryAccess.create({ data: { userId, categoryId } })
-        ),
-        ...videoIds.map((videoId) =>
-          squashAccessDb.squashUserVideoAccess.create({ data: { userId, videoId } })
-        ),
+        ...(categoryIds.length > 0
+          ? [
+              squashAccessDb.squashUserCategoryAccess.createMany({
+                data: categoryIds.map((categoryId) => ({ userId, categoryId })),
+              }),
+            ]
+          : []),
+        ...(videoIds.length > 0
+          ? [
+              squashAccessDb.squashUserVideoAccess.createMany({
+                data: videoIds.map((videoId) => ({ userId, videoId })),
+              }),
+            ]
+          : []),
       ]);
       return { ok: true };
     },
     async () => {
-      await rest.restDeleteWhere('squash_user_category_access', `user_id=eq.${encodeURIComponent(userId)}`);
-      await rest.restDeleteWhere('squash_user_video_access', `user_id=eq.${encodeURIComponent(userId)}`);
-      for (const categoryId of categoryIds) {
-        await rest.restCreate('squash_user_category_access', { user_id: userId, category_id: categoryId });
-      }
-      for (const videoId of videoIds) {
-        await rest.restCreate('squash_user_video_access', { user_id: userId, video_id: videoId });
-      }
+      await Promise.all([
+        rest.restDeleteWhere('squash_user_category_access', `user_id=eq.${encodeURIComponent(userId)}`),
+        rest.restDeleteWhere('squash_user_video_access', `user_id=eq.${encodeURIComponent(userId)}`),
+      ]);
+      await Promise.all([
+        categoryIds.length > 0
+          ? rest.restBulkCreate(
+              'squash_user_category_access',
+              categoryIds.map((categoryId) => ({ user_id: userId, category_id: categoryId }))
+            )
+          : Promise.resolve(),
+        videoIds.length > 0
+          ? rest.restBulkCreate(
+              'squash_user_video_access',
+              videoIds.map((videoId) => ({ user_id: userId, video_id: videoId }))
+            )
+          : Promise.resolve(),
+      ]);
       return { ok: true };
     }
   );

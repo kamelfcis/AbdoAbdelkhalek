@@ -526,7 +526,23 @@ function restSquashPackageFilter(ids: string[]): string {
   return `&package_id=in.(${ids.join(',')})`;
 }
 
-async function squashTraineeUserIds(): Promise<string[]> {
+function mergeSquashTraineeUserIds(parts: {
+  videoAccess: string[];
+  categoryAccess: string[];
+  subscription: string[];
+  registered: string[];
+}): string[] {
+  return [
+    ...new Set([
+      ...parts.videoAccess,
+      ...parts.categoryAccess,
+      ...parts.subscription,
+      ...parts.registered,
+    ]),
+  ];
+}
+
+async function squashTraineeUserIdsPrisma(): Promise<string[]> {
   const squashScope = await squashSubscriptionScope();
   const [videoAccess, categoryAccess, subs, registered] = await Promise.all([
     prisma.squashUserVideoAccess.findMany({ select: { userId: true }, distinct: ['userId'] }),
@@ -541,14 +557,41 @@ async function squashTraineeUserIds(): Promise<string[]> {
       select: { id: true },
     }),
   ]);
-  return [
-    ...new Set([
-      ...videoAccess.map((r) => r.userId),
-      ...categoryAccess.map((r) => r.userId),
-      ...subs.map((r) => r.userId).filter((id): id is string => id != null),
-      ...registered.map((r) => r.id),
-    ]),
-  ];
+  return mergeSquashTraineeUserIds({
+    videoAccess: videoAccess.map((r) => r.userId),
+    categoryAccess: categoryAccess.map((r) => r.userId),
+    subscription: subs.map((r) => r.userId).filter((id): id is string => id != null),
+    registered: registered.map((r) => r.id),
+  });
+}
+
+async function squashTraineeUserIdsRest(): Promise<string[]> {
+  const squashIds = await squashPackageIdsRest();
+  const pkgFilter = restSquashPackageFilter(squashIds);
+  const [videoAccess, categoryAccess, subs, registered] = await Promise.all([
+    rest.restList<{ user_id: string }>('squash_user_video_access', '?select=user_id'),
+    rest.restList<{ user_id: string }>('squash_user_category_access', '?select=user_id'),
+    rest.restList<{ user_id: string }>(`subscriptions?select=user_id${pkgFilter}`),
+    rest.restList<{ id: string }>(
+      'users',
+      '?is_coach=eq.false&registered_from=eq.squash&select=id'
+    ),
+  ]);
+  return mergeSquashTraineeUserIds({
+    videoAccess: videoAccess.map((r) => r.user_id),
+    categoryAccess: categoryAccess.map((r) => r.user_id),
+    subscription: subs.map((r) => r.user_id),
+    registered: registered.map((r) => r.id),
+  });
+}
+
+async function squashTraineeUserIds(): Promise<string[]> {
+  try {
+    return await squashTraineeUserIdsPrisma();
+  } catch (e) {
+    if (!isPoolerError(e)) throw e;
+    return squashTraineeUserIdsRest();
+  }
 }
 
 type SquashSubRow = {

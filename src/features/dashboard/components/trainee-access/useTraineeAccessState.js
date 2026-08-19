@@ -17,6 +17,17 @@ import {
 
 const EMPTY_LIST = [];
 
+function accessLoadErrorMessage(error, tr) {
+  const status = error?.status;
+  if (status === 504 || status === 503) {
+    return (
+      tr('trainee-access-load-timeout') ||
+      'The server took too long to load access data. Please try again in a moment.'
+    );
+  }
+  return error?.message || tr('trainee-access-load-failed') || 'Failed to load access data';
+}
+
 export const useTraineeAccessState = ({
   isOpen,
   trainee,
@@ -67,14 +78,15 @@ export const useTraineeAccessState = ({
         const usePropCategories = categoriesProp.length > 0;
         const usePropVideos = videosProp.length > 0;
 
-        const [categoriesResult, videosResult, access] = await Promise.all([
+        const access = await contentService.getTraineeAccess(trainee.id);
+
+        const [categoriesResult, videosResult] = await Promise.all([
           usePropCategories
             ? Promise.resolve({ items: categoriesProp })
             : contentService.getCategories({ limit: 500, offset: 0 }),
           usePropVideos
             ? Promise.resolve({ items: videosProp })
             : contentService.getVideos({ limit: 500, offset: 0 }),
-          contentService.getTraineeAccess(trainee.id),
         ]);
 
         const catItems = usePropCategories
@@ -95,7 +107,7 @@ export const useTraineeAccessState = ({
         setVideoFilterCategoryId(FILTER_ALL);
       } catch (e) {
         console.error(e);
-        toastError(e.message);
+        toastError(accessLoadErrorMessage(e, tr));
       } finally {
         setIsLoading(false);
       }
@@ -200,7 +212,7 @@ export const useTraineeAccessState = ({
     } catch (e) {
       setGrantProgress(0);
       setGrantPhase('');
-      toastError(e.message);
+      toastError(accessLoadErrorMessage(e, tr));
     } finally {
       setIsSubmitting(false);
     }
